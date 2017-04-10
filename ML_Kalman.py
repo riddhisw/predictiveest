@@ -73,8 +73,8 @@ class Kalman(Experiment, Noisy_Data):
     
     
     def calc_phase_correction(bdelta, Delta_S_Sampling, phase_correction):
-    ''' Calculates phase correction for noise traces, else returns zero.
-    '''
+        ''' Calculates phase correction for noise traces, else returns zero.
+        '''      
         phase_correction_noisetraces = 0.0
         if phase_correction == 'Yes':
             phase_correction_noisetraces = (bdelta-Delta_S_Sampling)*((2*np.pi)/bdelta)
