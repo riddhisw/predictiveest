@@ -22,6 +22,7 @@ def calc_pred(x_hat_series):
         pred[k] = np.sum(x_hat_series[::2, 0, k])
     return pred
 
+
 def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x_hat_initial,P_hat_initial, oekalman, rkalman, freq_basis_array, phase_correction, skip_msmts=1):
     
     ''' Performs a full Kalman Filtering routine
@@ -43,8 +44,8 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     
     Returns: 
     --------
-    Saves two Numpy.savez files containing all inputs, parameters, intermediary calculations and checks. Predictions stored as:
     predictions -- Output predictions. Non-zero only for n_converge < timestep < num. [Len: num. dtype = float64]
+    InstantA -- Instantaneous amplitudes at n_converge use for generating predictions using Prop Forward [len: numf. dtype = float64]
     
     Dimensions:
     -----------
@@ -235,7 +236,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
              Q=Q,
              instantA=instantA,
              instantP=instantP,
+             n_converge=n_converge,
              Propagate_Foward=Propagate_Foward)
 
     return predictions, instantA_Prediction
-
