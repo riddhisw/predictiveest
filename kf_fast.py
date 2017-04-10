@@ -44,7 +44,7 @@ PredictionMethod = {
     "PropForward": PROP_FORWARD
 }
 
-def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0,prediction_method="ZeroGain"):
+def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", skip_msmts=1):
     '''    
     Keyword Arguments:
     ------------------
@@ -92,10 +92,10 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     
     '''    
-    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method])
+    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts)
 
 
-def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_):
+def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts):
 
     num = n_train + n_predict
     numf = len(freq_basis_array)
@@ -165,6 +165,10 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         W = np.dot(P_hat_apriori,h.T)*S_inv
         e_z[k] = z[k]-z_proj
 
+        #Skip msmts        
+        if k % skip_msmts !=0:
+            W = np.zeros((twonumf, 1))
+
         x_hat = x_hat_apriori + W*e_z[k]
         P_hat = P_hat_apriori - S*np.outer(W,W.T) #Equivalent to outer(W, W)
 
@@ -179,7 +183,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
             
-            np.savez('Check_KF_Results', store_x_hat=store_x_hat, store_P_hat=store_P_hat, a=a, h=h, predictions=predictions, W=W, Q=Q, z=z, e_z=e_z)
+            np.savez('Check_KF_Results', store_x_hat=store_x_hat, store_P_hat=store_P_hat, a=a, h=h, predictions=predictions, W=W, Q=Q, z=z, e_z=e_z, instantA=instantA)
             return predictions
         
         k=k+1
