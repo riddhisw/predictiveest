@@ -76,4 +76,3 @@ BR_of_Test_Object = Create_KF_Experiment(bayes_params_,
                                         true_noise_params_, 
                                         user_defined_variance=None, 
                                         skip_msmts=skip)
-BR_of_Test_Object.run_test_KF()

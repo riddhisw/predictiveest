@@ -69,7 +69,7 @@ class Kalman(Experiment, Noisy_Data):
         return (predictions.real - truth.real)**2
     
     
-    def calc_phase_correction(bdelta, Delta_S_Sampling, phase_correction):
+    def calc_phase_correction(self, bdelta, Delta_S_Sampling, phase_correction):
         ''' Calculates phase correction for noise traces, else returns zero.
         '''      
         phase_correction_noisetraces = 0.0
@@ -91,20 +91,20 @@ class Kalman(Experiment, Noisy_Data):
             init = np.zeros(2)
             init[0] = self.optimal_sigma
             init[1] = self.optimal_R
-        
+
         if use_skf_amp != 'No':
-            
+            skippy = self.skip_msmts
             predictions, amps = skf_amp.kf_2017(y_signal, self.n_train, self.n_testbefore, 
-                                            self.n_predict, self.Delta_T_Sampling, 
-                                            self.x0, self.p0, init[0], init[1],
-                                            self.basis_dict[basis_choice], 
-                                            phase_correction=self.phase_dict[basis_choice], 
-                                            prediction_method=prediction_method_default, 
-                                            skip_msmts=self.skip_msmts)
+                                                self.n_predict, self.Delta_T_Sampling, 
+                                                self.x0, self.p0, init[0], init[1],
+                                                self.basis_dict[basis_choice], 
+                                                phase_correction=self.phase_dict[basis_choice], 
+                                                prediction_method='PropForward', 
+                                                skip_msmts=self.skip_msmts)
             return predictions, amps
         
-        if use_skf_amp=='No':
-            
+
+        if use_skf_amp=='No':            
             predictions = skf.kf_2017(y_signal, self.n_train, self.n_testbefore, 
                                       self.n_predict, self.Delta_T_Sampling, 
                                       self.x0, self.p0, init[0], init[1],
@@ -231,8 +231,7 @@ class Kalman(Experiment, Noisy_Data):
 
         for i in xrange(4):
             ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 
-                    time_predictions[i], 
-                    markerstyle=markr_list[i], color = color_list[i], 
+                    time_predictions[i],markr_list[i], color = color_list[i], 
                     alpha=0.5,label=lbl_list[i])
 
         ax.axhline(0.0,  color='gray',label='Predict Zero')
@@ -249,7 +248,7 @@ class Kalman(Experiment, Noisy_Data):
         #ax.set_title(r'Theoretical PSD v. Learned Kalman Realisation')
         
         for i in xrange(2):
-            ax.plot(x_data[i], y_data[i], markerstyle=markr_list[i], alpha=0.5, 
+            ax.plot(x_data[i], y_data[i], markr_list[i], alpha=0.5, 
                     color=color_list[i], 
                     label=lbl_list[i]+' Total Power: %s'%(np.round(np.sum(y_data[i]))))
         ax.plot(x_data[2], y_data[2], 'r', label=lbl_list[2]+' Total Power: %s'%(np.round(self.true_S_norm)))

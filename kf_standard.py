@@ -217,7 +217,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
              W=W, 
              Q=Q)
     
-    return predictions,
+    return predictions, None
 
  
 def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):

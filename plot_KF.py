@@ -2,10 +2,7 @@ from __future__ import division, print_function, absolute_import
 
 import matplotlib.pyplot as plt
 import numpy as np
-import time as t
-import os
 
-import sys
 from ML_Experiment import Experiment
 
 basis_list = ['A', 'B', 'C'] 
