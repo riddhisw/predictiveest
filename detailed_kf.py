@@ -5,7 +5,7 @@ from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
 
-def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x_hat_initial,P_hat_initial, oekalman, rkalman, freq_basis_array, phase_correction):
+def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x_hat_initial,P_hat_initial, oekalman, rkalman, freq_basis_array, phase_correction, skip_msmts=1):
     
     ''' Performs a full Kalman Filtering routine
     
@@ -19,9 +19,9 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     P_hat_initial -- Initial conditions for state covariance estimate, P(0), for all basis frequencies. [Scalar int]
     oekalman -- Process noise covariance strength. [Scalar int] 
     rkalman -- Measurement noise covariance strength. [Scalar int]
-    n_converge -- Predicted timestep at which algorithm is expected to finish learning [Scalar int]
+    n_converge /n_train -- Equivent to n_train if n_train is optimally chosen. Predicted timestep at which algorithm is expected to finish learning [Scalar int]
     phase_correction -- Applies if y_signal data are Ramsey frequency offset measurements [Scalar float64]
-    
+    skip_msmts -- Allow a non zero Kalman gain for every n-th msmt, where skip_msmts == n    
     
     Returns: 
     --------
@@ -169,6 +169,10 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         
         W[:,:,k] = np.dot(P_hat[:,:,k],h[:,:,k].T)*S_inv[:,:,k] 
 
+        # Skp Msmts
+        if k % skip_msmts !=0:
+            W[:,:,k] = np.zeros_like(W[:,:,k]) #skipped msmt, model evolves with no new info.
+        
         #print 'Measurement Residual'
         e_z[0,0,k] = z[0,0,k]-z_proj[0,0,k] 
 
