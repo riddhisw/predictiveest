@@ -183,13 +183,40 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
             
-            np.savez('Check_KF_Results', store_x_hat=store_x_hat, store_P_hat=store_P_hat, a=a, h=h, predictions=predictions, W=W, Q=Q, z=z, e_z=e_z, instantA=instantA)
+            np.savez('Check_KF_Results', 
+                    predictions=predictions, 
+                    y_signal=y_signal,
+                    freq_basis_array= freq_basis_array, 
+                    x_hat=x_hat, 
+                    P_hat=P_hat, 
+                    a=a,
+                    h=h,
+                    z=z, 
+                    e_z=e_z,
+                    W=W, 
+                    Q=Q,
+                    instantA=instantA,
+                    instantP=instantP,
+                    Propagate_Foward=Propagate_Foward)
+            
             return predictions
         
         k=k+1
         
     predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
-    np.savez('Check_KF_Results', store_x_hat=store_x_hat, store_P_hat=store_P_hat, a=a, h=h, predictions=predictions, W=W, Q=Q, z=z, e_z=e_z)
+    
+    np.savez('Check_KF_Results', 
+             predictions=predictions, 
+             y_signal=y_signal,
+             freq_basis_array= freq_basis_array, 
+             x_hat=x_hat, 
+             P_hat=P_hat, 
+             a=a,
+             h=h,
+             z=z, 
+             e_z=e_z,
+             W=W, 
+             Q=Q)
     
     return predictions
 
