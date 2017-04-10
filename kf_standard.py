@@ -2,29 +2,26 @@ import numpy as np
 import math
 import numpy.linalg as la
 
+# numba wont work with np.sum(axis=), dtype=complex 128 (workaround np.complex128), str comparisons, and returning multiple values.
 
-#@nb.jit(nopython=True)
-def reconstructstate_(x_hat): # not in use
-    '''Reconstructs state based on Kalman estimates.
+def calc_pred(x_hat_series):
+    
     '''
-    ans = np.sum(x_hat[::2, 0, :] + 1j*x_hat[1::2, 0, :], axis=0)
-    return  ans
-
-#@nb.jit(nopython=True)
-def calc_pred_(x_hat): #not in use
-    '''Reconstructs predictions based on Kalman estimates. Equivalent to reconstructstate().real()
+    Keyword Arguments:
+    ------------------
+    x_hat_series -- Aposteriori estimates (real and estimated imaginary components of the state for each basis frequency) for num_of_time_steps [Dim: twonumf x num_of_time_steps. dtype = float64]
+    
+    Returns:
+    ------------------
+    pred -- Measurement predictions based on adding the real parts of x_hat [Len: twonumf. dtype = float64]
     '''
-    ans = np.sum(x_hat[::2, 0, :], axis=0)
-    return  ans
-
-def calc_pred(x_hat):
-    '''Reconstructs predictions based on Kalman estimates. Equivalent to reconstructstate().real()
-    '''
-    series = x_hat.shape[2]
+    
+    series = x_hat_series.shape[2]
     pred = np.zeros(series)
     for k in xrange(series):
-        pred[k] = np.sum(x_hat[::2, 0, k])
+        pred[k] = np.sum(x_hat_series[::2, 0, k])
     return pred
+
 
 def calc_Gamma(x_hat, oe, numf):
     '''Returns a vector of noise features used to calculate Q in Kalman Filtering
@@ -44,7 +41,8 @@ PredictionMethod = {
     "PropForward": PROP_FORWARD
 }
 
-def kf_2017(y_signal, skip_msmts, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0,prediction_method="PropForward"):
+
+def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", skip_msmts=1):
     '''    
     Keyword Arguments:
     ------------------
@@ -91,15 +89,12 @@ def kf_2017(y_signal, skip_msmts, n_train, n_testbefore, n_predict, Delta_T_Samp
     P_hat -- Aposteriori state covariance estimate (i.e. aposteriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     
-    '''
-    #print PredictionMethod[prediction_method]
-    
-    return _kf_2017(y_signal,skip_msmts, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method])
+    '''    
+    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts)
 
-def _kf_2017(y_signal,skip_msmts, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_):
-    
-    #print "did I get into filtering?"
-    
+
+def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts):
+
     num = n_train + n_predict
     numf = len(freq_basis_array)
     twonumf = int(numf*2.0)
@@ -138,18 +133,18 @@ def _kf_2017(y_signal,skip_msmts, n_train, n_testbefore, n_predict, Delta_T_Samp
     store_P_hat = np.zeros((twonumf,twonumf,num))
     predictions = np.zeros(n_testbefore + n_predict)
     
-    #h_outer = np.outer(h.T, h)
-    # print "did I finish defining matrices?"
-    
+    # Start Filtering
     k = 1
     while (k< num): 
 
         x_hat_apriori = np.dot(a, x_hat) 
         Gamma = np.dot(a,calc_Gamma(x_hat, oe, numf))
+
         Q = np.outer(Gamma, Gamma.T)
         P_hat_apriori = np.dot(np.dot(a,P_hat),a.T) + Q
         
         if prediction_method_ == ZERO_GAIN and k> (n_train):
+            # This loop is equivalent to setting the gain to zero 
             x_hat = x_hat_apriori
             store_x_hat[:,:,k] = x_hat
             P_hat = P_hat_apriori
@@ -158,60 +153,74 @@ def _kf_2017(y_signal,skip_msmts, n_train, n_testbefore, n_predict, Delta_T_Samp
             continue 
 
         z_proj = np.dot(h,x_hat_apriori)
-        
         S = la.multi_dot([h,P_hat_apriori,h.T]) + rk #np.dot(np.dot(h,P_hat_apriori),h.T) + rk
-        S_inv = 1.0/S #np.linalg.inv(S)
+        S_inv = 1.0/S # 1.0/S and np.linalg.inv(S) are equivalent when S is rank 1
         
         if not np.isfinite(S_inv).all():
             print "Inversion Error"
             break
-
+        
         W = np.dot(P_hat_apriori,h.T)*S_inv
+        e_z[k] = z[k]-z_proj
 
         #Skip msmts        
         if k % skip_msmts !=0:
             W = np.zeros((twonumf, 1))
-        
-        e_z[k] = z[k]-z_proj
+
         x_hat = x_hat_apriori + W*e_z[k]
-        P_hat = P_hat_apriori - S*np.outer(W,W.T) #((S_inv**2)*la.multi_dot([P_hat_apriori,h_outer,P_hat_apriori.T]))  #np.outer(W,W.T) #((S_inv**2)*np.dot(P_hat_apriori,np.dot(h_outer,P_hat_apriori.T))) #np.outer(W,W.T) # For scalar S
-        
+        P_hat = P_hat_apriori - S*np.outer(W,W.T) #Equivalent to outer(W, W)
+
         store_x_hat[:,:,k] = x_hat
         store_P_hat[:,:,k] = P_hat         
         
         if prediction_method_ == PROP_FORWARD and (k==n_train):
+            # This loop initiates propagation forward at n_train
             Propagate_Foward, instantA, instantP = makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction,num,n_train,numf)
-            #print "can jit return more than one thing?"
+            # We use previous state estimates to "predict" for n < n_train
             predictions[0:n_testbefore] = calc_pred(store_x_hat[:,:,n_train-n_testbefore:n_train])
-            #print "I can get here"
+            # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
-            #print "how about we get here"
-            #print predictions.shape # this prints
-            #print predictions # this doesnt print
+            
+            np.savez('Check_KF_Results', 
+                    predictions=predictions, 
+                    y_signal=y_signal,
+                    freq_basis_array= freq_basis_array, 
+                    x_hat=x_hat, 
+                    P_hat=P_hat, 
+                    a=a,
+                    h=h,
+                    z=z, 
+                    e_z=e_z,
+                    W=W, 
+                    Q=Q,
+                    instantA=instantA,
+                    instantP=instantP,
+                    Propagate_Foward=Propagate_Foward,
+                    phase_correction=phase_correction)
+            
             return predictions, instantA
         
         k=k+1
-    
+        
     predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
-    return predictions, 
+    
+    np.savez('Check_KF_Results', 
+             predictions=predictions, 
+             y_signal=y_signal,
+             freq_basis_array= freq_basis_array, 
+             x_hat=x_hat, 
+             P_hat=P_hat, 
+             a=a,
+             h=h,
+             z=z, 
+             e_z=e_z,
+             W=W, 
+             Q=Q)
+    
+    return predictions,
 
-
-def calc_phase_correction(bdelta, Delta_S_Sampling, phase_correction):
-    ''' Calculates phase correction for noise traces, else returns zero.
-    '''
-    phase_correction_noisetraces = 0.0
-    if phase_correction == 'Yes':
-        phase_correction_noisetraces = (bdelta-Delta_S_Sampling)*((2*np.pi)/bdelta)
-    return phase_correction_noisetraces
-
-
-def calc_n_train(multiplier, bandwidth, bdelta):
-    '''Calculates n_train (time step for convergence) based on input parameters.
-    '''
-    return int((multiplier*bandwidth)/bdelta)
-
-#@nb.jit(nopython=True) 
-def makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction_noisetraces,num,n_train,numf):
+ 
+def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
     ''' Extracts learned parameters from Kalman Filtering msmt_record and makes predictions for timesteps > n_train
     
     Keyword Arguments:
@@ -219,7 +228,7 @@ def makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction_no
     freq_basis_array -- Array containing basis frequencies. [Len: numf. dtype = float64]
     x_hat -- Aposteriori KF estimates based on msmt_record (real and estimated imaginary components of the state for each basis frequency) [Len: twonumf. dtype = float64]
     Delta_T_Sampling -- Time interval between measurements. [Scalar int]
-    phase_correction_noisetraces -- Applies if msmt_record data are Ramsey frequency offset measurements [Scalar float64]
+    phase_correction_noisetraces -- Applies depending on choice of basis [Scalar float64]
     num -- Number of points in msmt_record. [Scalar int]
     n_train -- Predicted timestep at which algorithm is expected to finish learning [Scalar int]
     numf -- Number of points (spectral basis frequencies) in freq_basis_array. [Scalar int]
@@ -231,7 +240,7 @@ def makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction_no
     instantP -- Instantaneous phase calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
        
     '''
-    #print "did I get into extraction?"
+    
     # Instantaneous Amplitude, Phase and Frequency Calculations
     instantA = np.zeros(numf) 
     instantP = np.zeros(numf) 
@@ -242,11 +251,9 @@ def makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction_no
     spectralresult=0
     for spectralresult0 in range(0,len(freq_basis_array),1):
         spectralresult = spectralresult0*2    
-        instantA[spectralresult0] = np.sqrt(x_hat[spectralresult,0]**2 + x_hat[spectralresult + 1,0]**2) # using apostereroiri estimates
-        #print "is it atan again?"
+        instantA[spectralresult0] = np.sqrt(x_hat[spectralresult,0]**2 + x_hat[spectralresult + 1,0]**2) # using aposteroiri estimates
         instantP[spectralresult0] = math.atan2(x_hat[spectralresult + 1,0], x_hat[spectralresult,0]) # correct phase using atan2
-    
-    #print "Or did I make it to predictions?"
+
     # Make Predictions 
     Propagate_Foward = np.zeros(num)
     Harmonic_Component = 0.0
@@ -259,6 +266,4 @@ def makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction_no
                 Harmonic_Component = instantA[spectralcomponent]*np.cos((Delta_T_Sampling*tn*freq_basis_array[spectralcomponent]*2*np.pi + instantP[spectralcomponent] + phase_correction_noisetraces))
             Propagate_Foward[tn] += Harmonic_Component 
     
-    #print "If I got here, then nbjit is an arse"
     return Propagate_Foward, instantA, instantP
-
