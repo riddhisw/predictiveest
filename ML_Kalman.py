@@ -1,14 +1,10 @@
 
 from __future__ import division, print_function, absolute_import
 
-import sys
 import os
 import numpy as np
-import kf_fast as mlkalman #make a recursive while loop
+import kf_fast as skf #make a recursive while loop
 import detailed_kf as dkf
-import detailed_skf as skf
-import kf_standard as mlkalman2
-import time as t
 import matplotlib.pyplot as plt
 
 # test
@@ -84,6 +80,8 @@ class Kalman(Experiment, Noisy_Data):
     def single_prediction(self, y_signal, init=[None, None], basis_choice='A', prediction_method_default='ZeroGain'):
         '''
         Returns predictions based on data, parameters specified, choice of basis, prediction method.
+        Prediction method default set to "ZeroGain"
+        Returns skipped msmts if required.
         y_signal represents a sequence of noisy measurement outcomes.
         '''
 
@@ -91,39 +89,22 @@ class Kalman(Experiment, Noisy_Data):
             init = np.zeros(2)
             init[0] = self.optimal_sigma
             init[1] = self.optimal_R
-            #print init
-        
-        predictions = mlkalman.kf_2017(y_signal, self.n_train, self.n_testbefore,
-                                       self.n_predict, self.Delta_T_Sampling, self.x0,
-                                       self.p0, init[0], init[1],
-                                       self.basis_dict[basis_choice], phase_correction=self.phase_dict[basis_choice], prediction_method=prediction_method_default)                       
 
+        predictions = skf.kf_2017(y_signal, self.n_train, self.n_testbefore, 
+                                  self.n_predict, self.Delta_T_Sampling, 
+                                  self.x0, self.p0, init[0], init[1],
+                                  self.basis_dict[basis_choice], 
+                                  phase_correction=self.phase_dict[basis_choice], 
+                                  prediction_method=prediction_method_default, 
+                                  skip_msmts=self.skip_msmts)                       
         return predictions
-
- 
-    def single_prediction2(self, y_signal, init=[None, None], basis_choice='A', prediction_method_default='PropForward'):
-        '''
-        Returns predictions based on data, parameters specified, choice of basis, prediction method.
-        y_signal represents a sequence of noisy measurement outcomes.
-        '''
-
-        if init[0] == None and init[1] == None:
-            init = np.zeros(2)
-            init[0] = self.optimal_sigma
-            init[1] = self.optimal_R
-            #print init
-        
-        predictions, other = mlkalman2.kf_2017(y_signal, self.skip_msmts, self.n_train, self.n_testbefore,
-                                       self.n_predict, self.Delta_T_Sampling, self.x0,
-                                       self.p0, init[0], init[1],
-                                       self.basis_dict[basis_choice], phase_correction=self.phase_dict[basis_choice], prediction_method=prediction_method_default)                       
-
-        return predictions, other
 
 
     def detailed_single_prediction(self, y_signal, init=[None, None], basis_choice='A'):
         '''
-        Returns predictions based on data, parameters specified, choice of basis, and Prop Forward.
+        Returns predictions and inst. amplitudes based on data, parameters specified, choice of basis.
+        Prediction method is always Prop Forward.
+        Returns skipped msmts if required.
         y_signal represents a sequence of noisy measurement outcomes.
         '''
         
@@ -131,35 +112,15 @@ class Kalman(Experiment, Noisy_Data):
             init = np.zeros(2)
             init[0] = self.optimal_sigma
             init[1] = self.optimal_R
-            #print init
             
         append_decriptor = self.filename_KF+'_det_KF_'
         
-        predictions, instantA = dkf.detailed_kf(append_decriptor, y_signal, self.n_train, self.n_testbefore,self.n_predict, self.Delta_T_Sampling, self.x0, self.p0, init[0], init[1], 
-                                                self.basis_dict[basis_choice], phase_correction=self.phase_dict[basis_choice])               
-
-        return predictions, instantA
-
-
-    def detailed_single_prediction_withskipping(self, y_signal, init=[None, None], basis_choice='A'):
-        '''
-        Returns predictions via Prop Forward by skipping information i.e only multiples of 
-        skip_msmts are timesteps at which elements of y_signal are allowed to 
-        effect state estimation; and y_signal represents a sequence of noisy msmts.
-        For all time_step % skip_msmts != 0, the Kalman Gain is set to zero.
-        
-        '''
-
-        if init[0] == None and init[1] == None:
-            init = np.zeros(2)
-            init[0] = self.optimal_sigma
-            init[1] = self.optimal_R
-            #print init
-            
-        append_decriptor = self.filename_KF+'_skf_KF_'
-        
-        predictions, instantA = skf.skipping_kf(append_decriptor, self.skip_msmts, y_signal, self.n_train, self.n_testbefore, self.n_predict, self.Delta_T_Sampling, self.x0, self.p0, init[0], init[1], self.basis_dict[basis_choice], phase_correction=self.phase_dict[basis_choice])               
-
+        predictions, instantA = dkf.detailed_kf(append_decriptor, y_signal, self.n_train, self.n_testbefore,
+                                                self.n_predict, self.Delta_T_Sampling, 
+                                                self.x0, self.p0, init[0], init[1], 
+                                                self.basis_dict[basis_choice], 
+                                                phase_correction=self.phase_dict[basis_choice],
+                                                skip_msmts=self.skip_msmts)               
         return predictions, instantA
 
 

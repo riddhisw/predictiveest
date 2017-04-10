@@ -1,8 +1,6 @@
 #descriptor = "DetailedKF_"
 import numpy as np
 import math
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
 
 def calc_pred(x_hat_series):
     
