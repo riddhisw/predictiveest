@@ -211,10 +211,10 @@ class Kalman(Experiment, Noisy_Data):
         pred_skf_2, amp_skf = self.single_prediction(y_signal, use_skf_amp='Yes')
         pred_dkf, amp_dkf = self.detailed_single_prediction(y_signal)
 
-        #Generate true PSD linne
+        # Generate true PSD linne
         self.beta_z_truePSD()
 
-        # Estimate one realisation of true PSD from inst. amplitudes        
+        #G enerated estimates of PSD by squaring Kalman learned amplitudes       
         x_skf, y_skf = self.convert_amp_hz_to_radians(self.basisA, amp_skf)
         x_dkf, y_dkf = self.convert_amp_hz_to_radians(self.basisA, amp_dkf)
         x_data = [x_skf, x_dkf, self.true_w_axis[self.J -1:]]
@@ -222,39 +222,38 @@ class Kalman(Experiment, Noisy_Data):
         
         
         time_predictions = [pred_skf, pred_dkf, truth[self.n_train-self.n_testbefore:self.n_train + self.n_predict], y_signal[self.n_train-self.n_testbefore:self.n_train + self.n_predict], pred_skf_2]
-        lbl_list = ['KF', 'Detailed KF', 'Truth', 'Msmts', 'KF_2']
-        color_list = ['purple','green', 'red', 'cyan', 'blue']
-        markr_list = ['x', 'x', '-', 'o', '--']
-        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
+        lbl_list = ['KF (Fast)', 'Detailed KF', 'Truth', 'Msmts', 'KF_2']
+        color_list = ['purple','green', 'red', 'black', 'purple']
+        markr_list = ['o', 'H', '-', 'x', 'x--']
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,10))
         
         ax = axes[0]
-
-        for i in xrange(4):
+        
+        for i in xrange(5):
             ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 
                     time_predictions[i],markr_list[i], color = color_list[i], 
                     alpha=0.5,label=lbl_list[i])
 
-        ax.axhline(0.0,  color='gray',label='Predict Zero')
-        ax.axvline(self.n_train*self.Delta_T_Sampling, color='gold')
+        ax.axhline(0.0,  color='black',label='Predict Zero')
+        ax.axvline(self.n_train*self.Delta_T_Sampling, linestyle='--', color='gray', label='Training Ends')
 
-        ax.set(xlabel='Time [s]', ylabel="Predictions [Signal Units]")    
-        ax.annotate("Training Ends",xy=(2.001,23), xytext=(2.001,23), color="gold", fontsize=14)
-        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=2, mode="expand", borderaxespad=0, frameon=False)
-        #ax.set_title(r'Truth v. Kalman Predictions')
-
+        ax.set(xlabel='Time [s]', ylabel="n-Step Ahead Msmt Prediction [Signal Units]")    
+        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=2, mode="expand", 
+                  borderaxespad=0, frameon=False, fontsize=14)
 
         ax = axes[1]
-        ax.set(xlabel='Omega [radians]', ylabel=' Power Spectra [Power/radians]')
-        #ax.set_title(r'Theoretical PSD v. Learned Kalman Realisation')
+        ax.set(xlabel='Omega [radians]')
+        ax.set_ylabel(r'$A_{KF}^2$ vs. PSD [Power/radians]')
         
         for i in xrange(2):
-            ax.plot(x_data[i], y_data[i], markr_list[i], alpha=0.5, 
+            ax.plot(x_data[i], y_data[i], markr_list[i], alpha=0.5, markersize=8.0,
                     color=color_list[i], 
-                    label=lbl_list[i]+' Total Power: %s'%(np.round(np.sum(y_data[i]))))
-        ax.plot(x_data[2], y_data[2], 'r', label=lbl_list[2]+' Total Power: %s'%(np.round(self.true_S_norm)))
-        # Comparison with the Hilbert Transform (amplitudes) from KF means we double the twosided spectrum
+                    label=lbl_list[i]+', Power: %s'%(np.round(np.sum(y_data[i]))))
+        ax.plot(x_data[2], y_data[2], 'r', label=lbl_list[2]+', Power: %s'%(np.round(self.true_S_norm)))
+        # NB: Comparison with the Hilbert Transform (amplitudes) from KF means we double the twosided spectrum
         
-        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=1, mode="expand", borderaxespad=0, frameon=False)
+        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=1, mode="expand", 
+                  borderaxespad=0, frameon=False, fontsize=14)
         
         for ax in axes.flat:
             for item in (ax.get_xticklabels()):
@@ -263,9 +262,11 @@ class Kalman(Experiment, Noisy_Data):
             for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
                     item.set_fontsize(14)
         
-        fig.subplots_adjust(left=0.0, right=0.99, wspace=0.2, hspace=0.2, top=0.98, bottom=0.2)
-        
+        fig.subplots_adjust(left=0.0, right=0.99, wspace=0.2, hspace=0.2, top=0.8, bottom=0.2)
+        fig.suptitle('Theoretical Truth v. Learned Kalman Predictions Using Basis A', fontsize=14)
         plt.show()
+
         if savefig=='Yes':
             fig.savefig(self.filename0+'_run_test', format="svg")        
+
         pass

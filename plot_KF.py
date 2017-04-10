@@ -47,10 +47,11 @@ class Plot_KF_Results(Experiment):
         pass
 
 
-    def show_one_prediction(self, figname=None, savefig='Yes', fsize=14):
+    def show_one_prediction(self, savefig='Yes', fsize=14):
 
         if self.data_loaded_once == False:
             self.load_data()
+        figname=str(self.filename_and_path)
         
         pick_rand_run = int(np.random.uniform(low=0, high=self.max_run))
         truth = self.truth_datasets[self.n_train - self.n_testbefore : self.n_train + self.n_predict, pick_rand_run]
@@ -65,15 +66,12 @@ class Plot_KF_Results(Experiment):
         ax.set_ylabel('Signal (Signal Units )')
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
             item.set_fontsize(fsize)
-        ax.plot(x_data_p, y_data[0: self.n_testbefore], 'b--', label='Predictions')
-        ax.plot(x_data_f, y_data[self.n_testbefore:], 'g--', label='Forecasts')
+        ax.plot(x_data_p, y_data[0: self.n_testbefore], 'bx', label='One Step Ahead Predictions')
+        ax.plot(x_data_f, y_data[self.n_testbefore:], 'go', label='n-th Step Ahead Forecasts')
         ax.plot(x_data, truth, 'r', label='Truth')
         ax.axvline(self.n_train*self.Delta_T_Sampling, linestyle='--', color='gray', label='Training Ends')
         ax.legend(loc=1)
         plt.show()
-        
-        if figname == None:
-            figname=str(self.filename_and_path)
 
         if savefig=='Yes':
             fig.savefig(figname+'_single_pred_', format="svg")
@@ -103,13 +101,13 @@ class Plot_KF_Results(Experiment):
 
 
 
-    def make_plot(self, savefig='Yes', figname=None, fsize=14):
+    def make_plot(self, savefig='Yes', fsize=14):
 
         if self.data_loaded_once == False:
             self.load_data()
         
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15,8))
-        
+        figname=str(self.filename_and_path)
 
         choice_counter = 0
         self.step_forward_limit_allbasis = []
@@ -141,8 +139,7 @@ class Plot_KF_Results(Experiment):
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
                         item.set_fontsize(fsize)
         plt.show()
-        if figname == None:
-            figname=str(self.filename_and_path)
+        
 
         if savefig=='Yes':
             fig.savefig(figname+'_EA_', format="svg")
