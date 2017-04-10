@@ -56,7 +56,7 @@ class Kalman(Experiment, Noisy_Data):
         self.basisC[1:] = self.basisB
 
         self.basis_list = ['A', 'B', 'C']
-        self.phase_choice = mlkalman.calc_phase_correction(self.bdelta, self.Delta_S_Sampling, 'Yes')
+        self.phase_choice = self.calc_phase_correction(self.bdelta, self.Delta_S_Sampling, 'Yes')
         self.basis_dict = {'A': self.basisA, 'B': self.basisB, 'C': self.basisC}
         self.phase_dict = {'A': 0.0, 'B': self.phase_choice, 'C': self.phase_choice}
 
@@ -67,7 +67,18 @@ class Kalman(Experiment, Noisy_Data):
 
 
     def sqr_err(self, predictions, truth):
+        ''' Returns the squared error sequence between predictions sequence and truth sequence
+        '''
         return (predictions.real - truth.real)**2
+    
+    
+    def calc_phase_correction(bdelta, Delta_S_Sampling, phase_correction):
+    ''' Calculates phase correction for noise traces, else returns zero.
+    '''
+        phase_correction_noisetraces = 0.0
+        if phase_correction == 'Yes':
+            phase_correction_noisetraces = (bdelta-Delta_S_Sampling)*((2*np.pi)/bdelta)
+        return phase_correction_noisetraces
 
 
     def single_prediction(self, y_signal, init=[None, None], basis_choice='A', prediction_method_default='ZeroGain'):
