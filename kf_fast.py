@@ -197,7 +197,8 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
                     Q=Q,
                     instantA=instantA,
                     instantP=instantP,
-                    Propagate_Foward=Propagate_Foward)
+                    Propagate_Foward=Propagate_Foward,
+                    phase_correction=phase_correction)
             
             return predictions
         

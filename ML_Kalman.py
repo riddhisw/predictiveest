@@ -4,6 +4,7 @@ from __future__ import division, print_function, absolute_import
 import os
 import numpy as np
 import kf_fast as skf #make a recursive while loop
+import kf_standard as skf_amp
 import detailed_kf as dkf
 import matplotlib.pyplot as plt
 
@@ -77,11 +78,12 @@ class Kalman(Experiment, Noisy_Data):
         return phase_correction_noisetraces
 
 
-    def single_prediction(self, y_signal, init=[None, None], basis_choice='A', prediction_method_default='ZeroGain'):
+    def single_prediction(self, y_signal, init=[None, None], basis_choice='A', prediction_method_default='ZeroGain', use_skf_amp='No'):
         '''
         Returns predictions based on data, parameters specified, choice of basis, prediction method.
         Prediction method default set to "ZeroGain"
         Returns skipped msmts if required.
+        Under skf_amp, returns learned instaneous amplitudes for Prop Forward and None for ZeroGain.
         y_signal represents a sequence of noisy measurement outcomes.
         '''
 
@@ -89,15 +91,31 @@ class Kalman(Experiment, Noisy_Data):
             init = np.zeros(2)
             init[0] = self.optimal_sigma
             init[1] = self.optimal_R
-
-        predictions = skf.kf_2017(y_signal, self.n_train, self.n_testbefore, 
-                                  self.n_predict, self.Delta_T_Sampling, 
-                                  self.x0, self.p0, init[0], init[1],
-                                  self.basis_dict[basis_choice], 
-                                  phase_correction=self.phase_dict[basis_choice], 
-                                  prediction_method=prediction_method_default, 
-                                  skip_msmts=self.skip_msmts)                       
-        return predictions
+        
+        if use_skf_amp != 'No':
+            
+            predictions, amps = skf.kf_2017(y_signal, self.n_train, self.n_testbefore, 
+                                            self.n_predict, self.Delta_T_Sampling, 
+                                            self.x0, self.p0, init[0], init[1],
+                                            self.basis_dict[basis_choice], 
+                                            phase_correction=self.phase_dict[basis_choice], 
+                                            prediction_method=prediction_method_default, 
+                                            skip_msmts=self.skip_msmts)
+            return predictions, amps
+        
+        if use_skf_amp=='No':
+            
+            predictions = skf.kf_2017(y_signal, self.n_train, self.n_testbefore, 
+                                      self.n_predict, self.Delta_T_Sampling, 
+                                      self.x0, self.p0, init[0], init[1],
+                                      self.basis_dict[basis_choice], 
+                                      phase_correction=self.phase_dict[basis_choice],
+                                      prediction_method=prediction_method_default, 
+                                      skip_msmts=self.skip_msmts)                       
+            return predictions
+        
+        print("Something went wrong in single_prediction")
+        pass
 
 
     def detailed_single_prediction(self, y_signal, init=[None, None], basis_choice='A'):
@@ -185,31 +203,24 @@ class Kalman(Experiment, Noisy_Data):
 
     def run_test_KF(self, savefig='Yes'):
         '''
-        Compares prediction outputs from skip_msmts, detailed KF, and single 
-        KF prediction output for the parameters given.
+        Compares KF prediction output for the parameters given.
         '''
         # Create predictions
         truth, y_signal = self.generate_data_from_truth(self.user_defined_variance)
-        pred = self.single_prediction(y_signal)
-        pred2, amp_kf = self.single_prediction2(y_signal)
-        pred_skf, amp_skf = self.detailed_single_prediction_withskipping(y_signal)
+        pred_skf = self.single_prediction(y_signal)
         pred_dkf, amp_dkf = self.detailed_single_prediction(y_signal)
-        
 
         #Generate true PSD linne
         self.beta_z_truePSD()
 
-        # Estimate one realisation of true PSD from inst. amplitudes
-        
-        x_kf, y_kf = self.convert_amp_hz_to_radians(self.basisA, amp_kf)
+        # Estimate one realisation of true PSD from inst. amplitudes        
         x_dkf, y_dkf = self.convert_amp_hz_to_radians(self.basisA, amp_dkf)
-        x_skf, y_skf = self.convert_amp_hz_to_radians(self.basisA, amp_skf)
 
-        x_data = [None, x_dkf, x_skf]
-        y_data = [None, y_dkf, y_skf]
-        preds_ = [pred, pred_dkf, pred_skf]
-        preds_list = ['KF', 'DKF','DKF w Skip Msmts', 'KF w Skip Msmts + Amp', 'Truth', 'Msmts']
-        color_list = ['purple','blue', 'green', 'black']
+        x_data = [None, x_dkf, HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]]
+        y_data = [None, y_dkf, self.true_w_axis[self.J -1:]]
+        preds_ = [pred_skf, pred_dkf]
+        preds_list = ['KF', 'DKF', 'Truth', 'Msmts']
+        color_list = ['purple','blue', 'red', 'cyan']
 
         fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
         
@@ -249,7 +260,7 @@ class Kalman(Experiment, Noisy_Data):
         
         for i in range(1, 3, 1):
             ax.plot(x_data[i], y_data[i], 'o--', markersize=8.0/i,  alpha=0.5, color = color_list[i], label=preds_list[i]+' Total Power: %s'%(np.round(np.sum(y_data[i]))))
-        ax.plot(self.true_w_axis[self.J -1:], HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:], 'r', label=preds_list[4]+' Total Power: %s'%(np.round(self.true_S_norm)))
+        ax.plot(, , 'r', label=preds_list[4]+' Total Power: %s'%(np.round(self.true_S_norm)))
         ax.plot(x_kf, y_kf, '--', markersize=8.0,  alpha=0.5, color = color_list[3], label=preds_list[3]+' Total Power: %s'%(np.round(np.sum(y_kf))))
         # Comparison with the Hilbert Transform (amplitudes) from KF means we double the twosided spectrum
         

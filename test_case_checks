@@ -1,0 +1,63 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Apr  9 22:47:00 2017
+
+@author: riddhisw
+"""
+
+print "Skip Msmts Set to"
+print skip
+print
+print
+print('Check we are using User Defined (sigma, R)')
+print
+print
+BR_of_Test_Object.ensemble_avg_predictions()
+BR_of_Test_Object.run_test_KF()
+filename_and_path_KF = './cluster_test_case__kfresults.npz'
+plotter_KF = Plot_KF_Results(exp_params_, filename_and_path_KF)
+plotter_KF.make_plot()
+plotter_KF.show_one_prediction()
+print 'Lowest Loss Pair:', BR_of_Test_Object.lowest_pred_BR_pair
+print 'sigma, R', BR_of_Test_Object.optimal_sigma, BR_of_Test_Object.optimal_R 
+print
+print
+print('Do optimisation')
+print
+print
+BR_of_Test_Object.naive_implementation()
+filename_and_path_BR = 'cluster_test_case_BR_Map.npz'
+plotter_BR = Plot_BR_Results(filename_and_path_BR)
+plotter_BR.make_plot()
+print 'Lowest Loss Pair:', BR_of_Test_Object.lowest_pred_BR_pair
+print 'sigma, R', BR_of_Test_Object.optimal_sigma, BR_of_Test_Object.optimal_R
+print
+print
+print('Get Optimal Parameters, use them for ensemble averging but not KF test run')
+print
+print
+BR_of_Test_Object.get_tuned_params()
+BR_of_Test_Object.ensemble_avg_predictions(chosen_params=BR_of_Test_Object.lowest_pred_BR_pair)
+BR_of_Test_Object.run_test_KF()
+filename_and_path_KF = './cluster_test_case__kfresults.npz'
+plotter_KF = Plot_KF_Results(exp_params_, filename_and_path_KF)
+plotter_KF.make_plot()
+plotter_KF.show_one_prediction()
+print 'Lowest Loss Pair:', BR_of_Test_Object.lowest_pred_BR_pair
+print 'sigma, R', BR_of_Test_Object.optimal_sigma, BR_of_Test_Object.optimal_R
+print
+print
+print
+print('Set Optimal Parameters, use them for ensemble averging and KF test run')
+print
+print
+BR_of_Test_Object.set_tuned_params()
+BR_of_Test_Object.ensemble_avg_predictions()
+BR_of_Test_Object.run_test_KF()
+filename_and_path_KF = './cluster_test_case__kfresults.npz'
+plotter_KF = Plot_KF_Results(exp_params_, filename_and_path_KF)
+plotter_KF.make_plot()
+plotter_KF.show_one_prediction()
+print 'Lowest Loss Pair:', BR_of_Test_Object.lowest_pred_BR_pair
+print 'sigma, R', BR_of_Test_Object.optimal_sigma, BR_of_Test_Object.optimal_R

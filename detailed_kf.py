@@ -235,6 +235,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
              instantA=instantA,
              instantP=instantP,
              n_converge=n_converge,
-             Propagate_Foward=Propagate_Foward)
+             Propagate_Foward=Propagate_Foward,
+             phase_correction=phase_correction_noisetraces)
 
     return predictions, instantA_Prediction
