@@ -4,6 +4,23 @@ import math
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
+def calc_pred(x_hat_series):
+    
+    '''
+    Keyword Arguments:
+    ------------------
+    x_hat_series -- Aposteriori estimates (real and estimated imaginary components of the state for each basis frequency) for num_of_time_steps [Dim: twonumf x num_of_time_steps. dtype = float64]
+    
+    Returns:
+    ------------------
+    pred -- Measurement predictions based on adding the real parts of x_hat [Len: twonumf. dtype = float64]
+    '''
+    
+    series = x_hat_series.shape[2]
+    pred = np.zeros(series)
+    for k in xrange(series):
+        pred[k] = np.sum(x_hat_series[::2, 0, k])
+    return pred
 
 def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x_hat_initial,P_hat_initial, oekalman, rkalman, freq_basis_array, phase_correction, skip_msmts=1):
     
@@ -22,11 +39,12 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     n_converge /n_train -- Equivent to n_train if n_train is optimally chosen. Predicted timestep at which algorithm is expected to finish learning [Scalar int]
     phase_correction -- Applies if y_signal data are Ramsey frequency offset measurements [Scalar float64]
     skip_msmts -- Allow a non zero Kalman gain for every n-th msmt, where skip_msmts == n    
+    n_testbefore -- Number of on step ahead predictions prior to n_train which user requires to be returned as output 
     
     Returns: 
     --------
     Saves two Numpy.savez files containing all inputs, parameters, intermediary calculations and checks. Predictions stored as:
-    Propagate_Foward -- Output predictions. Non-zero only for n_converge < timestep < num. [Len: num. dtype = float64]
+    predictions -- Output predictions. Non-zero only for n_converge < timestep < num. [Len: num. dtype = float64]
     
     Dimensions:
     -----------
@@ -66,12 +84,11 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     instantA_Prediction -- Value of instantaneous amplitude (instantA) at n_converge [Dim: numf x 1. dtype = float64] 
     instantP_Prediction -- Value of instantaneous phase (instantP) at n_converge [Dim: numf x 1. dtype = float64] 
     
-    Dist_Prediction -- Difference between measurements and 'propagated' predictions for timesteps > n_converge [Dim: (num - n_converge) x 1. dtype = float64] 
-    
     '''
     
     phase_correction_noisetraces = phase_correction
     n_converge = n_train
+    predictions = np.zeros(n_testbefore + n_predict)
 
     # Model Dimensions
     num = n_predict + n_train
@@ -125,23 +142,13 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     instantP = np.zeros((numf,num)) 
     instantW = np.zeros((numf,num)) 
     
-    # print 'Initial State', x_hat
-    # print 'Initial State', P_hat
-    # print h
-    # print a
-    print(freq_basis_array)
+    
     k = 1
     while (k< num):
 
         #print 'Apriori Predicted State x_hat'
         x_hat[:,:,k] = np.dot(a,x_hat[:,:,k-1]) #Predicted state prior to measurement (no controls) for no dynamic model and no process noise
-        
-        if k<10:
-            print "DKF, timestep ", k
-            print('a', a)
-            print('h', h)
-            print('xhat aprioir')
-            print (x_hat[:,:,k])
+
         #print 'Evolve Process Noise Features' i.e. Gamma * Gamma T. Use k-1 since we add Q[k-1] with P[k-1]
         spectralresult0=0
         spectralresult=0
@@ -151,9 +158,6 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
             Gamma2[spectralresult+1,0,k-1] = x_hat[spectralresult + 1,0,k-1]*(np.sqrt(oekalman**2/ (x_hat[spectralresult,0,k-1]**2 + x_hat[spectralresult + 1,0,k-1]**2)))
 
         Gamma[:,0,k-1] = np.dot(a,Gamma2[:,0,k-1] )
-        if k == 1000:
-            np.savetxt('Gamma_dkf', Gamma[:,0,k-1])
-            np.savetxt('x_dkf', x_hat[:,:,k])
             
         Q[:,:,k-1] = np.dot(Gamma[:,:,k-1], Gamma[:,:,k-1].T)
 
@@ -179,20 +183,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         #print 'Aposteriori Updates'
         x_hat[:,:,k] = x_hat[:,:,k] + W[:,:,k]*e_z[0,0,k] 
         P_hat[:,:,k] = P_hat[:,:,k] - S[:,:,k]*np.dot(W[:,:,k],W[:,:,k].T) # For scalar S
-        
-        if k<10:
-            print
-            print
-            print('S', S_inv[:,:,k])
-            print('1/S', 1.0/S[:,:,k])
-            print
-            print('Gain')
-            print(W[:,:,k])
-            print
-            print 
-            print('Q')
-            print(Q[:,:,k-1])
-            print
+
         k=k+1
     
     ## CALCULATE INSTANTANEOUS PHASE, AMPLITUDE AND FREQUENCY
@@ -207,19 +198,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
             instantW[spectralresult0,k] = (1/(2*np.pi))*(((x_hat[spectralresult,0,k])*(x_hat[spectralresult + 1,0,k]-x_hat[spectralresult + 1,0,k-1])-x_hat[spectralresult + 1,0,k]*(x_hat[spectralresult,0,k]-x_hat[spectralresult,0,k-1]))/Delta_T_Sampling)/(x_hat[spectralresult,0,k]**2 + x_hat[spectralresult + 1,0,k]**2)
         k=k+1
 
-    #print 'Calculating reconstructed state...'
-
-    ## CALCULATE RECONSTRUCTED STATE
-    spectralresult=0
-    reconstructstate = 0
-    for spectralresult in range(0,len(freq_basis_array),1):
-        reconstructstate += x_hat[spectralresult*2,0,:] + 1j*x_hat[spectralresult*2 + 1,0,:]
-
-    #print 'Calculating propagation forward....'
-
     ## PROPAGATE FORWARD USING HARMONIC SUMS
-    print("PHASE CORR KF DKF", phase_correction_noisetraces)
-    np.savetxt("IA_0_DKF", instantA[0,:])
 
     Propagate_Foward = np.zeros((num))
     instantA_Prediction = instantA[:,n_converge]
@@ -236,7 +215,27 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
                 Harmonic_Component = instantA_Prediction[spectralcomponent]*math.cos((Delta_T_Sampling*tn*freq_basis_array[spectralcomponent]*2*np.pi + instantP_Prediction[spectralcomponent] + phase_correction_noisetraces)) # with correction for noise traces 
             Propagate_Foward[tn] += Harmonic_Component
 
+    # We report one step ahead predictions for n < n_train
+    predictions[0:n_testbefore] = calc_pred(x_hat[:,:,n_train-n_testbefore:n_train])
+    # We use Prop Forward to "forecast" for n> n_train
+    predictions[n_testbefore:] = Propagate_Foward[n_train:]
 
-    np.savez(str(descriptor),descriptor=descriptor, y_signal=y_signal,instantP=instantP,freq_basis_array= freq_basis_array, instantA=instantA,Propagate_Foward=Propagate_Foward, x_hat=x_hat, P_hat=P_hat, W=W, Q=Q)
-    
-    return Propagate_Foward[n_converge:], instantA_Prediction
+    np.savez(str(descriptor),
+             descriptor=descriptor,
+             predictions=predictions, 
+             y_signal=y_signal,
+             freq_basis_array= freq_basis_array, 
+             x_hat=x_hat, 
+             P_hat=P_hat, 
+             a=a,
+             h=h,
+             z=z, 
+             e_z=e_z,
+             W=W, 
+             Q=Q,
+             instantA=instantA,
+             instantP=instantP,
+             Propagate_Foward=Propagate_Foward)
+
+    return predictions, instantA_Prediction
+
