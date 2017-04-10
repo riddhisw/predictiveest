@@ -94,7 +94,7 @@ class Kalman(Experiment, Noisy_Data):
         
         if use_skf_amp != 'No':
             
-            predictions, amps = skf.kf_2017(y_signal, self.n_train, self.n_testbefore, 
+            predictions, amps = skf_amp.kf_2017(y_signal, self.n_train, self.n_testbefore, 
                                             self.n_predict, self.Delta_T_Sampling, 
                                             self.x0, self.p0, init[0], init[1],
                                             self.basis_dict[basis_choice], 
@@ -208,46 +208,36 @@ class Kalman(Experiment, Noisy_Data):
         # Create predictions
         truth, y_signal = self.generate_data_from_truth(self.user_defined_variance)
         pred_skf = self.single_prediction(y_signal)
+        pred_skf_2, amp_skf = self.single_prediction(y_signal, use_skf_amp='Yes')
         pred_dkf, amp_dkf = self.detailed_single_prediction(y_signal)
 
         #Generate true PSD linne
         self.beta_z_truePSD()
 
         # Estimate one realisation of true PSD from inst. amplitudes        
+        x_skf, y_skf = self.convert_amp_hz_to_radians(self.basisA, amp_skf)
         x_dkf, y_dkf = self.convert_amp_hz_to_radians(self.basisA, amp_dkf)
-
-        x_data = [None, x_dkf, HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]]
-        y_data = [None, y_dkf, self.true_w_axis[self.J -1:]]
-        preds_ = [pred_skf, pred_dkf]
-        preds_list = ['KF', 'DKF', 'Truth', 'Msmts']
-        color_list = ['purple','blue', 'red', 'cyan']
-
+        x_data = [x_skf, x_dkf, self.true_w_axis[self.J -1:]]
+        y_data = [y_skf, y_dkf, HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]]
+        
+        
+        time_predictions = [pred_skf, pred_dkf, truth[self.n_train-self.n_testbefore:self.n_train + self.n_predict], y_signal[self.n_train-self.n_testbefore:self.n_train + self.n_predict], pred_skf_2]
+        lbl_list = ['KF', 'Detailed KF', 'Truth', 'Msmts', 'KF_2']
+        color_list = ['purple','green', 'red', 'cyan', 'blue']
+        markr_list = ['x', 'x', '-', 'o', '--']
         fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
         
         ax = axes[0]
 
-        for i in xrange(3):
-            if i ==0:
-                ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 
-                        preds_[i], 'x-', color = color_list[i], alpha=0.9,label=preds_list[i])
-            elif i !=0:
-                ax.plot(self.Time_Axis[self.n_train:self.n_train + self.n_predict], 
-                        preds_[i], 'o', markersize=8.0/i, color = color_list[i], alpha=0.5*i,label=preds_list[i])
-        
-        ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 
-                        pred2, '-', color = color_list[3], alpha=0.5,label=preds_list[3])
+        for i in xrange(4):
+            ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 
+                    time_predictions[i], 
+                    markerstyle=markr_list[i], color = color_list[i], 
+                    alpha=0.5,label=lbl_list[i])
 
         ax.axhline(0.0,  color='gray',label='Predict Zero')
         ax.axvline(self.n_train*self.Delta_T_Sampling, color='gold')
-        
-        ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 
-                truth[self.n_train-self.n_testbefore:self.n_train + self.n_predict], 'r',
-                alpha=0.5,label=preds_list[4])
 
-        ax.plot(self.Time_Axis[self.n_train-self.n_testbefore:self.n_train], 
-                y_signal[self.n_train-self.n_testbefore:self.n_train], 'co', 
-                alpha=1.0,label=preds_list[5])
-        
         ax.set(xlabel='Time [s]', ylabel="Predictions [Signal Units]")    
         ax.annotate("Training Ends",xy=(2.001,23), xytext=(2.001,23), color="gold", fontsize=14)
         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=2, mode="expand", borderaxespad=0, frameon=False)
@@ -258,10 +248,11 @@ class Kalman(Experiment, Noisy_Data):
         ax.set(xlabel='Omega [radians]', ylabel=' Power Spectra [Power/radians]')
         #ax.set_title(r'Theoretical PSD v. Learned Kalman Realisation')
         
-        for i in range(1, 3, 1):
-            ax.plot(x_data[i], y_data[i], 'o--', markersize=8.0/i,  alpha=0.5, color = color_list[i], label=preds_list[i]+' Total Power: %s'%(np.round(np.sum(y_data[i]))))
-        ax.plot(, , 'r', label=preds_list[4]+' Total Power: %s'%(np.round(self.true_S_norm)))
-        ax.plot(x_kf, y_kf, '--', markersize=8.0,  alpha=0.5, color = color_list[3], label=preds_list[3]+' Total Power: %s'%(np.round(np.sum(y_kf))))
+        for i in xrange(2):
+            ax.plot(x_data[i], y_data[i], markerstyle=markr_list[i], alpha=0.5, 
+                    color=color_list[i], 
+                    label=lbl_list[i]+' Total Power: %s'%(np.round(np.sum(y_data[i]))))
+        ax.plot(x_data[2], y_data[2], 'r', label=lbl_list[2]+' Total Power: %s'%(np.round(self.true_S_norm)))
         # Comparison with the Hilbert Transform (amplitudes) from KF means we double the twosided spectrum
         
         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=1, mode="expand", borderaxespad=0, frameon=False)
