@@ -6,6 +6,18 @@ import numpy.linalg as la
 # numba wont work with np.sum(axis=), dtype=complex 128 (workaround np.complex128), str comparisons, and returning multiple values.
 
 @nb.jit(nopython=True)
+def calc_inst_params(x_hat_time_slice):
+    '''
+    Returns instantaneous amplitudes and instaneous phases associated with each Kalman basis osccilator using state estimate, x_hat, at a given time step. 
+    '''
+    instantA_slice = np.sqrt(x_hat_time_slice[::2,0]**2 + x_hat_time_slice[1::2, 0]**2) # using apostereroiri estimates
+    instantP_slice = np.arctan2(x_hat_time_slice[1::2,0], x_hat_time_slice[::2,0]) # correct phase using atan2
+    
+    # Changed math.atan2 to numpy.atan2 to support vectoristion.
+    return instantA_slice, instantP_slice
+
+
+@nb.jit(nopython=True)
 def calc_pred(x_hat_series):
     
     '''
@@ -242,31 +254,15 @@ def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_
     instantP -- Instantaneous phase calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
        
     '''
+    instantA, instantP = calc_inst_params(x_hat)
     
-    # Instantaneous Amplitude, Phase and Frequency Calculations
-    instantA = np.zeros(numf) 
-    instantP = np.zeros(numf) 
-    #instantW = np.zeros(numf) 
-    
-    # Extract Learned Parameters
-    spectralresult0=0
-    spectralresult=0
-    for spectralresult0 in range(0,len(freq_basis_array),1):
-        spectralresult = spectralresult0*2    
-        instantA[spectralresult0] = np.sqrt(x_hat[spectralresult,0]**2 + x_hat[spectralresult + 1,0]**2) # using aposteroiri estimates
-        instantP[spectralresult0] = math.atan2(x_hat[spectralresult + 1,0], x_hat[spectralresult,0]) # correct phase using atan2
+    ## PROPAGATE FORWARD USING HARMONIC SUMS
+    Propagate_Foward = np.zeros((num))
 
-    # Make Predictions 
-    Propagate_Foward = np.zeros(num)
-    Harmonic_Component = 0.0
     tn = 0
-    for tn in range(n_train,num,1):
-        for spectralcomponent in range(0, len(freq_basis_array),1):
-            if freq_basis_array[spectralcomponent] == 0:
-                Harmonic_Component = instantA[spectralcomponent]*np.cos((Delta_T_Sampling*tn*freq_basis_array[spectralcomponent]*2*np.pi + instantP[spectralcomponent]))
-            if freq_basis_array[spectralcomponent] != 0:
-                Harmonic_Component = instantA[spectralcomponent]*np.cos((Delta_T_Sampling*tn*freq_basis_array[spectralcomponent]*2*np.pi + instantP[spectralcomponent] + phase_correction_noisetraces))
-            Propagate_Foward[tn] += Harmonic_Component 
-    
+    for tn in range(n_train, num, 1):
+        Propagate_Foward[tn] = instantA[0]*np.cos((Delta_T_Sampling*tn*freq_basis_array[0]*2*np.pi + instantP[0]))
+        Propagate_Foward[tn] += np.sum(instantA[1:]*np.cos((Delta_T_Sampling*tn*freq_basis_array[1:]*2*np.pi + instantP[1:] + phase_correction_noisetraces))) # with correction for noise traces 
+
     return Propagate_Foward, instantA, instantP
 
