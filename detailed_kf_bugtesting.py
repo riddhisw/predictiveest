@@ -1,7 +1,18 @@
 #descriptor = "DetailedKF_"
 import numpy as np
-import math
 import numba as nb
+
+@nb.jit(nopython=True)
+def calc_inst_params(x_hat_time_slice):
+    '''
+    Returns instantaneous amplitudes and instaneous phases associated with each Kalman basis osccilator using state estimate, x_hat, at a given time step. 
+    '''
+    instantA_slice = np.sqrt(x_hat_time_slice[::2,0]**2 + x_hat_time_slice[1::2, 0]**2) # using apostereroiri estimates
+    instantP_slice = np.arctan2(x_hat_time_slice[1::2,0], x_hat_time_slice[::2,0]) # correct phase using atan2
+    
+    # Changed math.atan2 to numpy.atan2 to support vectoristion.
+    return instantA_slice, instantP_slice
+
 
 @nb.jit(nopython=True)
 def calc_pred(x_hat_series):
@@ -128,11 +139,8 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     W = np.zeros((twonumf,1,num)) 
     P_hat = np.zeros((twonumf,twonumf,num)) 
     
-    # Dynamical Model, Measurement Action and Initial Conditions
-    a = np.zeros((twonumf,twonumf)) 
-    h = np.zeros((1,twonumf,num)) 
-    h[0,0,:] = 1.0
-    
+    # Dynamical Model
+    a = np.zeros((twonumf,twonumf))     
     coswave = -1 # -1 for a cosine state, +1 for a sine state signal. -1 will work for a sine wave with random phases.
     comp = 0
     for comp in range(0,twonumf,2):
@@ -140,18 +148,20 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         a[comp+1,comp+1] =  np.cos(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
         a[comp,comp+1] = coswave*np.sin(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
         a[comp+1,comp] = -a[comp,comp+1] 
-        
-    initial = 0
-    for initial in range(0,twonumf,1):
-        P_hat[initial,initial,0] = P_hat_initial 
-        x_hat[initial,0,0] = x_hat_initial 
-        if (initial % 2 == 0):
-            h[0,initial,:] = 1.0
+    
+    # Measurement Action
+    h = np.zeros((1,twonumf,num)) 
+    h[0,::2,...] = 1.0
+    
+    # Initial Conditions
+    x_hat[:,0,0] = x_hat_initial 
+    diag_indx = range(0,twonumf,1)
+    P_hat[diag_indx, diag_indx, 0] = P_hat_initial
 
-    # Instantaneous Amplitude, Phase and Frequency Calculations
+    # Instantaneous Amplitude, Phase and Frequency Calculations # not optimised as it doesn't concern the loop
     instantA = np.zeros((numf,num)) 
     instantP = np.zeros((numf,num)) 
-    instantW = np.zeros((numf,num)) 
+    instantW = np.zeros((numf,num))
     
     
     k = 1
@@ -171,10 +181,11 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         z_proj[0,0,k] = np.dot(h[:,:,k],x_hat[:,:,k]) #Predicted state at time k (one step ahead from k-1) 
         
         #print 'Apriori Predicted Measurement Variance, S, and  Gain Calculation'
-        S_comparison = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] 
-        S[:,:,k] = np.linalg.multi_dot([h[:,:,k], P_hat[:,:,k], h[:,:,k].T]) + R[:,:,k] 
+        S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # implemented in detailed_kf.py i.e. the oppostive assocaitivity to detailed_kf_bugtesting.py
+        S_comparison = np.dot(h[:,:,k], np.dot(P_hat[:,:,k],h[:,:,k].T)) + R[:,:,k] # currently in operation
+        S_comparison2 = np.linalg.multi_dot([h[:,:,k], P_hat[:,:,k], h[:,:,k].T]) + R[:,:,k]  # multi_dot always returns return dot(A, dot(B, C)) since A==C.  implemented in memoryless KF
         
-        assert (np.linalg.norm(S[:, :, k] - S_comparison, 2) <= 1e-10)
+        #assert (np.linalg.norm(S[:, :, k] - S_comparison2, 2) <= 1e-11) # asserstion error not tripped so matrix multiplication dot(A, dot(B, C)) is the same as multi_dot
         S_inv[:,:,k] = 1.0/S[:,:,k]
         
         W[:,:,k] = np.dot(P_hat[:,:,k],h[:,:,k].T)*S_inv[:,:,k] 
@@ -192,16 +203,10 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
 
         k=k+1
     
-    ## CALCULATE INSTANTANEOUS PHASE, AMPLITUDE AND FREQUENCY
+    ## CALCULATE INSTANTANEOUS PHASE, AMPLITUDE AND FREQUENCY    
     k=1
     while (k< num):
-        spectralresult0=0
-        spectralresult=0
-        for spectralresult0 in range(0,len(freq_basis_array),1):
-            spectralresult = spectralresult0*2    
-            instantA[spectralresult0,k] = np.sqrt(x_hat[spectralresult,0,k]**2 + x_hat[spectralresult + 1,0,k]**2) # using apostereroiri estimates
-            instantP[spectralresult0,k] = math.atan2(x_hat[spectralresult + 1,0,k],x_hat[spectralresult,0,k]) # correct phase using atan2
-            instantW[spectralresult0,k] = (1/(2*np.pi))*(((x_hat[spectralresult,0,k])*(x_hat[spectralresult + 1,0,k]-x_hat[spectralresult + 1,0,k-1])-x_hat[spectralresult + 1,0,k]*(x_hat[spectralresult,0,k]-x_hat[spectralresult,0,k-1]))/Delta_T_Sampling)/(x_hat[spectralresult,0,k]**2 + x_hat[spectralresult + 1,0,k]**2)
+        instantA[:, k], instantP[:, k] = calc_inst_params(x_hat[:,:,k])
         k=k+1
 
     ## PROPAGATE FORWARD USING HARMONIC SUMS
