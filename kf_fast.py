@@ -1,9 +1,6 @@
 import numpy as np
-import math
 import numba as nb
 import numpy.linalg as la
-
-# numba wont work with np.sum(axis=), dtype=complex 128 (workaround np.complex128), str comparisons, and returning multiple values.
 
 @nb.jit(nopython=True)
 def calc_inst_params(x_hat_time_slice):
@@ -50,6 +47,41 @@ def calc_Gamma(x_hat, oe, numf):
         Gamma2[spectralresult+1,0] = x_hat[spectralresult + 1,0]*(np.sqrt(oe**2/ (x_hat[spectralresult,0]**2 + x_hat[spectralresult + 1,0]**2)))   
     return Gamma2
 
+
+#@nb.jit(nopython=True) 
+def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
+    ''' Extracts learned parameters from Kalman Filtering msmt_record and makes predictions for timesteps > n_train
+    
+    Keyword Arguments:
+    ------------------
+    freq_basis_array -- Array containing basis frequencies. [Len: numf. dtype = float64]
+    x_hat -- Aposteriori KF estimates based on msmt_record (real and estimated imaginary components of the state for each basis frequency) [Len: twonumf. dtype = float64]
+    Delta_T_Sampling -- Time interval between measurements. [Scalar int]
+    phase_correction_noisetraces -- Applies depending on choice of basis [Scalar float64]
+    num -- Number of points in msmt_record. [Scalar int]
+    n_train -- Predicted timestep at which algorithm is expected to finish learning [Scalar int]
+    numf -- Number of points (spectral basis frequencies) in freq_basis_array. [Scalar int]
+    
+    Returns: 
+    --------
+    Propagate_Foward -- Output predictions. Non-zero only for n_train < timestep < num. [Len: num. dtype = float64] 
+    instantA -- Instantaneous amplitude calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
+    instantP -- Instantaneous phase calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
+       
+    '''
+    instantA, instantP = calc_inst_params(x_hat)
+    
+    ## PROPAGATE FORWARD USING HARMONIC SUMS
+    Propagate_Foward = np.zeros((num))
+
+    tn = 0
+    for tn in range(n_train, num, 1):
+        Propagate_Foward[tn] = instantA[0]*np.cos((Delta_T_Sampling*tn*freq_basis_array[0]*2*np.pi + instantP[0]))
+        Propagate_Foward[tn] += np.sum(instantA[1:]*np.cos((Delta_T_Sampling*tn*freq_basis_array[1:]*2*np.pi + instantP[1:] + phase_correction_noisetraces))) # with correction for noise traces 
+
+    return Propagate_Foward, instantA, instantP
+
+
 ZERO_GAIN, PROP_FORWARD = range(2)
 PredictionMethod = {
     "ZeroGain": ZERO_GAIN, 
@@ -74,6 +106,13 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     phase_correction -- Basis dependent + prediction method dependent. [Scalar float64]
     prediction_method -- Basis dependent.  Use Use W=0 OR PropagateForward with Phase Correction.
     
+    skip_msmts -- Allow a non zero Kalman gain for every n-th msmt, where skip_msmts == n
+    
+    Returns: 
+    --------
+    predictions -- Output predictions. [Len: n_testbefore + n_predict. dtype = float64]
+    InstantA -- Instantaneous amplitudes at n_train use for generating predictions using Prop Forward [len: numf. dtype = float64]
+
     Dimensions:
     -----------
     num -- Number of points in msmt_record. [Scalar int]
@@ -124,28 +163,35 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     P_hat_apriori = np.zeros((twonumf,twonumf))    
     P_hat = np.zeros((twonumf,twonumf))
 
-    # Dynamical Model, Measurement Action and Initial Conditions
-    a = np.zeros((twonumf,twonumf)) 
-    h = np.zeros((1,twonumf)) 
-    h[0, 0] = 1.0
+    # Dynamical Model
+    a = np.zeros((twonumf,twonumf))
     coswave = -1 
-    comp = 0
-    for comp in range(0,twonumf,2):
-        a[comp,comp] = np.cos(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
-        a[comp+1,comp+1] =  np.cos(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
-        a[comp,comp+1] = coswave*np.sin(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
-        a[comp+1,comp] = -a[comp,comp+1] 
-
-    initial = 0
-    for initial in range(0,twonumf,1):
-        P_hat[initial,initial] = p0 
-        x_hat[initial] = x0
-        if (initial % 2 == 0):
-            h[0,initial] = 1.0
+    index = range(0,twonumf,2)
+    index2 = range(1,twonumf+1,2) #twnumf is even so need to add 1 to write over the last element
+    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) #dim(freq_basis_array) = numf
+    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi)
+    a[index, index] = diagonals
+    a[index2, index2] = diagonals
+    a[index, index2] = off_diagonals
+    a[index2, index] = -1.0*off_diagonals
+    
+    # Measurement Action
+    h = np.zeros((1,twonumf)) 
+    h[0,::2] = 1.0
+    
+    # Initial Conditions
+    x_hat[:,0] = x0 
+    diag_indx = range(0,twonumf,1)
+    P_hat[diag_indx, diag_indx] = p0
     
     store_x_hat = np.zeros((twonumf,1,num))
     store_P_hat = np.zeros((twonumf,twonumf,num))
     predictions = np.zeros(n_testbefore + n_predict)
+    
+    
+    
+    
+    
     
     # Start Filtering
     k = 1
@@ -155,6 +201,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         Gamma = np.dot(a,calc_Gamma(x_hat, oe, numf))
 
         Q = np.outer(Gamma, Gamma.T)
+        
         P_hat_apriori = np.dot(np.dot(a,P_hat),a.T) + Q
         
         if prediction_method_ == ZERO_GAIN and k> (n_train):
@@ -232,37 +279,4 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
              Q=Q)
     
     return predictions
-
-#@nb.jit(nopython=True) 
-def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
-    ''' Extracts learned parameters from Kalman Filtering msmt_record and makes predictions for timesteps > n_train
-    
-    Keyword Arguments:
-    ------------------
-    freq_basis_array -- Array containing basis frequencies. [Len: numf. dtype = float64]
-    x_hat -- Aposteriori KF estimates based on msmt_record (real and estimated imaginary components of the state for each basis frequency) [Len: twonumf. dtype = float64]
-    Delta_T_Sampling -- Time interval between measurements. [Scalar int]
-    phase_correction_noisetraces -- Applies depending on choice of basis [Scalar float64]
-    num -- Number of points in msmt_record. [Scalar int]
-    n_train -- Predicted timestep at which algorithm is expected to finish learning [Scalar int]
-    numf -- Number of points (spectral basis frequencies) in freq_basis_array. [Scalar int]
-    
-    Returns: 
-    --------
-    Propagate_Foward -- Output predictions. Non-zero only for n_train < timestep < num. [Len: num. dtype = float64] 
-    instantA -- Instantaneous amplitude calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
-    instantP -- Instantaneous phase calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
-       
-    '''
-    instantA, instantP = calc_inst_params(x_hat)
-    
-    ## PROPAGATE FORWARD USING HARMONIC SUMS
-    Propagate_Foward = np.zeros((num))
-
-    tn = 0
-    for tn in range(n_train, num, 1):
-        Propagate_Foward[tn] = instantA[0]*np.cos((Delta_T_Sampling*tn*freq_basis_array[0]*2*np.pi + instantP[0]))
-        Propagate_Foward[tn] += np.sum(instantA[1:]*np.cos((Delta_T_Sampling*tn*freq_basis_array[1:]*2*np.pi + instantP[1:] + phase_correction_noisetraces))) # with correction for noise traces 
-
-    return Propagate_Foward, instantA, instantP
 
