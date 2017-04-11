@@ -197,7 +197,7 @@ class Kalman(Experiment, Noisy_Data):
         '''
         
         omega_axis = 2*np.pi*frequency_axis
-        one_PSD_realisation = (fourier_amplitudes**2)*2*np.pi*FUDGE #numerical analysis shows my calc is off by 1/2
+        one_PSD_realisation = (fourier_amplitudes**2)*2*np.pi 
         return omega_axis, one_PSD_realisation
 
 
@@ -214,12 +214,14 @@ class Kalman(Experiment, Noisy_Data):
         # Generate true PSD linne
         self.beta_z_truePSD()
 
-        #G enerated estimates of PSD by squaring Kalman learned amplitudes       
+        # Generated estimates of PSD by squaring Kalman learned amplitudes       
         x_skf, y_skf = self.convert_amp_hz_to_radians(self.basisA, amp_skf)
         x_dkf, y_dkf = self.convert_amp_hz_to_radians(self.basisA, amp_dkf)
         x_data = [x_skf, x_dkf, self.true_w_axis[self.J -1:]]
-        y_data = [y_skf, y_dkf, HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]]
-        
+        y_data = [y_skf*FUDGE, y_dkf*FUDGE, HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]]
+        # FUDGE: numerical analysis shows my calc is off by 1/2 
+        # HILBERT_TRANSFORM: Comparison with the Hilbert Transform (amplitudes) from KF means we double the twosided spectrum
+
         
         time_predictions = [pred_skf, pred_dkf, truth[self.n_train-self.n_testbefore:self.n_train + self.n_predict], y_signal[self.n_train-self.n_testbefore:self.n_train + self.n_predict], pred_skf_2]
         lbl_list = ['KF (Fast)', 'Detailed KF', 'Truth', 'Msmts', 'KF_2']
@@ -250,8 +252,7 @@ class Kalman(Experiment, Noisy_Data):
                     color=color_list[i], 
                     label=lbl_list[i]+', Power: %s'%(np.round(np.sum(y_data[i]))))
         ax.plot(x_data[2], y_data[2], 'r', label=lbl_list[2]+', Power: %s'%(np.round(self.true_S_norm)))
-        # NB: Comparison with the Hilbert Transform (amplitudes) from KF means we double the twosided spectrum
-        
+                
         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=1, mode="expand", 
                   borderaxespad=0, frameon=False, fontsize=14)
         
