@@ -181,12 +181,12 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
             
-            np.savez('Check_KF_Results', 
+            np.savez('Check_KF_Results_standard', 
                     predictions=predictions, 
                     y_signal=y_signal,
                     freq_basis_array= freq_basis_array, 
-                    x_hat=x_hat, 
-                    P_hat=P_hat, 
+                    x_hat=store_x_hat, 
+                    P_hat=store_P_hat, 
                     a=a,
                     h=h,
                     z=z, 
@@ -204,12 +204,12 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         
     predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
     
-    np.savez('Check_KF_Results', 
+    np.savez('Check_KF_Results_standard', 
              predictions=predictions, 
              y_signal=y_signal,
              freq_basis_array= freq_basis_array, 
-             x_hat=x_hat, 
-             P_hat=P_hat, 
+             x_hat=store_x_hat, 
+             P_hat=store_P_hat, 
              a=a,
              h=h,
              z=z, 
