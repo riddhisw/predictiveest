@@ -186,6 +186,8 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     
     store_x_hat = np.zeros((twonumf,1,num))
     store_P_hat = np.zeros((twonumf,twonumf,num))
+    
+    store_W = np.zeros((twonumf,1,num)) 
     predictions = np.zeros(n_testbefore + n_predict)
     
     
@@ -233,6 +235,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
 
         store_x_hat[:,:,k] = x_hat
         store_P_hat[:,:,k] = P_hat         
+        store_W[:,:,k] = W
         
         if prediction_method_ == PROP_FORWARD and (k==n_train):
             # This loop initiates propagation forward at n_train
@@ -252,7 +255,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
                     h=h,
                     z=z, 
                     e_z=e_z,
-                    W=W, 
+                    W=store_W, 
                     Q=Q,
                     instantA=instantA,
                     instantP=instantP,
@@ -275,7 +278,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
              h=h,
              z=z, 
              e_z=e_z,
-             W=W, 
+             W=store_W, 
              Q=Q)
     
     return predictions
