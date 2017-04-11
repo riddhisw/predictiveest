@@ -33,6 +33,7 @@ def calc_pred(x_hat_series):
         pred[k] = np.sum(x_hat_series[::2, 0, k])
     return pred
 
+
 @nb.jit(nopython=True)
 def calc_Gamma(x_hat, oe, numf):
     '''Returns a vector of noise features used to calculate Q in Kalman Filtering
@@ -140,14 +141,16 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     P_hat = np.zeros((twonumf,twonumf,num)) 
     
     # Dynamical Model
-    a = np.zeros((twonumf,twonumf))     
-    coswave = -1 # -1 for a cosine state, +1 for a sine state signal. -1 will work for a sine wave with random phases.
-    comp = 0
-    for comp in range(0,twonumf,2):
-        a[comp,comp] = np.cos(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
-        a[comp+1,comp+1] =  np.cos(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
-        a[comp,comp+1] = coswave*np.sin(Delta_T_Sampling*freq_basis_array[comp/2]*2*np.pi)
-        a[comp+1,comp] = -a[comp,comp+1] 
+    a = np.zeros((twonumf,twonumf))
+    coswave = -1 
+    index = range(0,twonumf,2)
+    index2 = range(1,twonumf+1,2) #twnumf is even so need to add 1 to write over the last element
+    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) #dim(freq_basis_array) = numf
+    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi)
+    a[index, index] = diagonals
+    a[index2, index2] = diagonals
+    a[index, index2] = off_diagonals
+    a[index2, index] = -1.0*off_diagonals
     
     # Measurement Action
     h = np.zeros((1,twonumf,num)) 
@@ -160,9 +163,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
 
     # Instantaneous Amplitude, Phase and Frequency Calculations # not optimised as it doesn't concern the loop
     instantA = np.zeros((numf,num)) 
-    instantP = np.zeros((numf,num)) 
-    instantW = np.zeros((numf,num))
-    
+    instantP = np.zeros((numf,num))
     
     k = 1
     while (k< num):
@@ -181,8 +182,8 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         z_proj[0,0,k] = np.dot(h[:,:,k],x_hat[:,:,k]) #Predicted state at time k (one step ahead from k-1) 
         
         #print 'Apriori Predicted Measurement Variance, S, and  Gain Calculation'
-        S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # implemented in detailed_kf.py i.e. the oppostive assocaitivity to detailed_kf_bugtesting.py
-        S_comparison = np.dot(h[:,:,k], np.dot(P_hat[:,:,k],h[:,:,k].T)) + R[:,:,k] # currently in operation
+        S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # implemented in detailed_kf.py
+        S_comparison = np.dot(h[:,:,k], np.dot(P_hat[:,:,k],h[:,:,k].T)) + R[:,:,k] # should be implemented in detailed_kf to compare with multi_dot in kf_fast
         S_comparison2 = np.linalg.multi_dot([h[:,:,k], P_hat[:,:,k], h[:,:,k].T]) + R[:,:,k]  # multi_dot always returns return dot(A, dot(B, C)) since A==C.  implemented in memoryless KF
         
         #assert (np.linalg.norm(S[:, :, k] - S_comparison2, 2) <= 1e-11) # asserstion error not tripped so matrix multiplication dot(A, dot(B, C)) is the same as multi_dot
@@ -210,21 +211,15 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         k=k+1
 
     ## PROPAGATE FORWARD USING HARMONIC SUMS
-
     Propagate_Foward = np.zeros((num))
     instantA_Prediction = instantA[:,n_train]
     instantP_Prediction = instantP[:,n_train]
 
-    #Using a harmonic sum for the noise 
+    #Using a harmonic sum for propagating  the noise 
     tn = 0
-    Harmonic_Component = 0.0
     for tn in range(n_train,num,1):
-        for spectralcomponent in range(0, len(freq_basis_array)):
-            if freq_basis_array[spectralcomponent] == 0:
-                Harmonic_Component = instantA_Prediction[spectralcomponent]*np.cos((Delta_T_Sampling*tn*freq_basis_array[spectralcomponent]*2*np.pi + instantP_Prediction[spectralcomponent]))
-            if freq_basis_array[spectralcomponent] != 0:
-                Harmonic_Component = instantA_Prediction[spectralcomponent]*np.cos((Delta_T_Sampling*tn*freq_basis_array[spectralcomponent]*2*np.pi + instantP_Prediction[spectralcomponent] + phase_correction_noisetraces)) # with correction for noise traces 
-            Propagate_Foward[tn] += Harmonic_Component
+        Propagate_Foward[tn] = instantA_Prediction[0]*np.cos((Delta_T_Sampling*tn*freq_basis_array[0]*2*np.pi + instantP_Prediction[0]))
+        Propagate_Foward[tn] += np.sum(instantA_Prediction[1:]*np.cos((Delta_T_Sampling*tn*freq_basis_array[1:]*2*np.pi + instantP_Prediction[1:] + phase_correction_noisetraces))) # with correction for noise traces 
 
     # We report one step ahead predictions for n < n_train
     predictions[0:n_testbefore] = calc_pred(x_hat[:,:,n_train-n_testbefore:n_train])
