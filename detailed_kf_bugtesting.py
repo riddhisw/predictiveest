@@ -210,8 +210,8 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         z_proj[0,0,k] = np.dot(h[:,:,k],x_hat[:,:,k]) #Predicted state at time k (one step ahead from k-1) 
         
         #print 'Apriori Predicted Measurement Variance, S, and  Gain Calculation'
-        S_comparison = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # implemented in detailed_kf.py
-        S[:,:,k] = np.dot(h[:,:,k], np.dot(P_hat[:,:,k],h[:,:,k].T)) + R[:,:,k] # should be implemented in detailed_kf to compare with multi_dot in kf_fast
+        S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # implemented in detailed_kf.py
+        #S[:,:,k] = np.dot(h[:,:,k], np.dot(P_hat[:,:,k],h[:,:,k].T)) + R[:,:,k] # should be implemented in detailed_kf to compare with multi_dot in kf_fast
         S_comparison2 = np.linalg.multi_dot([h[:,:,k], P_hat[:,:,k], h[:,:,k].T]) + R[:,:,k]  # multi_dot always returns return dot(A, dot(B, C)) since A==C.  implemented in memoryless KF
         
         #assert (np.linalg.norm(S[:, :, k] - S_comparison2, 2) <= 1e-11) # asserstion error not tripped so matrix multiplication dot(A, dot(B, C)) is the same as multi_dot
