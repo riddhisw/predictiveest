@@ -4,6 +4,7 @@ import numpy as np
 import numba as nb
 import numpy.linalg as la
 
+
 @nb.jit(nopython=True)
 def calc_inst_params(x_hat_time_slice):
     '''
@@ -48,3 +49,61 @@ def calc_Gamma(x_hat, oe, numf):
         Gamma2[spectralresult,0] = x_hat[spectralresult,0]*(np.sqrt(oe**2/ (x_hat[spectralresult,0]**2 + x_hat[spectralresult + 1,0]**2)))
         Gamma2[spectralresult+1,0] = x_hat[spectralresult + 1,0]*(np.sqrt(oe**2/ (x_hat[spectralresult,0]**2 + x_hat[spectralresult + 1,0]**2)))   
     return Gamma2
+
+
+def get_dynamic_model(twonumf, Delta_T_Sampling, freq_basis_array, coswave=-1):
+    
+    """ Returns the dynamic state space model based 
+    on computational basis and experimental sampling params
+    [Dim: twonumf x twonumf. dtype = float64]
+    """
+    
+    a = np.zeros((twonumf,twonumf))
+    index = range(0,twonumf,2)
+    index2 = range(1,twonumf+1,2) #twnumf is even so need to add 1 to write over the last element
+    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) #dim(freq_basis_array) = numf
+    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi)
+    a[index, index] = diagonals
+    a[index2, index2] = diagonals
+    a[index, index2] = off_diagonals
+    a[index2, index] = -1.0*off_diagonals
+     
+    return a
+
+
+def propagate_states(a, x_hat, P_hat, oe, numf):
+    '''Returns state propagation without a Kalman update. 
+    '''
+    x_hat_apriori = np.dot(a, x_hat) 
+    Gamma = np.dot(a,calc_Gamma(x_hat, oe, numf))
+    Q = np.outer(Gamma, Gamma.T)
+    P_hat_apriori = np.dot(np.dot(a,P_hat),a.T) + Q
+
+    return x_hat_apriori, P_hat_apriori
+    
+
+def calc_Kalman_Gain(h, P_hat_apriori, rk):
+    '''Returns the Kalman gain and the S matrix for performing state updates.
+    '''
+    #S = la.multi_dot([h,P_hat_apriori,h.T]) + rk 
+    S = np.dot(np.dot(h,P_hat_apriori), h.T) + rk 
+    #S = np.dot(h, np.dot(P_hat_apriori, h.T)) + rk # Same as linalg.multi_dot for this problem
+
+    S_inv = 1.0/S # 1.0/S and np.linalg.inv(S) are equivalent when S is rank 1
+    
+    if not np.isfinite(S_inv).all():
+        print("S is not finite")
+        raise RuntimeError
+    
+    W = np.dot(P_hat_apriori,h.T)*S_inv
+    return W, S
+
+
+def calc_residuals(h, x_hat_apriori, msmt):
+    z_proj = np.dot(h,x_hat_apriori)
+    return msmt - z_proj
+    
+
+    
+
+    

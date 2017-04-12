@@ -2,7 +2,7 @@ import numpy as np
 import numba as nb
 import numpy.linalg as la
 
-from kf.common import calc_inst_params, calc_pred, calc_Gamma
+from kf.common import calc_inst_params, calc_pred, calc_Gamma, get_dynamic_model, propagate_states, calc_Kalman_Gain, calc_residuals
 
 #@nb.jit(nopython=True) 
 def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
@@ -123,16 +123,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     P_hat = np.zeros((twonumf,twonumf))
 
     # Dynamical Model
-    a = np.zeros((twonumf,twonumf))
-    coswave = -1 
-    index = range(0,twonumf,2)
-    index2 = range(1,twonumf+1,2) #twnumf is even so need to add 1 to write over the last element
-    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) #dim(freq_basis_array) = numf
-    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi)
-    a[index, index] = diagonals
-    a[index2, index2] = diagonals
-    a[index, index2] = off_diagonals
-    a[index2, index] = -1.0*off_diagonals
+    a = get_dynamic_model(twonumf, Delta_T_Sampling, freq_basis_array, coswave=-1)
     
     # Measurement Action
     h = np.zeros((1,twonumf)) 
@@ -145,25 +136,17 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     
     store_x_hat = np.zeros((twonumf,1,num))
     store_P_hat = np.zeros((twonumf,twonumf,num))
+    store_x_hat[:,:,0] = x_hat
+    store_P_hat[:,:,0] = P_hat  
     
     store_W = np.zeros((twonumf,1,num)) 
     predictions = np.zeros(n_testbefore + n_predict)
     
-    
-    
-    
-    
-    
     # Start Filtering
     k = 1
     while (k< num): 
-
-        x_hat_apriori = np.dot(a, x_hat) 
-        Gamma = np.dot(a,calc_Gamma(x_hat, oe, numf))
-
-        Q = np.outer(Gamma, Gamma.T)
         
-        P_hat_apriori = np.dot(np.dot(a,P_hat),a.T) + Q
+        x_hat_apriori, P_hat_apriori = propagate_states(a, x_hat, P_hat, oe, numf)
         
         if prediction_method_ == ZERO_GAIN and k> (n_train):
             # This loop is equivalent to setting the gain to zero 
@@ -173,29 +156,23 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             store_P_hat[:,:,k] = P_hat
             k = k+1 
             continue 
-
-        z_proj = np.dot(h,x_hat_apriori)
-        S = la.multi_dot([h,P_hat_apriori,h.T]) + rk #np.dot(np.dot(h,P_hat_apriori),h.T) + rk
-        S_inv = 1.0/S # 1.0/S and np.linalg.inv(S) are equivalent when S is rank 1
         
-        if not np.isfinite(S_inv).all():
-            print "Inversion Error"
-            break
+        W, S = calc_Kalman_Gain(h, P_hat_apriori, rk)    
         
-        W = np.dot(P_hat_apriori,h.T)*S_inv
-        e_z[k] = z[k]-z_proj
-
         #Skip msmts        
         if k % skip_msmts !=0:
             W = np.zeros((twonumf, 1))
-
+            
+        e_z[k] = calc_residuals(h, x_hat_apriori, z[k])
+        
         x_hat = x_hat_apriori + W*e_z[k]
         P_hat = P_hat_apriori - S*np.outer(W,W.T) #Equivalent to outer(W, W)
-
+        
         store_x_hat[:,:,k] = x_hat
         store_P_hat[:,:,k] = P_hat         
         store_W[:,:,k] = W
-        
+
+           
         if prediction_method_ == PROP_FORWARD and (k==n_train):
             # This loop initiates propagation forward at n_train
             Propagate_Foward, instantA, instantP = makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction,num,n_train,numf)
@@ -215,8 +192,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
                     h=h,
                     z=z, 
                     e_z=e_z,
-                    W=store_W, 
-                    Q=Q,
+                    W=store_W,
                     instantA=instantA,
                     instantP=instantP,
                     Propagate_Foward=Propagate_Foward,
@@ -238,8 +214,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
              h=h,
              z=z, 
              e_z=e_z,
-             W=store_W, 
-             Q=Q)
+             W=store_W)
     
     return predictions
 

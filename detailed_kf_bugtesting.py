@@ -2,7 +2,8 @@ import numpy as np
 import numba as nb
 import numpy.linalg as la
 
-from kf.common import calc_inst_params, calc_pred, calc_Gamma
+from kf.common import calc_inst_params, calc_pred, calc_Gamma, get_dynamic_model, propagate_states, calc_Kalman_Gain, calc_residuals
+
 
 def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
     ''' Extracts learned parameters from Kalman Filtering msmt_record and makes predictions for timesteps > n_train
@@ -108,7 +109,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     # Model Dimensions
     num = n_predict + n_train
     numf = len(freq_basis_array)
-    twonumf = int(numf*2)
+    twonumf = int(numf*2.0)
 
     # Kalman Measurement Data
     z = np.zeros((1,1,num)) 
@@ -117,21 +118,10 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     # State Estimation
     x_hat = np.zeros((twonumf,1,num)) 
     e_z = np.zeros((1,1,num)) 
-    P_hat = np.zeros((twonumf,twonumf,num))
-    z_proj = np.zeros((1,1,num)) 
-    
+    P_hat = np.zeros((twonumf,twonumf,num))   
     
     # Dynamical Model
-    a = np.zeros((twonumf,twonumf))
-    coswave = -1 
-    index = range(0,twonumf,2)
-    index2 = range(1,twonumf+1,2) #twnumf is even so need to add 1 to write over the last element
-    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) #dim(freq_basis_array) = numf
-    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi)
-    a[index, index] = diagonals
-    a[index2, index2] = diagonals
-    a[index, index2] = off_diagonals
-    a[index2, index] = -1.0*off_diagonals
+    a = get_dynamic_model(twonumf, Delta_T_Sampling, freq_basis_array, coswave=-1)
     
     # Measurement Action
     h = np.zeros((1,twonumf,num)) 
@@ -153,38 +143,21 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     W = np.zeros((twonumf,1,num)) 
      
     k = 1
-    while (k< num):
+    while (k< n_train+1):
         #print 'Apriori Predicted State x_hat'
-        x_hat[:,:,k] = np.dot(a,x_hat[:,:,k-1]) #Predicted state prior to measurement (no controls) for no dynamic model and no process noise
-        Gamma = np.dot(a,calc_Gamma(x_hat[:,:,k-1], oekalman, numf)) 
+        x_hat[:,:,k], P_hat[:,:,k] = propagate_states(a, x_hat[:,:,k-1], P_hat[:,:,k-1], oekalman, numf)
         
-        Q[:,:,k-1] = np.dot(Gamma, Gamma.T)
-        #print 'Apriori Predicted State Variance'
-        P_hat[:,:,k] = np.dot(np.dot(a,P_hat[:,:,k-1]),a.T) + Q[:,:,k-1]
-
-        #print 'Apriori Predicted Measurement'
-        z_proj[0,0,k] = np.dot(h[:,:,k],x_hat[:,:,k]) #Predicted state at time k (one step ahead from k-1) 
-        
-        #print 'Apriori Predicted Measurement Variance, S, and  Gain Calculation'
-        #S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # (AB)C
-        S[:,:,k] = np.dot(h[:,:,k], np.dot(P_hat[:,:,k],h[:,:,k].T)) + R[:,:,k] # A(BC)
-        S_comparison2 = np.linalg.multi_dot([h[:,:,k], P_hat[:,:,k], h[:,:,k].T]) + R[:,:,k]  # multi_dot always returns return dot(A, dot(B, C)) since A==C.  implemented in memoryless KF
-        
-        #assert (np.linalg.norm(S[:, :, k] - S_comparison2, 2) <= 1e-11) # asserstion error not tripped so matrix multiplication dot(A, dot(B, C)) is the same as multi_dot
-        S_inv[:,:,k] = 1.0/S[:,:,k]
-        
-        W[:,:,k] = np.dot(P_hat[:,:,k],h[:,:,k].T)*S_inv[:,:,k] 
+        W[:,:,k], S[:,:,k] = calc_Kalman_Gain(h[:,:,k], P_hat[:,:,k], R[:,:,k]) 
 
         # Skp Msmts
         if k % skip_msmts !=0:
             W[:,:,k] = np.zeros_like(W[:,:,k]) #skipped msmt, model evolves with no new info.
-        
-        #print 'Measurement Residual'
-        e_z[0,0,k] = z[0,0,k]-z_proj[0,0,k] 
+
+        e_z[0,0,k] = calc_residuals(h[:,:,k], x_hat[:,:,k], z[0,0,k])
 
         #print 'Aposteriori Updates'
         x_hat[:,:,k] = x_hat[:,:,k] + W[:,:,k]*e_z[0,0,k] 
-        P_hat[:,:,k] = P_hat[:,:,k] - S[:,:,k]*np.dot(W[:,:,k],W[:,:,k].T) # For scalar S
+        P_hat[:,:,k] = P_hat[:,:,k] - S[:,:,k]*np.outer(W[:,:,k],W[:,:,k].T) # For scalar S
 
         k=k+1
     
