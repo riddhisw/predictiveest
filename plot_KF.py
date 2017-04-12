@@ -55,6 +55,8 @@ class Plot_KF_Results(Experiment):
         
         pick_rand_run = int(np.random.uniform(low=0, high=self.max_run))
         truth = self.truth_datasets[self.n_train - self.n_testbefore : self.n_train + self.n_predict, pick_rand_run]
+        noisy_data_realisation = truth + self.msmt_noise_variance*np.random.randn(self.n_testbefore + self.n_predict)
+        
         x_data = self.Time_Axis[self.n_train - self.n_testbefore: self.n_train + self.n_predict ]
         x_data_p = x_data[0 :self.n_testbefore]
         x_data_f = x_data[self.n_testbefore:]
@@ -66,7 +68,8 @@ class Plot_KF_Results(Experiment):
         ax.set_ylabel('Signal (Signal Units )')
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
             item.set_fontsize(fsize)
-        ax.plot(x_data_p, y_data[0: self.n_testbefore], 'bx', label='One Step Ahead Predictions')
+        ax.plot(x_data_p, noisy_data_realisation[0: self.n_testbefore], 'kx', label='Msmts (Msmt Noise Var = %s)'%(self.msmt_noise_variance))
+        ax.plot(x_data_p, y_data[0: self.n_testbefore], 'bo', label='One Step Ahead Predictions')
         ax.plot(x_data_f, y_data[self.n_testbefore:], 'go', label='n-th Step Ahead Forecasts')
         ax.plot(x_data, truth, 'r', label='Truth')
         ax.axvline(self.n_train*self.Delta_T_Sampling, linestyle='--', color='gray', label='Training Ends')
