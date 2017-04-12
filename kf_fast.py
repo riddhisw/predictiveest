@@ -88,7 +88,7 @@ PredictionMethod = {
     "PropForward": PROP_FORWARD
 }
 
-def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", skip_msmts=1):
+def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", skip_msmts=1, descriptor='Check_KF_Results'):
     '''    
     Keyword Arguments:
     ------------------
@@ -143,10 +143,13 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     
     '''    
-    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts)
+    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor)
 
 
-def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts):
+def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor):
+
+    print(descriptor)
+    print(prediction_method_)
 
     num = n_train + n_predict
     numf = len(freq_basis_array)
@@ -245,7 +248,8 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
             
-            np.savez('Check_KF_Results', 
+            np.savez(descriptor, 
+                    descriptor=descriptor,
                     predictions=predictions, 
                     y_signal=y_signal,
                     freq_basis_array= freq_basis_array, 
@@ -268,7 +272,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         
     predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
     
-    np.savez('Check_KF_Results', 
+    np.savez(descriptor, descriptor=descriptor,
              predictions=predictions, 
              y_signal=y_signal,
              freq_basis_array= freq_basis_array, 
