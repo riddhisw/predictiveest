@@ -143,7 +143,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     
     
     k = 1
-    while (k< num):
+    while (k< n_converge+1):
 
         #print 'Apriori Predicted State x_hat'
         x_hat[:,:,k] = np.dot(a,x_hat[:,:,k-1]) #Predicted state prior to measurement (no controls) for no dynamic model and no process noise
@@ -167,7 +167,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         z_proj[0,0,k] = np.dot(h[:,:,k],x_hat[:,:,k]) #Predicted state at time k (one step ahead from k-1) 
         
         #print 'Apriori Predicted Measurement Variance, S, and  Gain Calculation'
-        S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] 
+        S[:,:,k] = np.dot(np.dot(h[:,:,k],P_hat[:,:,k]),h[:,:,k].T) + R[:,:,k] # Original DKF
         S_inv[:,:,k] = np.linalg.inv(S[:,:,k])
         
         W[:,:,k] = np.dot(P_hat[:,:,k],h[:,:,k].T)*S_inv[:,:,k] 
@@ -187,7 +187,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     
     ## CALCULATE INSTANTANEOUS PHASE, AMPLITUDE AND FREQUENCY
     k=1
-    while (k< num):
+    while (k< n_converge+1):
         spectralresult0=0
         spectralresult=0
         for spectralresult0 in range(0,len(freq_basis_array),1):
