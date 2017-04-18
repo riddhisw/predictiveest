@@ -140,7 +140,9 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     # Covariance Estimation
     S = np.zeros((1,1,num))
     S_inv = np.zeros((1,1,num)) 
-    W = np.zeros((twonumf,1,num)) 
+    W = np.zeros((twonumf,1,num))
+    
+    store_S_Outer_W = np.zeros((twonumf,twonumf,num))
      
     k = 1
     while (k< n_train+1):
@@ -156,7 +158,9 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         e_z[0,0,k] = calc_residuals(h[:,:,k], x_hat[:,:,k], z[0,0,k])
 
         #print 'Aposteriori Updates'
-        x_hat[:,:,k] = x_hat[:,:,k] + W[:,:,k]*e_z[0,0,k] 
+        x_hat[:,:,k] = x_hat[:,:,k] + W[:,:,k]*e_z[0,0,k]
+        store_S_Outer_W[:,:,k] = S[:,:,k]*np.outer(W[:,:,k],W[:,:,k].T)
+        
         P_hat[:,:,k] = P_hat[:,:,k] - S[:,:,k]*np.outer(W[:,:,k],W[:,:,k].T) # For scalar S
 
         k=k+1
@@ -181,6 +185,8 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
              e_z=e_z,
              W=W, 
              Q=Q,
+             store_S_Outer_W=store_S_Outer_W,
+             S=S,
              instantA=instantA,
              instantP=instantP,
              n_train=n_train,
