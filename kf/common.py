@@ -40,6 +40,7 @@ def calc_pred(x_hat_series):
 @nb.jit(nopython=True)
 def calc_Gamma(x_hat, oe, numf):
     '''Returns a vector of noise features used to calculate Q in Kalman Filtering
+       Could be simplified via slicing. Not yet implemented.
     '''
     Gamma2 = np.zeros((2*numf,1))
     spectralresult0=0
@@ -60,9 +61,9 @@ def get_dynamic_model(twonumf, Delta_T_Sampling, freq_basis_array, coswave=-1):
     
     a = np.zeros((twonumf,twonumf))
     index = range(0,twonumf,2)
-    index2 = range(1,twonumf+1,2) #twnumf is even so need to add 1 to write over the last element
-    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) #dim(freq_basis_array) = numf
-    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi)
+    index2 = range(1,twonumf+1,2) # twnumf is even so need to add 1 to write over the last element
+    diagonals = np.cos(Delta_T_Sampling*freq_basis_array*2*np.pi) # dim(diagonals) = numf
+    off_diagonals = coswave*np.sin(Delta_T_Sampling*freq_basis_array*2*np.pi) # dim(off-diagonals) = numf
     a[index, index] = diagonals
     a[index2, index2] = diagonals
     a[index, index2] = off_diagonals
@@ -83,10 +84,13 @@ def propagate_states(a, x_hat, P_hat, oe, numf):
     
 
 def calc_Kalman_Gain(h, P_hat_apriori, rk):
-    '''Returns the Kalman gain and the S matrix for performing state updates.
+    '''Returns the Kalman gain and scalar S for performing state updates.
+    NB: S can be a matrix <=> rk is a matrix, and S_inv = np.linalg.inverse(S) 
+    instead of 1.0/S.
     '''
     #S = la.multi_dot([h,P_hat_apriori,h.T]) + rk 
-    S = np.dot(np.dot(h,P_hat_apriori), h.T) + rk 
+    intermediary = np.dot(P_hat_apriori, h.T)
+    S = np.dot(h, intermediary) + rk 
     #S = np.dot(h, np.dot(P_hat_apriori, h.T)) + rk # Same as linalg.multi_dot for this problem
 
     S_inv = 1.0/S # 1.0/S and np.linalg.inv(S) are equivalent when S is rank 1
@@ -95,7 +99,7 @@ def calc_Kalman_Gain(h, P_hat_apriori, rk):
         print("S is not finite")
         raise RuntimeError
     
-    W = np.dot(P_hat_apriori,h.T)*S_inv
+    W = intermediary*S_inv
     return W, S
 
 
