@@ -140,6 +140,8 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     store_P_hat[:,:,0] = P_hat  
     
     store_W = np.zeros((twonumf,1,num)) 
+    store_S_Outer_W = np.zeros((twonumf,twonumf,num))
+    store_S = np.zeros((1,1,num))
     predictions = np.zeros(n_testbefore + n_predict)
     
     # Start Filtering
@@ -158,6 +160,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             continue 
         
         W, S = calc_Kalman_Gain(h, P_hat_apriori, rk)    
+        store_S[:,:, k] = S
         
         #Skip msmts        
         if k % skip_msmts !=0:
@@ -166,6 +169,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         e_z[k] = calc_residuals(h, x_hat_apriori, z[k])
         
         x_hat = x_hat_apriori + W*e_z[k]
+        store_S_Outer_W[:,:,k] = S*np.outer(W,W.T)
         P_hat = P_hat_apriori - S*np.outer(W,W.T) #Equivalent to outer(W, W)
         
         store_x_hat[:,:,k] = x_hat
@@ -193,6 +197,8 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
                     z=z, 
                     e_z=e_z,
                     W=store_W,
+                    store_S_Outer_W=store_S_Outer_W,
+                    S=store_S,
                     instantA=instantA,
                     instantP=instantP,
                     Propagate_Foward=Propagate_Foward,
