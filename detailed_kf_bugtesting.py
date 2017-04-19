@@ -160,7 +160,6 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
         #print 'Aposteriori Updates'
         x_hat[:,:,k] = x_hat[:,:,k] + W[:,:,k]*e_z[0,0,k]
         store_S_Outer_W[:,:,k] = S[:,:,k]*np.outer(W[:,:,k],W[:,:,k].T)
-        
         P_hat[:,:,k] = P_hat[:,:,k] - S[:,:,k]*np.outer(W[:,:,k],W[:,:,k].T) # For scalar S
 
         k=k+1
