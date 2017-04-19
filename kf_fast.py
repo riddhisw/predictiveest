@@ -141,6 +141,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     
     store_W = np.zeros((twonumf,1,num)) 
     store_S_Outer_W = np.zeros((twonumf,twonumf,num))
+    store_Q = np.zeros((twonumf,twonumf,num))
     store_S = np.zeros((1,1,num))
     predictions = np.zeros(n_testbefore + n_predict)
     
@@ -148,7 +149,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     k = 1
     while (k< num): 
         
-        x_hat_apriori, P_hat_apriori = propagate_states(a, x_hat, P_hat, oe, numf)
+        x_hat_apriori, P_hat_apriori, store_Q[:,:, k]= propagate_states(a, x_hat, P_hat, oe, numf)
         
         if prediction_method_ == ZERO_GAIN and k> (n_train):
             # This loop is equivalent to setting the gain to zero 
@@ -199,6 +200,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
                     W=store_W,
                     store_S_Outer_W=store_S_Outer_W,
                     S=store_S,
+                    Q=store_Q,
                     instantA=instantA,
                     instantP=instantP,
                     Propagate_Foward=Propagate_Foward,
@@ -218,7 +220,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
              P_hat=store_P_hat, 
              a=a,
              h=h,
-             z=z, 
+             z=z,
              e_z=e_z,
              W=store_W)
     
