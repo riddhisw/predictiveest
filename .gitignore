@@ -3,6 +3,9 @@
 *.svg
 *.pdf
 
+Archive/
+Images/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
