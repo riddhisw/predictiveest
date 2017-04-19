@@ -147,7 +147,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
     k = 1
     while (k< n_train+1):
         #print 'Apriori Predicted State x_hat'
-        x_hat[:,:,k], P_hat[:,:,k] = propagate_states(a, x_hat[:,:,k-1], P_hat[:,:,k-1], oekalman, numf)
+        x_hat[:,:,k], P_hat[:,:,k], Q[:,:,k] = propagate_states(a, x_hat[:,:,k-1], P_hat[:,:,k-1], oekalman, numf)
         
         W[:,:,k], S[:,:,k] = calc_Kalman_Gain(h[:,:,k], P_hat[:,:,k], R[:,:,k]) 
 

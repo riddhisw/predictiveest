@@ -80,7 +80,7 @@ def propagate_states(a, x_hat, P_hat, oe, numf):
     Q = np.outer(Gamma, Gamma.T)
     P_hat_apriori = np.dot(np.dot(a,P_hat),a.T) + Q
 
-    return x_hat_apriori, P_hat_apriori
+    return x_hat_apriori, P_hat_apriori, Q
     
 
 def calc_Kalman_Gain(h, P_hat_apriori, rk):
