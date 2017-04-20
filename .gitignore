@@ -3,7 +3,7 @@
 *.svg
 *.pdf
 
-Archive/
+Data/
 Images/
 
 # Byte-compiled / optimized / DLL files
