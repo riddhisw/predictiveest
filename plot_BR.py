@@ -5,9 +5,6 @@ import numpy as np
 import time as t
 import os
 
-import sys
-sys.path.append("/home/riddhisw/Documents/2017/Mar2017/Scripts") #needs to change for cluster
-
 means_lists_labels = ['Prediction', 'Forecasting']
 color_list = ['r', 'g']
 test_circ = mlines.Line2D([], [], linestyle='None', color=None, marker='o', markerfacecolor='k', markeredgecolor='k', markersize=10)

@@ -47,7 +47,9 @@ def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_
     return Propagate_Foward, instantA, instantP
 
 
-def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x_hat_initial,P_hat_initial, oekalman, rkalman, freq_basis_array, phase_correction, skip_msmts=1):  
+def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, 
+                Delta_T_Sampling, x_hat_initial,P_hat_initial, oekalman, rkalman, 
+                freq_basis_array, phase_correction, skip_msmts=1):  
     '''     
     Keyword Arguments:
     ------------------
@@ -175,7 +177,7 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
              descriptor=descriptor,
              predictions=predictions, 
              y_signal=y_signal,
-             freq_basis_array= freq_basis_array, 
+             freq_basis_array=freq_basis_array, 
              x_hat=x_hat, 
              P_hat=P_hat, 
              a=a,
@@ -188,7 +190,12 @@ def detailed_kf(descriptor, y_signal, n_train, n_testbefore, n_predict, Delta_T_
              S=S,
              instantA=instantA,
              instantP=instantP,
+             oe=oekalman, 
+             rk=rkalman,
              n_train=n_train,
+             n_predict=n_predict,
+             n_testbefore=n_testbefore,
+             skip_msmts=skip_msmts,
              Propagate_Foward=Propagate_Foward,
              phase_correction=phase_correction_noisetraces)
 

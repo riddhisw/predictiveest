@@ -2,7 +2,10 @@ import numpy as np
 import numba as nb
 import numpy.linalg as la
 
-from kf.common import calc_inst_params, calc_pred, calc_Gamma, get_dynamic_model, propagate_states, calc_Kalman_Gain, calc_residuals
+from kf.common import (
+    calc_inst_params, calc_pred, calc_Gamma, get_dynamic_model,
+    propagate_states, calc_Kalman_Gain, calc_residuals
+)
 
 #@nb.jit(nopython=True) 
 def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
@@ -44,7 +47,9 @@ PredictionMethod = {
     "PropForward": PROP_FORWARD
 }
 
-def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", skip_msmts=1, descriptor='Check_KF_Results'):
+def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, 
+            rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", 
+            skip_msmts=1, descriptor='Fast_KF_Results'):
     '''    
     Keyword Arguments:
     ------------------
@@ -198,11 +203,17 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
                     z=z, 
                     e_z=e_z,
                     W=store_W,
+                    Q=store_Q,
                     store_S_Outer_W=store_S_Outer_W,
                     S=store_S,
-                    Q=store_Q,
                     instantA=instantA,
                     instantP=instantP,
+                    oe=oe, 
+                    rk=rk,
+                    n_train=n_train,
+                    n_predict=n_predict,
+                    n_testbefore=n_testbefore,
+                    skip_msmts=skip_msmts,
                     Propagate_Foward=Propagate_Foward,
                     phase_correction=phase_correction)
             
@@ -222,7 +233,16 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
              h=h,
              z=z,
              e_z=e_z,
-             W=store_W)
+             W=store_W,
+             Q=store_Q,
+             store_S_Outer_W=store_S_Outer_W,
+             S=store_S,
+             oe=oe, 
+             rk=rk,
+             n_train=n_train,
+             n_predict=n_predict,
+             n_testbefore=n_testbefore,
+             skip_msmts=skip_msmts)
     
     return predictions
 
