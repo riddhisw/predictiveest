@@ -109,8 +109,8 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
 
 def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor):
 
-    print(descriptor)
-    print(prediction_method_)
+    #print(descriptor)
+    #print(prediction_method_)
 
     num = n_train + n_predict
     numf = len(freq_basis_array)

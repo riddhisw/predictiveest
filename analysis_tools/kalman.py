@@ -129,7 +129,7 @@ class Kalman(Experiment, Noisy_Data):
         return predictions, instantA
 
 
-    def ensemble_avg_predictions(self, skip_msmts=1, chosen_params=[None, None], NO_OF_KALMAN_VARIATIONS=6):
+    def ensemble_avg_predictions(self, skip_msmts, chosen_params=[None, None], NO_OF_KALMAN_VARIATIONS=6):
         '''
         Returns ensemble averaged prediction data as npz file saved at location savetopath.
         '''

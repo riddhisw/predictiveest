@@ -2,8 +2,8 @@ from __future__ import division, print_function, absolute_import
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import numpy as np
-import time as t
-import os
+
+from analysis_tools.common import get_tuned_params_, truncate_losses_
 
 means_lists_labels = ['Prediction', 'Forecasting']
 color_list = ['r', 'g']
@@ -91,7 +91,7 @@ class Plot_BR_Results(object):
 
         for ax in axes[0:2].flat:
             ax.set_yscale('log')
-            vars()['x_data_tmp'+str(means_ind)], vars()['y_data_tmp'+str(means_ind)] = self.truncate_losses(self.means_lists_[means_ind])
+            vars()['x_data_tmp'+str(means_ind)], vars()['y_data_tmp'+str(means_ind)] = truncate_losses_(self.means_lists_[means_ind], self.truncation)
             ax.plot(vars()['x_data_tmp'+str(means_ind)], vars()['y_data_tmp'+str(means_ind)], 'o', color=color_list[means_ind], markersize=14, alpha=0.2, label='Low Loss at truncation = %s'%(self.truncation))
             ax.plot(xrange(len(self.means_lists_[means_ind])), np.array(self.means_lists_[means_ind]), 'ko')
             ax.set_xlabel('Index Value of Random Hyperparameter Pair')
@@ -142,6 +142,15 @@ class Plot_BR_Results(object):
             fig.savefig(self.figname+'_Trunc_'+str(self.truncation), format="svg")
         pass
 
+    def get_tuned_params(self, max_forecast_loss):
+        self.means_lists_, self.lowest_pred_BR_pair, self.lowest_fore_BR_pair = get_tuned_params_(max_forecast_loss,
+                                                                                                  num_randparams=self.num_randparams, 
+                                                                                                  macro_prediction_errors=self.macro_prediction_errors, 
+                                                                                                  macro_forecastng_errors=self.macro_forecastng_errors,
+                                                                                                  random_hyperparams_list=self.random_hyperparams_list)
+        print("Optimal params", self.lowest_pred_BR_pair, self.lowest_fore_BR_pair)
+        pass
+
 
     def extract_trajectory(self, opt_object_, i_run, j_listnum): #this needs to be moved to an optimisation module
         '''
@@ -170,44 +179,3 @@ class Plot_BR_Results(object):
         
         print("Nothing returned")
         return None
-
-
-    def truncate_losses(self, list_of_loss_vals):
-        '''
-        Returns truncation number of hyperparameters for lowest risk from a sequence of outcomes.
-        [Helper function for Bayes Risk mapping]
-        '''
-        
-        loss_index_list = list(enumerate(list_of_loss_vals))
-        low_loss = sorted(loss_index_list, key=lambda x: x[1])
-        indices = [x[0] for x in low_loss]
-        losses = [x[1] for x in low_loss]
-        return indices[0:self.truncation], losses[0:self.truncation]
-
-        
-    def get_tuned_params(self, max_forecast_loss):
-        
-        prediction_errors_stats = np.zeros((self.num_randparams, 2)) 
-        forecastng_errors_stats = np.zeros((self.num_randparams, 2)) 
-        
-        j=0
-        for j in xrange(self.num_randparams):
-            
-            prediction_errors_stats[ j, 0] = np.mean(self.macro_prediction_errors[j])
-            prediction_errors_stats[ j, 1] = np.var(self.macro_prediction_errors[j])
-            forecastng_errors_stats[ j, 0] = np.mean(self.macro_forecastng_errors[j, :, 0:max_forecast_loss]) 
-            forecastng_errors_stats[ j, 1] = np.var(self.macro_forecastng_errors[j, :, 0:max_forecast_loss])     
-        
-        means_list =  prediction_errors_stats[:,0] 
-        means_list2 = forecastng_errors_stats[:,0]
-        self.means_lists_= [means_list, means_list2]
-
-        x_data, y_data = self.truncate_losses(means_list)
-        x2_data, y2_data = self.truncate_losses(means_list2)
-
-        self.lowest_pred_BR_pair = self.random_hyperparams_list[x_data[0], :]
-        self.lowest_fore_BR_pair = self.random_hyperparams_list[x2_data[0], :]
-        
-        print("Optimal params", self.lowest_pred_BR_pair, self.lowest_fore_BR_pair)
-        pass
-

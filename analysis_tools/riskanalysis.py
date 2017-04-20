@@ -4,7 +4,8 @@ import os
 import numpy as np
 import time as t
 
-from  analysis_tools.kalman import Kalman
+from analysis_tools.kalman import Kalman
+from analysis_tools.common import get_tuned_params_
 
 class Bayes_Risk(object):
     
@@ -144,56 +145,16 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
         return np.random.uniform(0,1)*(10**exponent)
 
 
-    def truncate_losses(self, list_of_loss_vals):
-        '''
-        Returns truncation number of hyperparameters for lowest risk from a sequence of outcomes.
-        [Helper function for Bayes Risk mapping]
-        '''
-        
-        loss_index_list = list(enumerate(list_of_loss_vals))
-        low_loss = sorted(loss_index_list, key=lambda x: x[1])
-        indices = [x[0] for x in low_loss]
-        losses = [x[1] for x in low_loss]
-        return indices[0:self.truncation], losses[0:self.truncation]
-
-        
-    def get_tuned_params(self):
-        '''
-        Returns optimal sigma, R based on lowest prediction and forecasting losses. 
-        '''
-        
-        if self.did_BR_Map == True:
-
-            prediction_errors_stats = np.zeros((self.num_randparams, 2)) 
-            forecastng_errors_stats = np.zeros((self.num_randparams, 2)) 
-            
-            j=0
-            for j in xrange(self.num_randparams):
-                
-                prediction_errors_stats[ j, 0] = np.mean(self.macro_prediction_errors[j])
-                prediction_errors_stats[ j, 1] = np.var(self.macro_prediction_errors[j])
-                forecastng_errors_stats[ j, 0] = np.mean(self.macro_forecastng_errors[j])
-                forecastng_errors_stats[ j, 1] = np.var(self.macro_forecastng_errors[j])     
-            
-            means_list =  prediction_errors_stats[:,0] 
-            means_list2 = forecastng_errors_stats[:,0]
-            self.means_lists_= [means_list, means_list2]
-    
-            x_data, y_data = self.truncate_losses(means_list)
-            x2_data, y2_data = self.truncate_losses(means_list2)
-            
-            index1 = int(x_data[0])
-            index2 = int(x_data[1])
-    
-            self.lowest_pred_BR_pair = self.random_hyperparams_list[index1]
-            self.lowest_fore_BR_pair = self.random_hyperparams_list[index2]
-            
-            print("Optimal params fore prediction and forecasting", self.lowest_pred_BR_pair, self.lowest_fore_BR_pair)
-            pass
-
-        elif self.did_BR_Map == False:
-            print('BR MAP not implemented in this instance. No tuned parameters calc possible. Use different class to load and analyse BR Map Data.' )
+    def get_tuned_params(self, max_forecast_loss):
+        self.means_lists_, self.lowest_pred_BR_pair, self.lowest_fore_BR_pair = get_tuned_params_(max_forecast_loss,
+                                                                                                  num_randparams=self.num_randparams, 
+                                                                                                  macro_prediction_errors=self.macro_prediction_errors, 
+                                                                                                  macro_forecastng_errors=self.macro_forecastng_errors,
+                                                                                                  random_hyperparams_list=self.random_hyperparams_list)
+        print("Optimal params", self.lowest_pred_BR_pair, self.lowest_fore_BR_pair)
         pass
+
+
     
     def set_tuned_params(self):
         self.optimal_sigma = self.lowest_pred_BR_pair[0]
