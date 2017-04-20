@@ -81,7 +81,8 @@ class Plot_BR_Results(object):
 
         self.load_data()
         if max_forecast_loss==None:
-            max_forecast_loss = self.n_predict
+            max_forecast_loss = int(self.n_predict)
+            print("Max Forecasting Time Step for Forecasting Loss Calc set to =", max_forecast_loss)
         
         self.get_tuned_params(max_forecast_loss)
 
@@ -139,7 +140,6 @@ class Plot_BR_Results(object):
 
         if savefig=='Yes':
             fig.savefig(self.figname+'_Trunc_'+str(self.truncation), format="svg")
-        #plt.show()
         pass
 
 

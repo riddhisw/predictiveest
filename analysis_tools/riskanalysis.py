@@ -20,6 +20,7 @@ class Bayes_Risk(object):
         self.lowest_pred_BR_pair = None
         self.lowest_fore_BR_pair = None
         self.means_list = None
+        self.skip_msmts = 1
         
         self.did_BR_Map = False
         self.macro_truth = None
@@ -42,20 +43,20 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
         pass
 
 
-    def loss(self, init_, y_signal_, truth_):
+    def loss(self, init_, y_signal_, skip_msmts_, truth_):
         
         # tricky if Kalman output yields more than just prediction sequence
-        predictions = self.single_prediction(y_signal_, init=init_)
+        predictions = self.single_prediction(y_signal_, skip_msmts_, init=init_)
         truth_ = truth_[self.n_train - self.n_testbefore : self.n_train + self.n_predict]
         residuals_sqr_errors = (predictions.real - truth_.real)**2
         
         return residuals_sqr_errors # not summed over prediction steps
 
 
-    def one_loss_trial(self, random_hyperparams):
+    def one_loss_trial(self, random_hyperparams, skip_msmts):
         
         truth, y_signal = self.generate_data_from_truth(self.user_defined_variance)
-        errors = self.loss(random_hyperparams, y_signal, truth)
+        errors = self.loss(random_hyperparams, y_signal, skip_msmts, truth)
         
         return truth, errors[0:self.n_testbefore], errors[self.n_testbefore : self.n_testbefore + self.n_predict]
 
@@ -68,6 +69,7 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
         
         
         init_ = self.rand_param()
+        skip_msmts_ = self.skip_msmts
         
         prediction_errors = [] 
         forecastng_errors = [] 
@@ -75,7 +77,7 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
 
         for ind in xrange(self.max_it_BR):
         
-            true, pred, fore = self.one_loss_trial(init_)
+            true, pred, fore = self.one_loss_trial(init_, skip_msmts_)
             
             truths_in_trials.append(true)
             prediction_errors.append(pred)
@@ -84,7 +86,11 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
         return truths_in_trials, prediction_errors, forecastng_errors, init_
     
     
-    def naive_implementation(self):
+    def naive_implementation(self, change_skip_msmts=1):
+        
+        if change_skip_msmts != 1:
+            self.skip_msmts = change_skip_msmts
+            print("Skipped Msmts Changed from %s to %s" %(1, self.skip_msmts))
 
         self.random_hyperparams_list = []
         self.macro_prediction_errors = [] 
@@ -118,6 +124,7 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
                  max_it_BR = self.max_it_BR, num_randparams = self.num_randparams,
                  spacesize = self.space_size,
                  macro_truth=self.macro_truth,
+                 skip_msmts = self.skip_msmts,
                  macro_prediction_errors=self.macro_prediction_errors, 
                  macro_forecastng_errors=self.macro_forecastng_errors,
                  random_hyperparams_list=self.random_hyperparams_list)

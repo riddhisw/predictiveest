@@ -29,7 +29,7 @@ class Kalman(Experiment, Noisy_Data):
             Noisy_Data.__init__(self, msmt_noise_params, true_noise_params, user_defined_variance) 
         
         self.max_it = max_it
-        self.skip_msmts = None
+        #self.skip_msmts = 1
         
         
         
