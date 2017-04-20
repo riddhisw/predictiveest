@@ -3,7 +3,7 @@ from __future__ import division, print_function, absolute_import
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ML_Experiment import Experiment
+from analysis_tools.experiment import Experiment
 
 basis_list = ['A', 'B', 'C'] 
 prediction_method_list =["ZeroGain", "PropForward"]

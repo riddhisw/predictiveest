@@ -3,13 +3,16 @@ from __future__ import division, print_function, absolute_import
 
 import os
 import numpy as np
-from kf import fast as skf
-from kf import detailed as dkf
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.append("../") # look in the parent directory containing both kf and analysis_tools packages
+from kf import fast as skf
+from kf import detailed as dkf
+
 # test
-from ML_Experiment import Experiment
-from ML_NoisyData import Noisy_Data
+from analysis_tools.experiment import Experiment
+from analysis_tools.noisydata import Noisy_Data
 
 FUDGE = 0.5
 HILBERT_TRANSFORM = 2.0

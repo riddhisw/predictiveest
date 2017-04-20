@@ -8,7 +8,7 @@ Created on Sat Apr  8 11:40:01 2017
 from __future__ import division, print_function, absolute_import
 import numpy as np
 
-from ML_Truth import Truth
+from analysis_tools.truth import Truth
 
 class Noisy_Data(Truth):
 
