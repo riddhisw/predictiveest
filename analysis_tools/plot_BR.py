@@ -144,10 +144,11 @@ class Plot_BR_Results(object):
 
     def get_tuned_params(self, max_forecast_loss):
         self.means_lists_, self.lowest_pred_BR_pair, self.lowest_fore_BR_pair = get_tuned_params_(max_forecast_loss,
-                                                                                                  num_randparams=self.num_randparams, 
-                                                                                                  macro_prediction_errors=self.macro_prediction_errors, 
-                                                                                                  macro_forecastng_errors=self.macro_forecastng_errors,
-                                                                                                  random_hyperparams_list=self.random_hyperparams_list)
+                                                                                                  np.array(self.num_randparams), 
+                                                                                                  np.array(self.macro_prediction_errors), 
+                                                                                                  np.array(self.macro_forecastng_errors),
+                                                                                                  np.array(self.random_hyperparams_list),
+                                                                                                  self.truncation)
         print("Optimal params", self.lowest_pred_BR_pair, self.lowest_fore_BR_pair)
         pass
 

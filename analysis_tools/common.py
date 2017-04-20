@@ -24,7 +24,7 @@ def truncate_losses_( list_of_loss_vals, truncation):
 
 def get_tuned_params_(max_forecast_loss, num_randparams, 
                       macro_prediction_errors, macro_forecastng_errors, 
-                      random_hyperparams_list):
+                      random_hyperparams_list, truncation):
     
     prediction_errors_stats = np.zeros((num_randparams, 2)) 
     forecastng_errors_stats = np.zeros((num_randparams, 2)) 
@@ -41,8 +41,8 @@ def get_tuned_params_(max_forecast_loss, num_randparams,
     means_list2 = forecastng_errors_stats[:,0]
     means_lists_= [means_list, means_list2]
 
-    x_data, y_data = truncate_losses_(means_list)
-    x2_data, y2_data = truncate_losses_(means_list2)
+    x_data, y_data = truncate_losses_(means_list, truncation)
+    x2_data, y2_data = truncate_losses_(means_list2, truncation)
 
     lowest_pred_BR_pair = random_hyperparams_list[x_data[0], :]
     lowest_fore_BR_pair = random_hyperparams_list[x2_data[0], :]
