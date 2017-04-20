@@ -80,10 +80,13 @@ class Plot_BR_Results(object):
         pass
 
 
-    def make_plot(self, savefig='No', fsize = 12, fsize2 = 14):
+    def make_plot(self, max_forecast_loss=None, savefig='No', fsize=12, fsize2=14):
 
         self.load_data()
-        self.get_tuned_params()
+        if max_forecast_loss==None:
+            max_forecast_loss = self.n_predict
+        
+        self.get_tuned_params(max_forecast_loss)
 
         means_ind = 0
         fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15,5))
@@ -185,7 +188,7 @@ class Plot_BR_Results(object):
         return indices[0:self.truncation], losses[0:self.truncation]
 
         
-    def get_tuned_params(self):
+    def get_tuned_params(self, max_forecast_loss):
         
         prediction_errors_stats = np.zeros((self.num_randparams, 2)) 
         forecastng_errors_stats = np.zeros((self.num_randparams, 2)) 
@@ -195,8 +198,8 @@ class Plot_BR_Results(object):
             
             prediction_errors_stats[ j, 0] = np.mean(self.macro_prediction_errors[j])
             prediction_errors_stats[ j, 1] = np.var(self.macro_prediction_errors[j])
-            forecastng_errors_stats[ j, 0] = np.mean(self.macro_forecastng_errors[j])
-            forecastng_errors_stats[ j, 1] = np.var(self.macro_forecastng_errors[j])     
+            forecastng_errors_stats[ j, 0] = np.mean(self.macro_forecastng_errors[j, :, 0:max_forecast_loss]) 
+            forecastng_errors_stats[ j, 1] = np.var(self.macro_forecastng_errors[j, :, 0:max_forecast_loss])     
         
         means_list =  prediction_errors_stats[:,0] 
         means_list2 = forecastng_errors_stats[:,0]
