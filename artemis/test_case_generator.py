@@ -1,6 +1,19 @@
-filepath = "scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_1" # contains all inputs and outputs
-savetopath = '/'
-test_case = 1
+
+import sys
+test_case = int(sys.argv[1])
+variation = int(sys.argv[2])
+
+######################################
+# Need to var r, f0, J, msmt_noise_level and alpha depending on parameter regimes
+# Too tedious to do via command line
+# Need a way to look up parameters based on test case and variation
+########################################
+var_alpha_ = 1.0
+var_f0_ = 2.0
+var_J_ = 20
+var_p_ = -1
+var_msmt_noise_level_ = 0.01
+########################################
 
 import numpy as np
 from analysis_tools.riskanalysis import Create_KF_Experiment
@@ -13,23 +26,25 @@ import kf.detailed as dkf
 ########################
 # File Data
 ########################
-filename0_ = filepath+'/test_case_'+str(test_case)
+filepath = 'scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case) # contains all inputs and outputs
+filename0_ = filepath+'/test_case_'+str(test_case)+'_var_'+str(variation)
+savetopath_ = '/'
 
 ########################
 # Bayes Risk Parameters
 ########################
-max_it_BR_ = 30
+max_it_BR_ = 50
 num_randparams_ = 50
 space_size_ = np.arange(-8,3)
-truncation_ = 2
+truncation_ = 20
 bayes_params_ = [max_it_BR_, num_randparams_, space_size_,truncation_]
 
 ########################
 # Experiment Parameters
 ########################
 n_train_ = 2000
-n_predict_ = 48
-n_testbefore_ = 49
+n_predict_ = 50
+n_testbefore_ = 50
 multiplier_ = 20.0 
 bandwidth_ = 50.0
 
@@ -39,10 +54,10 @@ exp_params_ = [n_train_, n_predict_, n_testbefore_, multiplier_, bandwidth_]
 # Truth Parameters
 ########################
 apriori_f_mean_ = 0.0 
-alpha_ = 1.0
-f0_ = 10.0
-p_ = -1 #1 #-2 #-1 #0.0
-J_ = 2
+alpha_ = var_alpha_
+f0_ = var_f0_
+p_ = var_p_ #1 #-2 #-1 #0.0
+J_ = var_J_
 jstart_ = 1 # (not zero)
 pdf_type_u_ = 'Uniform'
       
@@ -52,7 +67,7 @@ true_noise_params_ = [apriori_f_mean_, pdf_type_u_, alpha_, f0_, p_, J_, jstart_
 # Measurement Noise 
 ########################
 msmt_noise_mean_ = 0.0 
-msmt_noise_level_ = 0.01 
+msmt_noise_level_ = var_msmt_noise_level_
 
 msmt_noise_params_ = [msmt_noise_mean_, msmt_noise_level_]
 
@@ -80,8 +95,6 @@ skip =1
 
 max_forecast_step = n_predict_
 
-
-
 ################
 # Calculations
 ################
@@ -103,7 +116,6 @@ for skip in [1, 2, 5, 10 ,15]:
     plotter_KF = Plot_KF_Results(exp_params_, filename_skippy)
     plotter_KF.make_plot()
     plotter_KF.show_one_prediction()
-    
+    truth, data = Test_Object.generate_data_from_truth(None)
     pred_skf = skf.kf_2017(data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_, p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, phase_correction=0 ,prediction_method="PropForward", skip_msmts=skip, descriptor=filename_skippy+'SKF') 
-
     pred_dkf, amps_dkf = dkf.detailed_kf("DKF", data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_,p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, 0.0, skip_msmts=skip)
