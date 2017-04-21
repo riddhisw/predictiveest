@@ -1,0 +1,17 @@
+#PBS -P QCL_KF
+#PBS -N jobname
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe # a = aborts, b = begins, e = ends
+#PBS -l select=1:ncpus=1:mem=1GB
+#PBS -l walltime=00:10:00 
+#PBS -q defaultQ
+#PBS -j oe #one log file
+
+cd /project/RDS-FSC-QCL_KF-RW/Kalman_Scripts/
+
+load module python
+python test_case_1.py
+
+
+
+
