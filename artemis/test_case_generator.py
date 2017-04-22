@@ -1,18 +1,23 @@
-
 import sys
-test_case = int(sys.argv[1])
-variation = int(sys.argv[2])
+
+test_case = int(sys.argv[0])
+variation = int(sys.argv[1])
+var_f0_ = float(sys.argv[2])
+var_J_ = int(sys.argv[3])
+filepath = sys.argv[4]
 
 ######################################
 # Need to var r, f0, J, msmt_noise_level and alpha depending on parameter regimes
 # Too tedious to do via command line
 # Need a way to look up parameters based on test case and variation
 ########################################
-var_alpha_ = 1.0
-var_f0_ = 2.0
-var_J_ = 20
-var_p_ = -1
+
+var_multiplier_ = 20
 var_msmt_noise_level_ = 0.01
+var_p_ = -1
+var_alpha_ = 1.0
+
+
 ########################################
 
 import numpy as np
@@ -26,7 +31,6 @@ import kf.detailed as dkf
 ########################
 # File Data
 ########################
-filepath = 'scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case) # contains all inputs and outputs
 filename0_ = filepath+'/test_case_'+str(test_case)+'_var_'+str(variation)
 savetopath_ = '/'
 
@@ -45,7 +49,7 @@ bayes_params_ = [max_it_BR_, num_randparams_, space_size_,truncation_]
 n_train_ = 2000
 n_predict_ = 50
 n_testbefore_ = 50
-multiplier_ = 20.0 
+multiplier_ = var_multiplier_
 bandwidth_ = 50.0
 
 exp_params_ = [n_train_, n_predict_, n_testbefore_, multiplier_, bandwidth_]
