@@ -142,7 +142,7 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
         maxindex = self.space_size.shape[0]-1
         ind = int(np.random.uniform(low=0, high=maxindex))
         exponent = self.space_size[ind]
-        return np.random.uniform(0,1)*(10**exponent)
+        return np.random.uniform(0,1)*(10.0**exponent)
 
 
     def get_tuned_params(self, max_forecast_loss):

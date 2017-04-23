@@ -8,7 +8,6 @@ Created on Sat Apr  8 11:32:27 2017
 from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy.stats as pdf
-import numba as nb
 
 PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
 Moments = {'Mean':np.mean, 'Variance':np.var}

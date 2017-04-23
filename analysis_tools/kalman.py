@@ -4,6 +4,7 @@ from __future__ import division, print_function, absolute_import
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+plt.ioff()
 
 import sys
 sys.path.append("../") # look in the parent directory containing both kf and analysis_tools packages
@@ -262,9 +263,10 @@ class Kalman(Experiment, Noisy_Data):
         
         fig.subplots_adjust(left=0.0, right=0.99, wspace=0.2, hspace=0.2, top=0.8, bottom=0.2)
         fig.suptitle('Theoretical Truth v. Learned Kalman Predictions Using Basis A', fontsize=14)
-        plt.show()
+        #plt.show()
 
         if savefig=='Yes':
-            fig.savefig(self.filename0+'_run_test', format="svg")        
+            figname = os.path.join(self.savetopath, self.filename0+'_KF_run_test.svg',)
+            fig.savefig(figname, format="svg")        
 
         pass

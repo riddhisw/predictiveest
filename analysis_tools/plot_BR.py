@@ -1,5 +1,6 @@
 from __future__ import division, print_function, absolute_import
 import matplotlib.pyplot as plt
+plt.ioff()
 import matplotlib.lines as mlines
 import numpy as np
 
@@ -77,7 +78,7 @@ class Plot_BR_Results(object):
         pass
 
 
-    def make_plot(self, max_forecast_loss=None, savefig='No', fsize=12, fsize2=14):
+    def make_plot(self, max_forecast_loss=None, savefig='Yes', fsize=12, fsize2=14):
 
         self.load_data()
         if max_forecast_loss==None:
@@ -134,12 +135,12 @@ class Plot_BR_Results(object):
         fig.suptitle('Plot of Low Bayes Risk Region for Measurement Noise Level = %s, Truncation = %s' %(self.msmt_noise_variance, self.truncation), weight='bold')
         fig.subplots_adjust(left=0.05, right=0.95, wspace=0.25, hspace=0.25, top=0.8)
         
-        plt.show()
+        #plt.show()
         if self.figname == None:
             self.figname=str(self.OneData)
 
-        if savefig=='Yes':
-            fig.savefig(self.figname+'_Trunc_'+str(self.truncation), format="svg")
+        if savefig=='Yes': 
+            fig.savefig(self.figname+'_Trunc_'+str(self.truncation)+'.svg', format="svg")
         pass
 
     def get_tuned_params(self, max_forecast_loss):

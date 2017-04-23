@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import matplotlib.pyplot as plt
+plt.ioff()
 import numpy as np
 
 from analysis_tools.experiment import Experiment
@@ -74,10 +75,10 @@ class Plot_KF_Results(Experiment):
         ax.plot(x_data, truth, 'r', label='Truth')
         ax.axvline(self.n_train*self.Delta_T_Sampling, linestyle='--', color='gray', label='Training Ends')
         ax.legend(loc=1)
-        plt.show()
+        #plt.show()
 
         if savefig=='Yes':
-            fig.savefig(figname+'_single_pred_', format="svg")
+            fig.savefig(figname+'_single_pred_.svg', format="svg")
         pass
 
 
@@ -141,11 +142,11 @@ class Plot_KF_Results(Experiment):
 
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
                         item.set_fontsize(fsize)
-        plt.show()
+        #plt.show()
         
 
         if savefig=='Yes':
-            fig.savefig(figname+'_EA_', format="svg")
+            fig.savefig(figname+'_EA_.svg', format="svg")
 
         #plt.show()
 
