@@ -8,6 +8,8 @@
 #PBS -q defaultQ
 #PBS -j oe
 
+pwd
+echo $PBS_O_WORKDIR
 cd $PBS_O_WORKDIR/
 
 test_case=(0 1 2 3)
@@ -16,6 +18,9 @@ var_f0_=(0 2.0 2.0 1.33333333333333333)
 var_J_=(0 3 20 30)
 
 module load python
+
+pwd
+echo $PBS_O_WORKDIR
 
 python test_script_generator.py ${test_case[$PBS_ARRAY_INDEX]} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_[$PBS_ARRAY_INDEX]} ${var_J_[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case[$PBS_ARRAY_INDEX]}
 
