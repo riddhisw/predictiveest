@@ -1,5 +1,5 @@
 #PBS -P QCL_KF
-#PBS -N jobname
+#PBS -N RGtestjobarray
 #PBS –J 0-2
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe # a = aborts, b = begins, e = ends
@@ -17,6 +17,8 @@ var_f0_=(2.0 2.0 1.33333333333333333)
 var_J_=(3 20 30)
 
 cd /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case[$PBS_ARRAY_INDEX]}
+
+module load python
 
 python test_script_generator.py ${test_case[$PBS_ARRAY_INDEX]} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_[$PBS_ARRAY_INDEX]} ${var_J_[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case[$PBS_ARRAY_INDEX]}
 
