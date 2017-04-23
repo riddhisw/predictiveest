@@ -9,7 +9,7 @@
 #PBS -j oe # one log file
 
 cd $PBS_O_WORKDIR/
-#source ./env/bin/activate
+# source ./env/bin/activate
 
 test_case=(1 2 3)
 variation=(0 0 0)
@@ -22,4 +22,4 @@ module load python
 
 python test_script_generator.py ${test_case[$PBS_ARRAY_INDEX]} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_[$PBS_ARRAY_INDEX]} ${var_J_[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case[$PBS_ARRAY_INDEX]}
 
-#deactivate
+# deactivate
