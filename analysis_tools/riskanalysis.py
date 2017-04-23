@@ -2,7 +2,7 @@
 from __future__ import division, print_function, absolute_import
 import os
 import numpy as np
-import time as t
+#import time as t
 
 from analysis_tools.kalman import Kalman
 from analysis_tools.common import get_tuned_params_
@@ -98,7 +98,7 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
         self.macro_forecastng_errors = [] 
         self.macro_truth = []
 
-        start_outer_multp = t.time()        
+        #start_outer_multp = t.time()        
 
         for ind in xrange(self.num_randparams):
 
@@ -109,9 +109,9 @@ class Create_KF_Experiment(Bayes_Risk, Kalman):
             self.macro_forecastng_errors.append(full_bayes_map[2])
             self.random_hyperparams_list.append(full_bayes_map[3])
 
-        total_outer_multp = t.time() - start_outer_multp
+        #total_outer_multp = t.time() - start_outer_multp
         
-        print( "Time Taken for BR Map: ", total_outer_multp)
+        #print( "Time Taken for BR Map: ", total_outer_multp)
         
         np.savez(os.path.join(self.savetopath, self.filename_BR),
                  end_run=ind, filname0=self.filename0, max_it = self.max_it, savetopath=self.savetopath,

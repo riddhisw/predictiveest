@@ -7,9 +7,9 @@ Created on Sat Apr  8 11:32:27 2017
 """
 from __future__ import division, print_function, absolute_import
 import numpy as np
-import scipy.stats as pdf
+#import scipy.stats as pdf
 
-PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
+#PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
 Moments = {'Mean':np.mean, 'Variance':np.var}
 
 
@@ -65,7 +65,7 @@ class Truth(object):
         list_of_j = np.arange(self.jstart, self.J, 1) # Define with J, j_start = 1
         J_ = self.J - 1 #Define dimensions of tensor sums using J_
 
-        theta = PDF[self.true_signal_params[0]].rvs(loc=0,scale=2.0*np.pi,size=(J_))
+        theta = np.random.uniform(low=0.0, high=2.0*np.pi, size=J_)
         freqtensor_tj = np.cos((twopi*self.f0*self.Delta_T_Sampling*list_of_j*np.ones((J_, self.number_of_points)).T).T * list_of_t + (theta*np.ones((self.number_of_points,J_))).T)
         amplitudes = map(lambda x: x*(x**(0.5*self.p - 1)), list_of_j)
 

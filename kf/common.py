@@ -1,11 +1,11 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
-import numba as nb
+#import numba as nb
 import numpy.linalg as la
 
 
-@nb.jit(nopython=True)
+#@nb.jit(nopython=True)
 def calc_inst_params(x_hat_time_slice):
     '''
     Returns instantaneous amplitudes and instaneous phases associated with each Kalman basis osccilator using state estimate, x_hat, at a given time step. 
@@ -17,7 +17,7 @@ def calc_inst_params(x_hat_time_slice):
     return instantA_slice, instantP_slice
 
 
-@nb.jit(nopython=True)
+#@nb.jit(nopython=True)
 def calc_pred(x_hat_series):
     
     '''
@@ -37,7 +37,7 @@ def calc_pred(x_hat_series):
     return pred
 
 
-@nb.jit(nopython=True)
+#@nb.jit(nopython=True)
 def calc_Gamma(x_hat, oe, numf):
     '''Returns a vector of noise features used to calculate Q in Kalman Filtering
        Could be simplified via slicing. Not yet implemented.
