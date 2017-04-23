@@ -1,10 +1,11 @@
 import sys
+import os
 
-test_case = int(sys.argv[0])
-variation = int(sys.argv[1])
-var_f0_ = float(sys.argv[2])
-var_J_ = int(sys.argv[3])
-filepath = sys.argv[4]
+test_case = int(sys.argv[1])
+variation = int(sys.argv[2])
+var_f0_ = float(sys.argv[3])
+var_J_ = int(sys.argv[4])
+filepath = sys.argv[5]
 
 ######################################
 # Need to var r, f0, J, msmt_noise_level and alpha depending on parameter regimes
@@ -31,14 +32,14 @@ import kf.detailed as dkf
 ########################
 # File Data
 ########################
-filename0_ = filepath+'/test_case_'+str(test_case)+'_var_'+str(variation)
-savetopath_ = '/'
+filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
+savetopath_ = filepath
 
 ########################
 # Bayes Risk Parameters
 ########################
-max_it_BR_ = 50
-num_randparams_ = 50
+max_it_BR_ = 1
+num_randparams_ = 2
 space_size_ = np.arange(-8,3)
 truncation_ = 20
 bayes_params_ = [max_it_BR_, num_randparams_, space_size_,truncation_]
@@ -107,19 +108,18 @@ Test_Object = Create_KF_Experiment(bayes_params_, filename0_, savetopath_, max_i
 
 Test_Object.naive_implementation()
 
-filename_and_path_BR = './'+str(Test_Object.filename_BR)+'.npz'
+filename_and_path_BR = os.path.join(savetopath_, str(Test_Object.filename_BR)+'.npz')
 plotter_BR = Plot_BR_Results(filename_and_path_BR)
-plotter_BR.make_plot()
-
+plotter_BR.load_data()
 Test_Object.get_tuned_params(int(max_forecast_step))
 Test_Object.set_tuned_params()
 
-for skip in [1, 2, 5, 10 ,15]:
-    filename_skippy = './'+str(Test_Object.filename_KF)+'_skipmsmts_'+str(skip)+'.npz'
+for skip in [1, 2, 3, 4, 5, 10 ,15]:
+    filename_skippy = os.path.join(savetopath_, str(Test_Object.filename_KF)+'_skipmsmts_'+str(skip))
     Test_Object.ensemble_avg_predictions(skip)
-    plotter_KF = Plot_KF_Results(exp_params_, filename_skippy)
-    plotter_KF.make_plot()
-    plotter_KF.show_one_prediction()
+    #plotter_KF = Plot_KF_Results(exp_params_, filename_skippy+'.npz')
+    #plotter_KF.make_plot()
+    #plotter_KF.show_one_prediction()
     truth, data = Test_Object.generate_data_from_truth(None)
     pred_skf = skf.kf_2017(data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_, p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, phase_correction=0 ,prediction_method="PropForward", skip_msmts=skip, descriptor=filename_skippy+'SKF') 
-    pred_dkf, amps_dkf = dkf.detailed_kf("DKF", data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_,p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, 0.0, skip_msmts=skip)
+    pred_dkf, amps_dkf = dkf.detailed_kf(filename_skippy+'DKF', data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_,p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, 0.0, skip_msmts=skip)
