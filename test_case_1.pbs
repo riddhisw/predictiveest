@@ -1,6 +1,6 @@
 #PBS -P QCL_KF
 #PBS -N RGtestjobarray
-#PBS –J 0-2
+#PBS -J 1-3
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe # a = aborts, b = begins, e = ends
 #PBS -l select=1:ncpus=1:mem=8GB
@@ -11,10 +11,10 @@
 cd $PBS_O_WORKDIR/
 # source ./env/bin/activate
 
-test_case=(1 2 3)
-variation=(0 0 0)
-var_f0_=(2.0 2.0 1.33333333333333333)
-var_J_=(3 20 30)
+test_case=(0 1 2 3)
+variation=(0 0 0 0)
+var_f0_=(0 2.0 2.0 1.33333333333333333)
+var_J_=(0 3 20 30)
 
 cd /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case[$PBS_ARRAY_INDEX]}
 
