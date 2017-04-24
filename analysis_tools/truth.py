@@ -16,8 +16,14 @@ Moments = {'Mean':np.mean, 'Variance':np.var}
 class Truth(object):
 
     
-    def __init__(self, true_noise_params, ensemble_size=50):
+    def __init__(self, true_noise_params, num=None, DeltaT=None, ensemble_size=50):
 
+        #Optional args
+        if num != None:
+            self.number_of_points = num
+        if DeltaT != None:
+            self.Delta_T_Sampling = DeltaT
+        
         # Truth params
         self.true_noise_params = true_noise_params
         self.apriori_f_mean = true_noise_params[0]
@@ -37,6 +43,7 @@ class Truth(object):
         self.true_w_axis = None
         self.true_S_twosided = None
         self.true_S_norm = None
+
         self.true_signal_params = [self.pdf_type, self.number_of_points, self.Delta_T_Sampling, self.alpha, self.f0, self.p, self.J, self.jstart]
         #self.true_signal_params = [0.0, self.number_of_points, self.Delta_T_Sampling, self.alpha, self.f0, self.p, self.J, self.jstart]
 
