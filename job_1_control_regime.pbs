@@ -1,0 +1,24 @@
+#PBS -P QCL_KF
+#PBS -N job_1_control_regime
+#PBS -J 1-3
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=20GB
+#PBS -l walltime=24:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+test_case=(0 1 2 3 4)
+variation=(0 0 0 0 0)
+var_n_train_=(0 2000 2000 2000 2000)
+var_n_predict_=(0 50 50 50 50)
+var_multiplier_=(0 20 20 20 20)
+var_f0_=(0 2.0 1.3333333333 0.0004 0.0004444444444)
+var_J_=(0 20 30 100000 90000)
+var_alpha_=1.0
+var_noiselvl_=0.01
+
+module load python
+
+python ./test_script_generator.py ${test_case[$PBS_ARRAY_INDEX]} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_[$PBS_ARRAY_INDEX]} ${var_J_[$PBS_ARRAY_INDEX]} ${var_multiplier_[$PBS_ARRAY_INDEX]} ${var_n_train_[$PBS_ARRAY_INDEX]} ${var_n_predict_[$PBS_ARRAY_INDEX]} ${var_alpha_} ${var_noiselvl_} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case[$PBS_ARRAY_INDEX]}
+

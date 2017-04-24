@@ -5,20 +5,19 @@ test_case = int(sys.argv[1])
 variation = int(sys.argv[2])
 var_f0_ = float(sys.argv[3])
 var_J_ = int(sys.argv[4])
-filepath = sys.argv[5]
+var_multiplier_ = float(sys.argv[5])
+var_n_train_ = int(sys.argv[6])
+var_n_predict_ = int(sys.argv[7])
+var_alpha_ = float(sys.argv[8])
+var_msmt_noise_level_ = float(sys.argv[9])
+filepath = sys.argv[10]
 
 ######################################
 # Need to var r, f0, J, msmt_noise_level and alpha depending on parameter regimes
 # Too tedious to do via command line
 # Need a way to look up parameters based on test case and variation
 ########################################
-
-var_multiplier_ = 20
-var_msmt_noise_level_ = 0.01
 var_p_ = -1
-var_alpha_ = 1.0
-
-
 ########################################
 
 import numpy as np
@@ -47,8 +46,8 @@ bayes_params_ = [max_it_BR_, num_randparams_, space_size_,truncation_]
 ########################
 # Experiment Parameters
 ########################
-n_train_ = 2000
-n_predict_ = 50
+n_train_ = var_n_train_
+n_predict_ = var_n_predict_
 n_testbefore_ = 50
 multiplier_ = var_multiplier_
 bandwidth_ = 50.0
@@ -114,12 +113,12 @@ plotter_BR.load_data()
 Test_Object.get_tuned_params(int(max_forecast_step))
 Test_Object.set_tuned_params()
 
-for skip in [1, 2, 3, 4, 5, 10 ,15]:
+truth, data = Test_Object.generate_data_from_truth(None)
+np.savez(filename_skippy+'_Truth', truth=truth, noisydata=data)
+
+for skip in [1, 2, 3, 4, 5, 10, 16]:
     filename_skippy = os.path.join(savetopath_, str(Test_Object.filename_KF)+'_skipmsmts_'+str(skip))
     Test_Object.ensemble_avg_predictions(skip)
-    #plotter_KF = Plot_KF_Results(exp_params_, filename_skippy+'.npz')
-    #plotter_KF.make_plot()
-    #plotter_KF.show_one_prediction()
-    truth, data = Test_Object.generate_data_from_truth(None)
     pred_skf = skf.kf_2017(data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_, p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, phase_correction=0 ,prediction_method="PropForward", skip_msmts=skip, descriptor=filename_skippy+'SKF') 
     pred_dkf, amps_dkf = dkf.detailed_kf(filename_skippy+'DKF', data, n_train_, n_testbefore_, n_predict_, Test_Object.Delta_T_Sampling, x0_,p0_, Test_Object.optimal_sigma, Test_Object.optimal_R, Test_Object.basisA, 0.0, skip_msmts=skip)
+    
