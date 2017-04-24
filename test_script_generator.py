@@ -37,8 +37,8 @@ savetopath_ = filepath
 ########################
 # Bayes Risk Parameters
 ########################
-max_it_BR_ = 1
-num_randparams_ = 2
+max_it_BR_ = 50
+num_randparams_ = 75
 space_size_ = np.arange(-8,3)
 truncation_ = 20
 bayes_params_ = [max_it_BR_, num_randparams_, space_size_,truncation_]
@@ -84,7 +84,7 @@ optimal_sigma_ = 0.1
 optimal_R_ = 0.1
 b_delta_ = 0.5 
 
-max_it_ = 75
+max_it_ = 100
 
 kalman_params_ = [optimal_sigma_, optimal_R_, x0_, p0_, b_delta_]
 
