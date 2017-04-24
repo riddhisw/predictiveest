@@ -151,4 +151,26 @@ class Plot_KF_Results(Experiment):
         #plt.show()
 
 
-       
+    def compare_skf_and_dkf(self, figname2, savefig='Yes', fsize=14):
+
+        skf_data = np.load(figname2+'SKF.npz')
+        dkf_data = np.load(figname2+'DKF.npz')
+        
+        x_data = self.Time_Axis[self.n_train - self.n_testbefore: self.n_train + self.n_predict ]
+        
+        
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15,8))
+        ax.set_title('Comparing SKF and DFK for a Single Prediction Run')
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('Signal (Signal Units )')
+        for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+            item.set_fontsize(fsize)
+        ax.plot(x_data, skf_data['predictions'], 'bo', label='SKF Predictions')
+        ax.plot(x_data, dkf_data['predictions'], 'gx--', label='DKF Predictions')
+        ax.axvline(self.n_train*self.Delta_T_Sampling, linestyle='--', color='gray', label='Training Ends')
+        ax.legend(loc=1)
+        #plt.show()
+
+        if savefig=='Yes':
+            fig.savefig(figname2+'_comparison.svg', format="svg")
+        pass       

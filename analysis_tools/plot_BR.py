@@ -12,7 +12,7 @@ test_circ = mlines.Line2D([], [], linestyle='None', color=None, marker='o', mark
 pred_circ = mlines.Line2D([], [], linestyle='None',  color=None, marker='o', markerfacecolor='r', markeredgecolor='r', markersize=14, alpha=0.3)
 fore_circ = mlines.Line2D([], [], linestyle='None',  color=None, marker='o', markerfacecolor='g', markeredgecolor='g', markersize=14, alpha=0.3)
 stars = mlines.Line2D([], [], linestyle='None', color=None, marker='*', markerfacecolor='b', markeredgecolor='b', markersize=10)
-crosses = mlines.Line2D([], [],linestyle='None',  color=None, marker='X', markerfacecolor='b',markeredgecolor='b', markersize=10)
+crosses = mlines.Line2D([], [],linestyle='None',  color=None, marker='x', markerfacecolor='b',markeredgecolor='b', markersize=10)
 pred_lowest = mlines.Line2D([], [], linestyle='None',  color=None, marker='x', markerfacecolor='m', markeredgecolor='m', markersize=14, alpha=0.5)
 labels_traj = ['Random Init. Pair', 'Low Prediction Loss', 'Low Forecasting Loss', 'Lowest Prediction Loss', 'CA Optimum', 'COBLA Optimum']
 

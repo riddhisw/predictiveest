@@ -21,7 +21,7 @@ class Truth(object):
         # Truth params
         self.true_noise_params = true_noise_params
         self.apriori_f_mean = true_noise_params[0]
-        self.pdf_type = true_noise_params[1]
+        self.pdf_type = 'Uniform' #true_noise_params[1]
         self.alpha = true_noise_params[2]
         self.f0 = true_noise_params[3]
         self.p = true_noise_params[4]
@@ -38,6 +38,7 @@ class Truth(object):
         self.true_S_twosided = None
         self.true_S_norm = None
         self.true_signal_params = [self.pdf_type, self.number_of_points, self.Delta_T_Sampling, self.alpha, self.f0, self.p, self.J, self.jstart]
+        #self.true_signal_params = [0.0, self.number_of_points, self.Delta_T_Sampling, self.alpha, self.f0, self.p, self.J, self.jstart]
 
         pass
 
@@ -63,13 +64,13 @@ class Truth(object):
         twopi = 2.0*np.pi
         list_of_t = np.linspace(0, self.number_of_points-1, self.number_of_points)
         list_of_j = np.arange(self.jstart, self.J, 1) # Define with J, j_start = 1
-        J_ = self.J - 1 #Define dimensions of tensor sums using J_
+        J_ = self.J - 1 # Define dimensions of tensor sums using J_
 
         theta = np.random.uniform(low=0.0, high=2.0*np.pi, size=J_)
         freqtensor_tj = np.cos((twopi*self.f0*self.Delta_T_Sampling*list_of_j*np.ones((J_, self.number_of_points)).T).T * list_of_t + (theta*np.ones((self.number_of_points,J_))).T)
         amplitudes = map(lambda x: x*(x**(0.5*self.p - 1)), list_of_j)
 
-        return self.alpha*twopi*self.f0*np.sum((amplitudes*freqtensor_tj.T).T, axis=0), #add comma to retain compatability with beta_z
+        return self.alpha*twopi*self.f0*np.sum((amplitudes*freqtensor_tj.T).T, axis=0), # add comma to retain compatability with beta_z
 
 
     def beta_z_truePSD(self):
