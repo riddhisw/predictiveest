@@ -8,6 +8,8 @@
 #PBS -q defaultQ
 #PBS -j oe
 
+cd $PBS_O_WORKDIR/
+
 test_case=(0 1 2 3 4)
 variation=(0 0 0 0 0)
 var_n_train_=(0 2000 2000 2000 2000)
