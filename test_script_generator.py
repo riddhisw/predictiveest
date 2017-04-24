@@ -114,7 +114,7 @@ Test_Object.get_tuned_params(int(max_forecast_step))
 Test_Object.set_tuned_params()
 
 truth, data = Test_Object.generate_data_from_truth(None)
-np.savez(filename_skippy+'_Truth', truth=truth, noisydata=data)
+np.savez(str(Test_Object.filename_KF)+'_skip_msmts_Truth', truth=truth, noisydata=data)
 
 for skip in [1, 2, 3, 4, 5, 10, 16]:
     filename_skippy = os.path.join(savetopath_, str(Test_Object.filename_KF)+'_skipmsmts_'+str(skip))
