@@ -10,6 +10,8 @@
 
 cd $PBS_O_WORKDIR/
 
+# Same as testcase 8 but with white noise
+
 test_case=10
 variation=(0 1 2 3 4 5 6 7)
 var_n_train_=(0 2000 1000 667 500 400 200 125)
