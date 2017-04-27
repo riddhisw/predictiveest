@@ -32,7 +32,7 @@ for variation in [1, 2, 4, 6, 7]:
     true_noise_params_ = [apriori_f_mean, pdf_type, alpha, f0, p, J_, jstart]
 
     # Load data
-    savetopath_ = 'test_case_'+str(test_case)+'/'
+    savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
     filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
     filename_kf= filename0_+'_kfresults'
     filename_skippy = os.path.join(savetopath_, str(filename_kf)+'_skipmsmts_'+str(skip))

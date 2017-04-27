@@ -14,7 +14,7 @@ savefig='Yes'
 max_forecast_loss=50
 fsize=12
 
-savetopath_ = 'test_case_'+str(test_case)+'/'
+savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
 brmapfile = filename0_+str('BR_Map')
     
