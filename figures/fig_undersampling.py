@@ -15,7 +15,7 @@ undersamp_strength=[0, 563, 506, 450, 394, 337, 281, 141, 113, 84, 56, 51, 35, 2
 stp_fwd_limit=[]
 test_case=5
 skip=1
-savetopath_ = 'test_case_'+str(test_case)+'/'
+savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15,8))
 fsize=14

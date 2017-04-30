@@ -23,7 +23,7 @@ x0 = 1.0
 p0 = 100000.0
 freq_basis_array = np.arange(0.0, 50.0, 0.5)
 
-savetopath_ = 'test_case_'+str(test_case)+'/'  
+savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 truth = np.load(os.path.join(savetopath_,'test_case_'+str(test_case)+'_var_1_kfresults_skip_msmts_Truth.npz' ))['truth']
 data = np.load(os.path.join(savetopath_,'test_case_'+str(test_case)+'_var_1_kfresults_skip_msmts_Truth.npz' ))['noisydata']
 optimal_params_list = np.load(os.path.join(savetopath_,'test_case_'+str(test_case)+'_var_7optimalparams.npz' ))['optimal_params_list']

@@ -19,7 +19,7 @@ bandwidth_ = 50.0
 for var in range(1, 8, 1):
 
     variation = var
-    filepath = 'test_case_'+str(test_case)+'/'
+    filepath = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
     filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
     savetopath_ = filepath
     brmapfile = 'test_case_'+str(test_case)+'_var_'+str(variation)+str('BR_Map')
