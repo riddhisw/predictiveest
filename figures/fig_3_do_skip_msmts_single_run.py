@@ -5,6 +5,8 @@ Uses optimal parameters from all variations in test_case_8 to run KF on a single
 
 @author: riddhisw
 """
+import sys
+sys.path.append('../')
 
 import os
 import numpy as np

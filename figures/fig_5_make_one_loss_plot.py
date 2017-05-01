@@ -1,6 +1,9 @@
 # The purpose of this script is to plot the optimisation procedure for a 
 # a particular variation within a test case. 
 
+import sys
+sys.path.append('../')
+
 import os
 from analysis_tools.plot_BR import Plot_BR_Results
 from analysis_tools.common import truncate_losses_

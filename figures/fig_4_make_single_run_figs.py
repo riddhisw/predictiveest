@@ -1,5 +1,7 @@
 # The purpose of this script is to plot a single prediction, and learned 
 # amplitudes, as well as those predicted by theory, for a single Kalman run.
+import sys
+sys.path.append('../')
 
 import os
 import numpy as np 

@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 import matplotlib.pyplot as plt
 import os
 from analysis_tools.plot_KF import Plot_KF_Results

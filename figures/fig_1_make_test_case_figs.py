@@ -5,6 +5,9 @@ Created on Sun Apr 23 15:47:10 2017
 
 @author: riddhisw
 """
+import sys
+sys.path.append('../')
+
 import os
 from analysis_tools.plot_BR import Plot_BR_Results
 from analysis_tools.plot_KF import Plot_KF_Results

@@ -5,6 +5,9 @@ Extracts optimal parameters from all variations in test_case_7, 8 or 9
 
 @author: riddhisw
 """
+import sys
+sys.path.append('../')
+
 import os
 import numpy as np
 from analysis_tools.plot_BR import Plot_BR_Results
