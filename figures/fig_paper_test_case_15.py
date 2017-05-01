@@ -43,7 +43,7 @@ for variation in range(1, 14, 1):
     kf_obj.load_data()
     stp_fwd_limit.append(kf_obj.count_steps())
 
-    ax.plot(kf_obj.Normalised_Means_[0, :], label='$\frac{Delta s}{f_0}$ = %s' %(undersamp_strength[variation]))
+    ax.plot(kf_obj.Normalised_Means_[0, :], label=r'$\frac{Delta s}{f_0}$ = %s' %(undersamp_strength[variation]))
 
 ax.legend(loc=2, fontsize=fsize)
 ax.axhline(1.0, color = 'k', label='Predict Noise Mean')
