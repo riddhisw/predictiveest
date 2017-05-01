@@ -19,9 +19,9 @@ import matplotlib.gridspec as gridspec
 test_case =8
 savefig='Yes'
 p = -1
-f0=10.0
-J_=4
-alpha=1.0
+f0=0.000888888889
+J_=45000
+alpha=1000.0
 basis=0
 
 skip = 1
@@ -193,4 +193,4 @@ for ax in [ax_main, ax_loss1, ax_loss2, ax_kamp1, ax_kamp2, ax_pred1, ax_pred2]:
 
 
 if savefig=='Yes':
-    fig_var.savefig(os.path.join(savetopath_, filename0_)+'_paperfig1_.svg', format="svg")
+    fig_var.savefig(os.path.join(savetopath_, 'test_case_'+str(test_case))+'_paperfig1_.svg', format="svg")
