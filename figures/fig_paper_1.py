@@ -193,4 +193,4 @@ for ax in [ax_main, ax_loss1, ax_loss2, ax_kamp1, ax_kamp2, ax_pred1, ax_pred2]:
 
 
 if savefig=='Yes':
-    fig.savefig(os.path.join(savetopath_, filename0_)+'_paperfig1_.svg', format="svg")
+    fig_var.savefig(os.path.join(savetopath_, filename0_)+'_paperfig1_.svg', format="svg")
