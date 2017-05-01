@@ -179,6 +179,7 @@ for variation in variation_list:
         if undersampling_axis == 'Yes':
             ax2 = ax.twinx()
             ax2.plot(x_data[1], y_data[1], 'r', label=r'Truth (T. Pow: %s)'%(np.round(theory.true_S_norm)))
+            ax2.legend(loc=0)
         if undersampling_axis != 'Yes':
             ax.plot(x_data[1], y_data[1], 'r', label='Truth (T. Pow: %s)'%(np.round(theory.true_S_norm)))
         idx_kamp +=1
