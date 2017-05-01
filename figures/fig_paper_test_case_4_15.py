@@ -6,13 +6,15 @@ import numpy as np
 import os
 from analysis_tools.plot_KF import Plot_KF_Results
 # The purpose of this script is to produce a figure for 
-# test_case_4 or test_case_15 while on the cluster.
+# test_case_4, test_case_15 or test_case_16, while on the cluster.
 
 n_train_=2000
 bandwidth_=50
 n_predict_=100
 n_testbefore_=50
 multiplier_= 20
+
+# Test Case 16
 
 # Test Case 15
 #undersamp_strength=[0, 800, 640, 500, 400, 320, 200, 160, 80, 20, 8, 2, 1, 0.5]

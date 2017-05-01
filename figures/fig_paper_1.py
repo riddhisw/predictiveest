@@ -16,24 +16,28 @@ import matplotlib.gridspec as gridspec
 
 # Load test case and variation data
 
-test_case =8
+test_case =7
 savefig='Yes'
 p = -1
-f0=0.000888888889
-J_=45000
-alpha=1000.0
+f0= 10.0 #0.000888888889
+J_= 4 #45000
+alpha=1.0
 basis=0
+
+variation_list=[1, 2, 4, 6, 7]
+kf_colour_list = [0, 'green', 'darkorange', 'turqouise', 'b', 'darkblue', 'teal', 'purple']
 
 skip = 1
 max_forecast_loss=50
-savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
+savetopath_ = '../test_case_'+str(test_case)+'/'# '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 multiplier_list = [0, 20, 10, 6.66666666667, 5, 4, 2, 1.25]
 
 n_predict_list = [0, 100, 50, 33, 25, 20, 10, 7] # For plotting KF ensemble averages only
 n_testbefore_list = [0, 50, 25, 17, 13, 10, 5, 3 ] # For plotting KF ensemble averages only
 skip_list=[0, 1, 2, 3,  4, 5, 10, 16] # For plotting KF ensemble averages only
 
-
+max_stp_forwards_list=[]
+max_stp_forwards_multipler=[]
 
 # FIG:  Set template
 gs = gridspec.GridSpec(2,11, left=0.06, right=0.97, top=0.95, hspace=0.5, 
@@ -42,7 +46,7 @@ gs = gridspec.GridSpec(2,11, left=0.06, right=0.97, top=0.95, hspace=0.5,
 fig_var = plt.figure(figsize=(18,6))
 ax_main = fig_var.add_subplot(gs[0:, 0:5])
 
-# subax = fig_var.add_axes([0.22, 0.19,0.2,0.4])
+subax = fig_var.add_axes([0.1, 0.55, 0.08, 0.3])
 
 ax_loss1 = fig_var.add_subplot(gs[0, 5:7])
 ax_kamp1 = fig_var.add_subplot(gs[0, 7:9])
@@ -63,9 +67,9 @@ idx_kamp=0
 idx_pred=0
 
 lbl_list = ['Prediction', 'Truth', 'Msmts']
-color_list = ['purple','red', 'black',]
 markr_list = ['o', '-', 'x', ]
-kf_colour_list = [0, 'b', 'g', 'orange', 'red', 'purple', 'cyan', 'gold']
+
+
     
 # Default Experimental Params
 bandwidth_ = 50.0
@@ -79,7 +83,7 @@ true_noise_params_ = [apriori_f_mean, pdf_type, alpha, f0, p, J_, jstart]
 FUDGE = 0.5
 HILBERT_TRANSFORM = 2.0
 
-for variation in [1, 2, 4, 6, 7]:
+for variation in variation_list:
 
     # Load data file paths
     filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
@@ -109,11 +113,15 @@ for variation in [1, 2, 4, 6, 7]:
     # FIG X.0: Kalman Ensemble Average 
     kf_obj = Plot_KF_Results(exp_params_, filename_skippy+'.npz')
     kf_obj.load_data()
+
+    max_stp_forwards_list.append(kf_obj.count_steps())
+    max_stp_forwards_multipler.append(multiplier_)
+
     start_at = n_testbefore - n_testbefore_list[variation]
     end_at = n_predict_list[variation] + n_testbefore
-    x_axis = kf_obj.Delta_T_Sampling*np.arange(-n_testbefore_list[variation], n_predict_list[variation], 1)
+    x_axis = kf_obj.Delta_T_Sampling*np.arange(-n_testbefore_list[variation], n_predict_list[variation], 1)*1000
 
-    ax_main.plot(x_axis, kf_obj.Normalised_Means_[0, start_at: end_at], 'x--', c=kf_colour_list[variation], 
+    ax_main.plot(x_axis, kf_obj.Normalised_Means_[0, start_at: end_at], 'o--', c=kf_colour_list[variation], 
             label=r'$\Delta t$ =%s (Skipped Msmts = %s)'%(kf_obj.Delta_T_Sampling, skip_list[variation]))
 
     ax_main.set(xlabel='Time (s)', ylabel=r'Log(E[$e^2$]) [Log Signal Units^2]')
@@ -141,11 +149,11 @@ for variation in [1, 2, 4, 6, 7]:
         ax.set_xscale('log')
         ax.set_yscale('log')
         for index in vars()['x_br_params'+str(0)]:
-            ax.plot(sigma[index], R[index], 'ro', markersize=40, alpha=0.6)
+            ax.plot(sigma[index], R[index], 'o', c='yellow', markersize=40, alpha=0.7)
         for index in vars()['x_br_params'+str(1)]:
-            ax.plot(sigma[index], R[index], 'go', markersize=25, alpha=0.6)
+            ax.plot(sigma[index], R[index], 'o', c='cyan', markersize=25, alpha=0.7)
         ax.plot(sigma, R, 'ko', markersize=10, label='Test Points')
-        ax.plot(br_obj.lowest_pred_BR_pair[0], br_obj.lowest_pred_BR_pair[1], 'x', color='yellow',  markersize=25, mew=3, label='Lowest Prediction Loss')
+        ax.plot(br_obj.lowest_pred_BR_pair[0], br_obj.lowest_pred_BR_pair[1], 'x', color='red',  markersize=25, mew=3, label='Lowest Prediction Loss')
         ax.set_xlabel(r' $\sigma $ [signal$^2$]')
         ax.set_ylabel(r' $R$ [signal$^2$]')
         ax.set_xlim([10**-11,1000])
@@ -164,12 +172,14 @@ for variation in [1, 2, 4, 6, 7]:
         y_data = [(instantA**2)*(2*np.pi)*FUDGE, HILBERT_TRANSFORM*theory.true_S_twosided[theory.J -1:]]
         ax = ax_kamp_[idx_kamp]
         ax.set(xlabel=r'$\omega$ [Rad]', ylabel=r'$S(\omega)$ [psd]')
-        ax.plot(x_data[0], y_data[0], 'ko', label='Prediction, Power: %s'%(np.round(np.sum(y_data[0]))))
+        ax.plot(x_data[0], y_data[0], 'o', c=kf_colour_list[variation], label='Prediction, Power: %s'%(np.round(np.sum(y_data[0]))))
         ax.plot(x_data[1], y_data[1], 'r', label='Truth, Power: %s'%(np.round(theory.true_S_norm)))
         idx_kamp +=1
 
     # FIG X.4: Single Prediction
-        
+
+    color_list = [kf_colour_list[variation],'red', 'black']
+
     if variation==1 or variation==7:
 
         ax = ax_pred_[idx_pred]
@@ -185,12 +195,26 @@ for variation in [1, 2, 4, 6, 7]:
         
         idx_pred+=1
 
+# FIG: Inset
+subax.set_ylim([0, 110])
+subax.set_xlim([0.2, 25])
+subax.set_xscale('log')
+subax.axvspan(0, 2, alpha=0.25, color='red')
+subax.axvline(2,  color='r',label='Aliasing')
+subax.axhline(100.0,  color='gray',label='Prediction Horizon Ends')
+subax.set(xlabel='Nyquist r' , ylabel=" Parity [# stps fwd]")
+for idx_var in xrange(len(variation_list)):
+    subax.plot(max_stp_forwards_multipler[idx_var], max_stp_forwards_list[idx_var], 'o', c=kf_colour_list[variation_list[idx_var]])
+
+for item in ([subax.title, subax.xaxis.label, subax.yaxis.label] + subax.get_xticklabels() + subax.get_yticklabels()):
+    item.set_fontsize(12) 
 
 for ax in [ax_main, ax_loss1, ax_loss2, ax_kamp1, ax_kamp2, ax_pred1, ax_pred2]:
     #ax.set(title="hello",xlabel="x", ylabel="y", ylim=[-1,1])
     for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
         item.set_fontsize(14)
 
+ax_main.get_xticklabels
 
 if savefig=='Yes':
     fig_var.savefig(os.path.join(savetopath_, 'test_case_'+str(test_case))+'_paperfig1_.svg', format="svg")
