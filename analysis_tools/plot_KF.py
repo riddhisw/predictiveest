@@ -79,6 +79,7 @@ class Plot_KF_Results(Experiment):
 
         if savefig=='Yes':
             fig.savefig(figname+'_single_pred_.svg', format="svg")
+        plt.close(fig)
         pass
 
 
@@ -148,7 +149,8 @@ class Plot_KF_Results(Experiment):
         if savefig=='Yes':
             fig.savefig(figname+'_EA_.svg', format="svg")
 
-        #plt.show()
+        plt.close(fig)
+        pass 
 
 
     def compare_skf_and_dkf(self, figname2, savefig='Yes', fsize=14):
@@ -173,4 +175,6 @@ class Plot_KF_Results(Experiment):
 
         if savefig=='Yes':
             fig.savefig(figname2+'_comparison.svg', format="svg")
+        
+        plt.close(fig)
         pass       

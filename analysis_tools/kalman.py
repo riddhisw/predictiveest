@@ -267,6 +267,7 @@ class Kalman(Experiment, Noisy_Data):
 
         if savefig=='Yes':
             figname = os.path.join(self.savetopath, self.filename0+'_KF_run_test.svg',)
-            fig.savefig(figname, format="svg")        
-
+            fig.savefig(figname, format="svg")
+        
+        plt.close(fig)
         pass

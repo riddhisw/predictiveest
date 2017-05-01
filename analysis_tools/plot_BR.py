@@ -141,6 +141,8 @@ class Plot_BR_Results(object):
 
         if savefig=='Yes': 
             fig.savefig(self.figname+'_Trunc_'+str(self.truncation)+'.svg', format="svg")
+        
+        plt.close(fig)
         pass
 
     def get_tuned_params(self, max_forecast_loss):
