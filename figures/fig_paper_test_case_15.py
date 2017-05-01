@@ -59,7 +59,7 @@ plt.close(fig)
 print('First figure done')
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15,8))
-ax.title('Max Steps Forwards vs. Undersampling Strength')
+ax.set_title('Max Steps Forwards vs. Undersampling Strength')
 ax.plot(undersamp_strength[1:], stp_fwd_limit, 'ro')
 ax.legend(loc=2, fontsize=fsize)
 if savefig=='Yes':
