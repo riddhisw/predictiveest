@@ -4,7 +4,8 @@ sys.path.append('../')
 import matplotlib.pyplot as plt
 import os
 from analysis_tools.plot_KF import Plot_KF_Results
-# The purpose of this script is to produce a figure for test_case_15 while on the cluster.
+# The purpose of this script is to produce a figure for 
+# test_case_4 or test_case_15 while on the cluster.
 
 n_train_=2000
 bandwidth_=50
@@ -12,10 +13,15 @@ n_predict_=100
 n_testbefore_=50
 multiplier_= 20
 
-undersamp_strength=[0, 800, 640, 500, 400, 320, 200, 160, 80, 20, 8, 2, 1, 0.5]
+# Test Case 15
+#undersamp_strength=[0, 800, 640, 500, 400, 320, 200, 160, 80, 20, 8, 2, 1, 0.5]
+
+# Test Case 4
+undersamp_strength=[0, 1022.7272727273,	900, 750, 642.8571428571, 562.5, 489.1304347826, 362.9032258065, 287.7237851662, 225, 140.625, 112.5, 22.5, 0.375]
+
 
 stp_fwd_limit=[]
-test_case=15
+test_case=4
 skip=1
 savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 
