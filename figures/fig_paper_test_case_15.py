@@ -12,7 +12,7 @@ n_predict_=100
 n_testbefore_=50
 multiplier_= 20
 
-undersamp_strength=[800, 640, 500, 400, 320, 200, 160, 80, 20, 8, 2, 1, 0.5]
+undersamp_strength=[0, 800, 640, 500, 400, 320, 200, 160, 80, 20, 8, 2, 1, 0.5]
 
 stp_fwd_limit=[]
 test_case=15
