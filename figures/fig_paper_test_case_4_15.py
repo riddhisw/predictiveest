@@ -2,6 +2,7 @@ import sys
 sys.path.append('../')
 
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 from analysis_tools.plot_KF import Plot_KF_Results
 # The purpose of this script is to produce a figure for 
@@ -32,7 +33,7 @@ savefig='Yes'
 ax.set_xlabel('Time Steps (s)')
 ax.set_ylabel('Log(E[squared error]) (Log Signal Units^2 )')
 ax.set_yscale('log')
-ax.set_ylim([10**(-5), 10**3])
+ax.set_ylim([10**(-5), 2])
 
 for variation in range(1, 14, 1):
 
@@ -49,7 +50,7 @@ for variation in range(1, 14, 1):
     kf_obj.load_data()
     stp_fwd_limit.append(kf_obj.count_steps())
 
-    ax.plot(kf_obj.Normalised_Means_[0, :], label=r'$\frac{Delta s}{f_0}$ = %s' %(undersamp_strength[variation]))
+    ax.plot(np.arange(-n_testbefore_, n_predict_, 1), kf_obj.Normalised_Means_[0, :], label=r'$\frac{\Delta s}{f_0}$ = %s' %(undersamp_strength[variation]))
 
 ax.legend(loc=2, fontsize=fsize)
 ax.axhline(1.0, color = 'k', label='Predict Noise Mean')
@@ -68,6 +69,8 @@ fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15,8))
 ax.set_title('Max Steps Forwards vs. Undersampling Strength')
 ax.plot(undersamp_strength[1:], stp_fwd_limit, 'ro')
 ax.legend(loc=2, fontsize=fsize)
+ax.set_xscale('log')
+ax.set_yscale('log')
 if savefig=='Yes':
     fig.savefig(os.path.join(savetopath_, 'test_case_'+str(test_case))+'_paperfig3_.svg', format="svg")
 
