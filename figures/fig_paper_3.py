@@ -72,7 +72,7 @@ for idx in xrange(2):
     test_case = test_cases_[idx]
     item = case_list[idx]
 
-    savetopath_ = '../test_case_'+str(test_case)+'/' #'/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
+    savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 
     max_stp_forwards_list=[]
     max_stp_forwards_us_list=[]
@@ -83,7 +83,7 @@ for idx in xrange(2):
     idx_kamp=0
     idx_pred=0
 
-    for variation in range(1, total_variations, 1):
+    for variation in range(2, total_variations, 1):
 
         # Load data file paths
         filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
