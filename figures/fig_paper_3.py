@@ -214,22 +214,19 @@ for idx in xrange(2):
             idx_kamp +=1
 
     # FIG: Inset
-    ypos =[0.23, 0.72]
+    ypos =[0.72, 0.23]
     vars()['subax'+str(idx)] = fig_var.add_axes([0.1, ypos[idx], 0.09, 0.15], facecolor='white')
-    vars()['subax'+str(idx)].set_ylim([1, 110])
+    vars()['subax'+str(idx)].set_ylim([1, n_predict+5])
     vars()['subax'+str(idx)].set_xscale('log')
     vars()['subax'+str(idx)].axhline(100.0,  color='brown', label='Max Pr.')
     vars()['subax'+str(idx)].set(xlabel=r'$\Delta \omega^B / f_0$' , ylabel="Parity [stps fwd]")
     vars()['subax'+str(idx)].xaxis.tick_top()
     vars()['subax'+str(idx)].xaxis.set_label_position('top')
-    vars()['subax'+str(idx)].ticklabel_format(style='sci', scilimits=(0,0), axis='x')
-
     
     idx_var=0
     for variation in range(2, total_variations, 1):
         vars()['subax'+str(idx)].plot(max_stp_forwards_us_list[idx_var], max_stp_forwards_list[idx_var], 'o', c=us_colour_list[variation])
         idx_var +=1
-
     subax = vars()['subax'+str(idx)]
     for item2 in ([subax.title, subax.xaxis.label, subax.yaxis.label] + subax.get_xticklabels() + subax.get_yticklabels()):
         item2.set_fontsize(12) 
