@@ -83,7 +83,7 @@ for idx in xrange(2):
     idx_kamp=0
     idx_pred=0
 
-    for variation in range(2, total_variations, 1):
+    for variation in range(total_variations, 2, -1):
 
         # Load data file paths
         filename0_ = 'test_case_'+str(test_case)+'_var_'+str(variation)
@@ -214,9 +214,10 @@ for idx in xrange(2):
             idx_kamp +=1
 
     # FIG: Inset
-    ypos =[0.72, 0.23]
+    ypos =[0.71, 0.23]
     vars()['subax'+str(idx)] = fig_var.add_axes([0.1, ypos[idx], 0.09, 0.15], facecolor='white')
     vars()['subax'+str(idx)].set_ylim([1, n_predict+5])
+    vars()['subax'+str(idx)].set_xlim([None, 10**3])
     vars()['subax'+str(idx)].set_xscale('log')
     vars()['subax'+str(idx)].axhline(100.0,  color='brown', label='Max Pr.')
     vars()['subax'+str(idx)].set(xlabel=r'$\Delta \omega^B / f_0$' , ylabel="Parity [stps fwd]")
