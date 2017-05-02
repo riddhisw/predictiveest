@@ -216,7 +216,7 @@ for idx in xrange(2):
     # FIG: Inset
     ypos =[0.71, 0.23]
     vars()['subax'+str(idx)] = fig_var.add_axes([0.1, ypos[idx], 0.09, 0.15], facecolor='white')
-    vars()['subax'+str(idx)].set_ylim([1, n_predict+5])
+    vars()['subax'+str(idx)].set_ylim([1, n_predict+10])
     vars()['subax'+str(idx)].set_xlim([0.1, 10**3])
     vars()['subax'+str(idx)].set_xscale('log')
     vars()['subax'+str(idx)].set_yscale('log')
@@ -240,7 +240,7 @@ l_truth = mlines.Line2D([], [], linestyle='-', color='r')
 l_msmt =  mlines.Line2D([], [], linestyle='None', color=None, marker='x', markerfacecolor='k', markeredgecolor='k', markersize=7)
 l_pred0 = mlines.Line2D([], [], linestyle='-', color='darkblue')
 
-for variation in range(1, total_variations,1):
+for variation in range(total_variations, 1 ,-1):
     vars()['l_pred'+str(variation)] = mlines.Line2D([], [], linestyle='None', color=None, 
                                                     marker='o', markerfacecolor=us_colour_list[variation], 
                                                     markeredgecolor=us_colour_list[variation], markersize=7)
