@@ -136,7 +136,7 @@ for idx in xrange(2):
         vars()['ax_main'+str(item)].set(xlabel='Stps Fwd [num]', ylabel=r'$log(E(err^2)$ [log(signal$^2$)]')
         vars()['ax_main'+str(item)].set_yscale('log')
         vars()['ax_main'+str(item)].set_ylim([10**(-5), 5])
-        ax_main_label_list.append(r'KF Pred. ($\frac{\Delta \omega^B}{f_0}$ =  %s)'%(np.round(us, 2)))
+        ax_main_label_list.append(r'KF Pred. (Variant=%s)'%(variation))
 
         if variation == variation_list[0] or  variation==variation_list[1] or variation==variation_list[2] or variation==variation_list[3]:
 
@@ -221,11 +221,14 @@ for idx in xrange(2):
     vars()['subax'+str(idx)].axhline(100.0,  color='brown', label='Max Pr.')
     vars()['subax'+str(idx)].set(xlabel=r'$\Delta \omega^B / f_0$' , ylabel="Parity [stps fwd]")
     vars()['subax'+str(idx)].xaxis.tick_top()
-    vars()['subax'+str(idx)].xaxis.set_label_position('top') 
+    vars()['subax'+str(idx)].xaxis.set_label_position('top')
+    vars()['subax'+str(idx)].ticklabel_format(style='sci', scilimits=(0,0), axis='x')
 
     
-    for idx_var in xrange(len(variation_list)):
-        vars()['subax'+str(idx)].plot(max_stp_forwards_us_list[idx_var], max_stp_forwards_list[idx_var], 'o', c=us_colour_list[variation_list[idx_var]])
+    idx_var=0
+    for variation in range(2, total_variations, 1):
+        vars()['subax'+str(idx)].plot(max_stp_forwards_us_list[idx_var], max_stp_forwards_list[idx_var], 'o', c=us_colour_list[variation])
+        idx_var +=1
 
     subax = vars()['subax'+str(idx)]
     for item2 in ([subax.title, subax.xaxis.label, subax.yaxis.label] + subax.get_xticklabels() + subax.get_yticklabels()):
