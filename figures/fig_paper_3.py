@@ -36,7 +36,7 @@ idx_case=0
 ax_loss_=[]
 ax_kamp_=[]
 case_list = [idx_case, idx_case + 2]
-face_colors_ =['white', 'linen', 'antiquewhite', 'papayawhip']
+face_colors_ =['white', 'linen', 'mistyrose', 'wheat']
 for item in case_list:
     vars()['ax_main'+str(item)] =  fig_var.add_subplot(gs[item:item+2, 0:2])
     for ncols in xrange(4):
@@ -216,7 +216,7 @@ for idx in xrange(2):
 
     # FIG: Inset
     ypos =[0.71, 0.23]
-    vars()['subax'+str(idx)] = fig_var.add_axes([0.09, ypos[idx], 0.09, 0.15], facecolor='white')
+    vars()['subax'+str(idx)] = fig_var.add_axes([0.092, ypos[idx], 0.09, 0.15], facecolor='white')
     vars()['subax'+str(idx)].set_ylim([1, n_predict+10])
     vars()['subax'+str(idx)].set_xlim([0.1, 10**3])
     vars()['subax'+str(idx)].set_xscale('log')
@@ -225,7 +225,7 @@ for idx in xrange(2):
     vars()['subax'+str(idx)].set(xlabel=r'$\Delta \omega^B / f_0$' , ylabel="Parity [stps fwd]")
     vars()['subax'+str(idx)].xaxis.tick_top()
     vars()['subax'+str(idx)].xaxis.set_label_position('top')
-    vars()['subax'+str(idx)].axvspan(0.1, 1,  color='linen', label='Undersampling')
+    vars()['subax'+str(idx)].axvspan(1, 10**3,  color='linen', label='Undersampling')
     vars()['subax'+str(idx)].legend(loc=1)
     
     idx_var=0
