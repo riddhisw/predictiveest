@@ -29,7 +29,7 @@ kf_colour_list = [0, 'g', 'darkorange', 'turqouise', 'b', 'darkblue', 'teal', 'p
 
 skip = 1
 max_forecast_loss=50
-savetopath_ = '../test_case_'+str(test_case)+'/' #'/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
+savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 multiplier_list = [0, 20, 10, 6.66666666667, 5, 4, 2, 1.25]
 
 n_predict_list = [0, 100, 50, 33, 25, 20, 10, 7] # For plotting KF ensemble averages only
