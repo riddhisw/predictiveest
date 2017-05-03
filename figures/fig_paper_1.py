@@ -162,7 +162,7 @@ for variation in variation_list:
             ax.plot(sigma[index], R[index], 'o', c='cyan', markersize=15, alpha=0.7)
         ax.plot(sigma, R, 'kv', markersize=5)#, label='Test Points')
         ax.plot(br_obj.lowest_pred_BR_pair[0], br_obj.lowest_pred_BR_pair[1], '*', color='crimson', markersize=15, mew=2)# label='Lowest Prediction Loss')
-        ax.set_xlabel(r' Kalman $\sigma $ [$\hat{x}^2$]')
+        ax.set_xlabel(r' Kalman $\sigma $ [$x^2$]')
         ax.set_ylabel(r' Kalman $R$ [$f_n ^2$]')
         ax.set_xlim([10**-11,1000])
         ax.set_ylim([10**-11,1000])
