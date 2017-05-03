@@ -29,7 +29,7 @@ kf_colour_list = [0, 'g', 'darkorange', 'turqouise', 'b', 'darkblue', 'teal', 'p
 
 skip = 1
 max_forecast_loss=50
-savetopath_ = '/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
+savetopath_ = '../test_case_'+str(test_case)+'/' #'/scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_'+str(test_case)+'/'
 multiplier_list = [0, 20, 10, 6.66666666667, 5, 4, 2, 1.25]
 
 n_predict_list = [0, 100, 50, 33, 25, 20, 10, 7] # For plotting KF ensemble averages only
@@ -51,9 +51,9 @@ subax = fig_var.add_axes([0.28, 0.475, 0.09, 0.275])
 ax_loss1 = fig_var.add_subplot(gs[0, 0:2])
 ax_kamp1 = fig_var.add_subplot(gs[0, 7:9])
 ax_pred1 = fig_var.add_subplot(gs[0, 9:11])
-ax_loss2 = fig_var.add_subplot(gs[1, 0:2])
-ax_kamp2 = fig_var.add_subplot(gs[1, 7:9])
-ax_pred2 = fig_var.add_subplot(gs[1, 9:11])
+ax_loss2 = fig_var.add_subplot(gs[1, 0:2], facecolor='lightyellow')
+ax_kamp2 = fig_var.add_subplot(gs[1, 7:9], facecolor='lightyellow')
+ax_pred2 = fig_var.add_subplot(gs[1, 9:11],facecolor='lightyellow')
 
 ax_main.axvspan(-50,0, color='gray', alpha=0.3)#, label=' Training')
 ax_main.axhline(1.0, linestyle='-', color='darkblue')#, label='Predict Zero Mean')
@@ -127,9 +127,12 @@ for variation in variation_list:
     end_at = n_predict_list[variation] + n_testbefore
     x_axis = kf_obj.Delta_T_Sampling*np.arange(-n_testbefore_list[variation], n_predict_list[variation], 1)*1000
 
-    ax_main.plot(x_axis, kf_obj.Normalised_Means_[0, start_at: end_at], 'o--', c=kf_colour_list[variation])
+    ms = 3 + 1.25*variation
+    ap = 1.0 - 0.1*variation
 
-    ax_main.set(xlabel='Stps Fwd [num]', ylabel=r'$log(E(err^2)$ [log(signal$^2$)]')
+    ax_main.plot(x_axis, kf_obj.Normalised_Means_[0, start_at: end_at], 'o--', c=kf_colour_list[variation], alpha=ap, markersize=ms)
+
+    ax_main.set(xlabel='Equivalent Time Stps Fwd for No Skipped Msmts [num]', ylabel=r'log($\langle (f_n -\hat{f_n})^2 \rangle_D$) [log($f_n^2$)]')
     ax_main.set_yscale('log')
     ax_main.set_ylim([10**(-5), 5])
     
@@ -159,8 +162,8 @@ for variation in variation_list:
             ax.plot(sigma[index], R[index], 'o', c='cyan', markersize=15, alpha=0.7)
         ax.plot(sigma, R, 'kv', markersize=5)#, label='Test Points')
         ax.plot(br_obj.lowest_pred_BR_pair[0], br_obj.lowest_pred_BR_pair[1], '*', color='crimson', markersize=15, mew=2)# label='Lowest Prediction Loss')
-        ax.set_xlabel(r' Kalman $\sigma $ [signal$^2$]')
-        ax.set_ylabel(r' Kalman $R$ [signal$^2$]')
+        ax.set_xlabel(r' Kalman $\sigma $ [$\hat{x}^2$]')
+        ax.set_ylabel(r' Kalman $R$ [$f_n ^2$]')
         ax.set_xlim([10**-11,1000])
         ax.set_ylim([10**-11,1000])
 
@@ -178,14 +181,14 @@ for variation in variation_list:
         y_data = [(instantA**2)*(2*np.pi)*FUDGE, HILBERT_TRANSFORM*theory.true_S_twosided[theory.J -1:]]
         
         ax = ax_kamp_[idx_kamp]
-        ax.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [signal$^2$/(rad $s^{-1}$)]')
+        ax.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
         ax.plot(x_data[0], y_data[0], 'o', c=kf_colour_list[variation])#, label=' Pred.' (T. Pow: %s)'%(np.round(np.sum(y_data[0]))))
         ax.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
         for label in ax.get_yticklabels():
             label.set_fontsize(fsize*0.8)
             label.set_color(kf_colour_list[variation])
 
-        ax.annotate('T.Pow: %s'%(np.round(np.sum(y_data[0]))), xy=(0.9,0.9), 
+        ax.annotate('T.Pow: %.2e'%(np.round(np.sum(y_data[0]))), xy=(0.8,1.03), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
                     textcoords='offset points',
@@ -202,7 +205,7 @@ for variation in variation_list:
             label.set_fontsize(fsize*0.8)
             label.set_color('r')
 
-        ax2.annotate('T.Pow: %s'%(np.round(theory.true_S_norm)), xy=(0.9,0.8), 
+        ax2.annotate('T.Pow: %.2e'%(np.round(theory.true_S_norm)), xy=(0.8,1.11), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
                     textcoords='offset points',
@@ -227,6 +230,8 @@ for variation in variation_list:
         ax = ax_pred_[idx_pred]
         Time_Axis = np.arange(-n_testbefore, n_predict, 1)
         predictions_list=[predictions, truth[n_train-n_testbefore:n_train+n_predict], msmts[n_train-n_testbefore:n_train+n_predict]]
+        
+        ax.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
         ax.axhline(0.0,  color='darkblue')#,label='Predict Zero Mean')
         for i in xrange(3):
             if i!=2:
@@ -237,7 +242,7 @@ for variation in variation_list:
         
         ax.axvspan(-50, 0, color='gray', alpha=0.3)
 
-        ax.set(xlabel=r' Stps Fwd [num], $\Delta t =  %s$ [s]' %(DeltaT), ylabel="Predictions [signal]")    
+        ax.set(xlabel=r' Stps Fwd [num], $\Delta t =  %s$ [s]' %(DeltaT), ylabel=r"Predictions [$f_n$]")    
         
         idx_pred+=1
 
@@ -245,11 +250,14 @@ for variation in variation_list:
 subax.set_ylim([1, 110])
 subax.set_xlim([1, 25])
 subax.set_xscale('log')
-subax.axvspan(1, 2, alpha=0.3, color='red', label='Aliasing')
+subax.axvspan(1, 2,  color='lightyellow', label='Aliasing')
 subax.plot(multiplier_list, n_predict_list, '--', c='brown', label='Equal $t$ ')
 subax.axhline(100.0,  color='brown', label='Max Pr.')
 subax.set(xlabel='Nyquist r' , ylabel="Parity [stps fwd]")
 subax.legend(loc=6)
+subax.xaxis.tick_top()
+subax.xaxis.set_label_position('top')
+    
 for idx_var in xrange(len(variation_list)):
     subax.plot(max_stp_forwards_multipler[idx_var], max_stp_forwards_list[idx_var], 'o', c=kf_colour_list[variation_list[idx_var]])
 

@@ -36,18 +36,19 @@ idx_case=0
 ax_loss_=[]
 ax_kamp_=[]
 case_list = [idx_case, idx_case + 2]
+face_colors_ =['white', 'linen', 'antiquewhite', 'papayawhip']
 for item in case_list:
     vars()['ax_main'+str(item)] =  fig_var.add_subplot(gs[item:item+2, 0:2])
     for ncols in xrange(4):
-        vars()['ax_loss'+str(item)+'_'+str(ncols)] = fig_var.add_subplot(gs[item:item+1, ncols+2])
-        vars()['ax_kamp'+str(item)+'_'+str(ncols)] = fig_var.add_subplot(gs[item+1:item+2,ncols+2])
+        vars()['ax_loss'+str(item)+'_'+str(ncols)] = fig_var.add_subplot(gs[item:item+1, ncols+2], facecolor=face_colors_[ncols])
+        vars()['ax_kamp'+str(item)+'_'+str(ncols)] = fig_var.add_subplot(gs[item+1:item+2,ncols+2], facecolor=face_colors_[ncols])
         ax_loss_.append(vars()['ax_loss'+str(item)+'_'+str(ncols)])
         ax_kamp_.append(vars()['ax_kamp'+str(item)+'_'+str(ncols)])
 
 # Defaults Plotting Preferences
 savefig='Yes'
 fsize=13.5
-us_colour_list = [0, 'dodgerblue', 'deepskyblue', 'b', 'darkblue', 'purple', 'maroon', 'deeppink', 'salmon','gold', 'olive', 'g', 'darkgreen', 'teal', 'lightslategreen']
+us_colour_list = [0, 'dodgerblue', 'deepskyblue', 'b', 'darkblue', 'purple', 'maroon', 'deeppink', 'saddlebrown', 'darkorange', 'olive', 'darkolivegreen', 'mediumseagreen', 'g', 'limegreen']
 
 lbl_list = ['Prediction', 'Truth', 'Msmts']
 markr_list = ['o', '-', 'x', ]
@@ -133,7 +134,7 @@ for idx in xrange(2):
         x_axis = kf_obj.Delta_T_Sampling*np.arange(-n_testbefore, n_predict, 1)*1000
 
         vars()['ax_main'+str(item)].plot(x_axis, kf_obj.Normalised_Means_[0, start_at: end_at], '--', c=us_colour_list[variation])
-        vars()['ax_main'+str(item)].set(xlabel='Stps Fwd [num]', ylabel=r'$log(E(err^2)$ [log(signal$^2$)]')
+        vars()['ax_main'+str(item)].set(xlabel='Stps Fwd [num]', ylabel=r'$log(E(err^2)$ [log($f_n^2$)]')
         vars()['ax_main'+str(item)].set_yscale('log')
         vars()['ax_main'+str(item)].set_ylim([10**(-5), 5])
         ax_main_label_list.append(r'KF Pred. (Variant=%s)'%(variation))
@@ -160,8 +161,8 @@ for idx in xrange(2):
                 ax.plot(sigma[index], R[index], 'o', c='cyan', markersize=15, alpha=0.7)
             ax.plot(sigma, R, 'kv', markersize=5)#, label='Test Points')
             ax.plot(br_obj.lowest_pred_BR_pair[0], br_obj.lowest_pred_BR_pair[1], '*', color='crimson', markersize=15, mew=2)# label='Lowest Prediction Loss')
-            ax.set_xlabel(r' Kalman $\sigma $ [signal$^2$]')
-            ax.set_ylabel(r' Kalman $R$ [signal$^2$]')
+            ax.set_xlabel(r' Kalman $\sigma $ [$\hat{x}^2$]')
+            ax.set_ylabel(r' Kalman $R$ [$f_n^2$]')
             ax.set_xlim([10**-11,1000])
             ax.set_ylim([10**-11,1000])
 
@@ -176,14 +177,14 @@ for idx in xrange(2):
             y_data = [(instantA**2)*(2*np.pi)*FUDGE, HILBERT_TRANSFORM*theory.true_S_twosided[theory.J -1:]]
             
             ax = vars()['ax_kamp'+str(item)+'_'+str(idx_kamp)]
-            ax.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [signal$^2$/(rad $s^{-1}$)]')
+            ax.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
             ax.plot(x_data[0], y_data[0], 'o', c=us_colour_list[variation])#, label=' Pred.' (T. Pow: %s)'%(np.round(np.sum(y_data[0]))))
             ax.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
             for label in ax.get_yticklabels():
                 label.set_fontsize(fsize*0.8)
                 label.set_color(us_colour_list[variation])
 
-            ax.annotate('T.Pow: %s'%(np.round(np.sum(y_data[0]))), xy=(0.95,0.9), 
+            ax.annotate('T.Pow: %.2e'%(np.round(np.sum(y_data[0]))), xy=(0.8,1.03), 
                         xycoords=('axes fraction', 'axes fraction'),
                         xytext=(1,1),
                         textcoords='offset points',
@@ -199,7 +200,7 @@ for idx in xrange(2):
                 label.set_fontsize(fsize*0.8)
                 label.set_color('r')
 
-            ax2.annotate('T.Pow: %s'%(np.round(theory.true_S_norm)), xy=(0.95,0.8), 
+            ax2.annotate('T.Pow: %.2e'%(np.round(theory.true_S_norm)), xy=(0.8,1.11), 
                         xycoords=('axes fraction', 'axes fraction'),
                         xytext=(1,1),
                         textcoords='offset points',
@@ -215,15 +216,17 @@ for idx in xrange(2):
 
     # FIG: Inset
     ypos =[0.71, 0.23]
-    vars()['subax'+str(idx)] = fig_var.add_axes([0.1, ypos[idx], 0.09, 0.15], facecolor='white')
+    vars()['subax'+str(idx)] = fig_var.add_axes([0.09, ypos[idx], 0.09, 0.15], facecolor='white')
     vars()['subax'+str(idx)].set_ylim([1, n_predict+10])
     vars()['subax'+str(idx)].set_xlim([0.1, 10**3])
     vars()['subax'+str(idx)].set_xscale('log')
     vars()['subax'+str(idx)].set_yscale('log')
-    vars()['subax'+str(idx)].axhline(100.0,  color='brown', label='Max Pr.')
+    vars()['subax'+str(idx)].axhline(100.0,  color='brown')
     vars()['subax'+str(idx)].set(xlabel=r'$\Delta \omega^B / f_0$' , ylabel="Parity [stps fwd]")
     vars()['subax'+str(idx)].xaxis.tick_top()
     vars()['subax'+str(idx)].xaxis.set_label_position('top')
+    vars()['subax'+str(idx)].axvspan(0.1, 1,  color='linen', label='Undersampling')
+    vars()['subax'+str(idx)].legend(loc=1)
     
     idx_var=0
     for variation in range(total_variations, 1, -1):
