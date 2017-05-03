@@ -36,7 +36,7 @@ idx_case=0
 ax_loss_=[]
 ax_kamp_=[]
 case_list = [idx_case, idx_case + 2]
-face_colors_ =['white', 'linen', 'mistyrose', 'wheat']
+face_colors_ =['white', 'linen', 'linen', 'linen']
 for item in case_list:
     vars()['ax_main'+str(item)] =  fig_var.add_subplot(gs[item:item+2, 0:2])
     for ncols in xrange(4):
@@ -184,7 +184,7 @@ for idx in xrange(2):
                 label.set_fontsize(fsize*0.8)
                 label.set_color(us_colour_list[variation])
 
-            ax.annotate('T.Pow: %.2e'%(np.round(np.sum(y_data[0]))), xy=(0.8,1.03), 
+            ax.annotate('T.Pow: %.2e'%(np.round(np.sum(y_data[0]))), xy=(0.78,1.03), 
                         xycoords=('axes fraction', 'axes fraction'),
                         xytext=(1,1),
                         textcoords='offset points',
@@ -200,7 +200,7 @@ for idx in xrange(2):
                 label.set_fontsize(fsize*0.8)
                 label.set_color('r')
 
-            ax2.annotate('T.Pow: %.2e'%(np.round(theory.true_S_norm)), xy=(0.8,1.11), 
+            ax2.annotate('T.Pow: %.2e'%(np.round(theory.true_S_norm)), xy=(0.78,1.11), 
                         xycoords=('axes fraction', 'axes fraction'),
                         xytext=(1,1),
                         textcoords='offset points',
@@ -225,8 +225,8 @@ for idx in xrange(2):
     vars()['subax'+str(idx)].set(xlabel=r'$\Delta \omega^B / f_0$' , ylabel="Parity [stps fwd]")
     vars()['subax'+str(idx)].xaxis.tick_top()
     vars()['subax'+str(idx)].xaxis.set_label_position('top')
-    vars()['subax'+str(idx)].axvspan(1, 10**3,  color='linen', label='Undersampling')
-    vars()['subax'+str(idx)].legend(loc=1)
+    vars()['subax'+str(idx)].axvspan(1, 10**3,  color='linen', label=r'$f_n$ undersampled')
+    vars()['subax'+str(idx)].legend(loc=4)
     
     idx_var=0
     for variation in range(total_variations, 1, -1):
