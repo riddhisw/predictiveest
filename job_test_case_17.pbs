@@ -14,7 +14,7 @@ cd $PBS_O_WORKDIR/
 
 test_case=17
 variation=(0 1 2 3)
-var_n_train_=(0, 2000, 4000, 8000)
+var_n_train_=(0 2000 4000 8000)
 var_n_predict_=100
 var_multiplier_=20
 var_f0_=0.0008888889
