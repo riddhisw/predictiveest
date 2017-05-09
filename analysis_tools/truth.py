@@ -26,13 +26,13 @@ class Truth(object):
         
         # Truth params
         self.true_noise_params = true_noise_params
-        self.apriori_f_mean = true_noise_params[0]
+        self.apriori_f_mean = float(true_noise_params[0])
         self.pdf_type = 'Uniform' #true_noise_params[1]
-        self.alpha = true_noise_params[2]
-        self.f0 = true_noise_params[3]
-        self.p = true_noise_params[4]
-        self.J = true_noise_params[5] + 1
-        self.jstart = true_noise_params[6]
+        self.alpha = float(true_noise_params[2])
+        self.f0 = float(true_noise_params[3])
+        self.p = float(true_noise_params[4])
+        self.J = int(true_noise_params[5]) + 1
+        self.jstart = int(true_noise_params[6])
         self.ensemble_size = ensemble_size
 
         self.num_w_axis = None

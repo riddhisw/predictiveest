@@ -8,9 +8,9 @@ class Experiment(object):
 
         # Experimental params
         self.expt_params = expt_params
-        self.n_train = expt_params[0]
-        self.n_predict = expt_params[1]
-        self.n_testbefore = expt_params[2]
+        self.n_train = int(expt_params[0])
+        self.n_predict = int(expt_params[1])
+        self.n_testbefore = int(expt_params[2])
         self.multiplier = expt_params[3]
         self.bandwidth = expt_params[4]
         
