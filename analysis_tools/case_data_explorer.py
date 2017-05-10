@@ -204,17 +204,13 @@ class CaseExplorer(Experiment,Truth):
 
         freq_basis_array = np.arange(0.0, self.bandwidth, bdelta)
 
-        predictions = Kalman.kf_2017(y_signal, self.n_train, self.n_testbefore, self.n_predict, 
-                              self.Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, 
-                              phase_correction=0 ,prediction_method=method, 
-                              skip_msmts=1, descriptor=newSKFfile)
+        predictions, x_hat = Kalman.kf_2017(y_signal, self.n_train, self.n_testbefore, self.n_predict, 
+                             self.Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, 
+                             phase_correction=0 ,prediction_method=method, 
+                             skip_msmts=1, switch_off_save='Yes')
 
-        newrun = np.load(newSKFfile+'.npz')
-        if method != 'ZeroGain':
-            instantA = newrun['instantA']
-        else:
-            x_hat_slice = newrun['x_hat'][:,:, self.n_train]
-            instantA, instantP = calc_inst_params(x_hat_slice)
+        x_hat_slice = newrun['x_hat'][:,:, self.n_train]
+        instantA, instantP = calc_inst_params(x_hat_slice)
 
         x_data, y_data, self.true_S_norm = self.return_fourier_amps(freq_basis_array=freq_basis_array, 
                                                                     instantA=instantA)

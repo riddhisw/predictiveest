@@ -49,7 +49,7 @@ PredictionMethod = {
 
 def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, 
             rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", 
-            skip_msmts=1, descriptor='Fast_KF_Results'):
+            skip_msmts=1, descriptor='Fast_KF_Results', switch_off_save='No'):
     '''    
     Keyword Arguments:
     ------------------
@@ -104,10 +104,10 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     
     '''    
-    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor)
+    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor, switch_off_save)
 
 
-def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor):
+def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor, switch_off_save):
 
     #print(descriptor)
     #print(prediction_method_)
@@ -184,12 +184,16 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
 
            
         if prediction_method_ == PROP_FORWARD and (k==n_train):
+        
             # This loop initiates propagation forward at n_train
             Propagate_Foward, instantA, instantP = makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction,num,n_train,numf)
             # We use previous state estimates to "predict" for n < n_train
             predictions[0:n_testbefore] = calc_pred(store_x_hat[:,:,n_train-n_testbefore:n_train])
             # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
+            
+            if switch_off_save == 'Yes':
+                return predictions, store_x_hat
             
             np.savez(descriptor, 
                     descriptor=descriptor,
@@ -223,6 +227,9 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         
     predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
     
+    if switch_off_save == 'Yes':
+        return predictions, store_x_hat
+
     np.savez(descriptor, descriptor=descriptor,
              predictions=predictions, 
              y_signal=y_signal,
