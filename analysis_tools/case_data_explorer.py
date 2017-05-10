@@ -209,7 +209,7 @@ class CaseExplorer(Experiment,Truth):
                              phase_correction=0 ,prediction_method=method, 
                              skip_msmts=1, switch_off_save='Yes')
 
-        x_hat_slice = newrun['x_hat'][:,:, self.n_train]
+        x_hat_slice = x_hat[:,:, self.n_train]
         instantA, instantP = calc_inst_params(x_hat_slice)
 
         x_data, y_data, self.true_S_norm = self.return_fourier_amps(freq_basis_array=freq_basis_array, 

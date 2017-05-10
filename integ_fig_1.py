@@ -13,11 +13,11 @@ from analysis_tools.case_data_explorer import CaseExplorer as cs
 # DATA 
 ########################################
 
-path_to_directory = '.'
-savefigname = 'test_case_7_no'
+path_to_directory = '/scratch/RDS-FSC-QCL_KF-RW/Kalman'
+savefigname = 'tc_7_'
 test_case_list = [7, 7, 7, 7, 7] # Equal len
 variation_list = [1, 2, 4, 6, 7] # Equal len
-DO_SKF = 'No'
+DO_SKF = 'Yes'
 
 skip_list = [1, 1, 1 , 1 , 1 , 1 ]
 NUM_SCENARIOS = len(test_case_list) # == len(variation_list)

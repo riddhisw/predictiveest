@@ -1,6 +1,5 @@
 #PBS -P QCL_KF
 #PBS -N plotter_1
-#PBS -J 1
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
 #PBS -l select=1:ncpus=1:mem=2GB
@@ -12,7 +11,7 @@ cd $PBS_O_WORKDIR/
 # Plotting job where kf.fast_2 needs to be implemented and there is a memory
 # error if run on cluster directly.
 
-cd env/source/bin/activate
+source env/bin/activate
 export MPLBACKEND=Agg
 echo $MPLBACKEND
 which python
