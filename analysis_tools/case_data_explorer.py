@@ -189,7 +189,14 @@ class CaseExplorer(Experiment,Truth):
             instantA = self.instantA
 
         x_data = [2.0*np.pi*freq_basis_array, self.true_w_axis[self.J -1:]]
-        y_data = [(instantA**2)*(2*np.pi)*FUDGE, HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]]
+
+        kalman_amps = (instantA**2)*(2*np.pi)*FUDGE
+        theory_PSD = HILBERT_TRANSFORM*self.true_S_twosided[self.J -1:]
+
+        norm_kalman_amps = kalman_amps*(1.0/ self.true_S_norm)
+        norm_theory_PSD = theory_PSD*(1.0/ self.true_S_norm)
+
+        y_data = [norm_kalman_amps, norm_theory_PSD]
 
         return x_data, y_data, self.true_S_norm
 
