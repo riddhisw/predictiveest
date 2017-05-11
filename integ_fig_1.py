@@ -14,13 +14,35 @@ from analysis_tools.case_data_explorer import CaseExplorer as cs
 ########################################
 
 path_to_directory = '/scratch/RDS-FSC-QCL_KF-RW/Kalman'
-savefigname = 'tc_7'
+savefigname = 'tc_7_'
 test_case_list = [7, 7, 7, 7, 7] # Equal len
 variation_list = [1, 2, 4, 6, 7] # Equal len
+
+max_stp_fwd=[]
+
+story1 = [2.0, 1.0, 0.998, 0.994, 0.99] # r'$f_0 / \Delta\omega^B $'
+story2 = [0.1988, 0.3976, 0.7952, 1.1928, 1.988] # r'$f_0 J / \Delta\omega^B_{max} $'
+story3 = [1.8181818182, 0.9523809524, 0.487804878, 0.3278688525, 0.2469135802] # r'$ \Delta s$ '
+story4 = [0.01, 0.05, 0.1, 0.2, 0.25] # r'Msmt Noise Lvl [% of 3 St. Dev $f_n$ Pts]'
+story6 = [0.1777777778, 0.3555555556, 0.8000000001, 1.0666666668, 1.4222222224] # r'$f_0 J / \Delta\omega^B_{max} $'
+story7 = [0.9090909091, 0.4761904762, 0.3225806452, 0.243902439, 0.1960784314] #r'$ \Delta s$ '
+story8 = story4
+tc7 = [20, 10, 5, 2, 1.25] # 'Nyquist r [dimless]'
+tc8 = tc7
+tc10 = tc7
+tc12 = tc7
+tc13 = tc7 
+tc14 = tc7
+
+dial = tc7
+dial_label = 'Nyquist r [dimless]'
+# r'$\Delta \omega^B / f_0$'
 
 loss_hist_min = 10**-2
 loss_hist_max = 10**6
 amp_PSD_min = 10**-5
+stps_fwd_truncate_=50
+kea_max = 10**3
 
 ## Scenarios with Changing Delta T
 n_predict_list = [0, 100, 50, 33, 25, 20, 10, 7] 
@@ -31,7 +53,7 @@ n_testbefore_list = [0, 50, 25, 17, 13, 10, 5, 3 ]
 # n_predict_list = n_testbefore_list 
 # n_predict_list = [0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
 
-DO_SKF = 'No'
+DO_SKF = 'Yes'
 
 
 ########################################
@@ -83,7 +105,10 @@ if DO_SKF == 'Yes':
 
 for idx in xrange((NUM_SCENARIOS)):
     for idx_ax2 in xrange(4):
-        vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, 2+idx])
+        if variation_list[idx]==7 and DO_SKF=='Yes':
+            vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, 2+idx], facecolor='mistyrose')
+        else:
+            vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, 2+idx])
         #vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)].locator_params(axis='x', numticks=4)
 
 ########################################
@@ -146,6 +171,7 @@ ax_tui_labels=['A*', 'B*', 'C*', 'D*', 'E*']
 for idx in xrange(NUM_SCENARIOS):
 
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
+    max_stp_fwd.append(vars()[obj_].count_steps())
 
     start_at = vars()[obj_].n_testbefore - n_testbefore_list[variation_list[idx]]
     end_at = n_predict_list[variation_list[idx]] + vars()[obj_].n_testbefore
@@ -159,11 +185,11 @@ for idx in xrange(NUM_SCENARIOS):
                 label=ax_kea_labels[idx],
                 c=us_colour_list[idx])
     ax_kea.set_yscale('log')
-    ax_kea.set_ylim([10**(-5), 5])
+    ax_kea.set_ylim([10**(-5), kea_max])
     
     ax_kea.tick_params(direction='in', which='both')
 
-    ax_kea.set_xlim([-60, 120])
+    ax_kea.set_xlim([-60, stps_fwd_truncate_])
     xtickslabels =[x.get_text() for x in ax_kea.get_xticklabels()]
     xtickslabels[0] = str(r'$-n_{T}$')
     print(xtickslabels)
@@ -365,7 +391,7 @@ for idx in xrange(NUM_SCENARIOS):
     ax.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
     ax.axhline(0.0,  color='darkblue')#,label='Predict Zero Mean')
     
-    ax.set_xlim([-50,100])
+    ax.set_xlim([-50,stps_fwd_truncate_])
     ax.axvspan(-50,0, color='gray', alpha=0.3)
     ax.tick_params(direction='in', which='both')
 
@@ -417,7 +443,7 @@ if DO_SKF == 'Yes':
         
         ax_tui.tick_params(direction='in', which='both')
 
-        ax_tui.set_xlim([-60, 120])
+        ax_tui.set_xlim([-60, stps_fwd_truncate_])
         xtickslabels =[x.get_text() for x in ax_kea.get_xticklabels()]
         xtickslabels[0] = str(r'$-n_{T}$')
         print(xtickslabels)
@@ -456,7 +482,7 @@ if DO_SKF == 'Yes':
     ######################################
     imagebox2 = OffsetImage(arr_img, zoom=0.18)
     imagebox2.image.axes = ax_tui
-    xy = (0.06, 0)
+    xy = (0.093, 0)
 
     ab2 = AnnotationBbox(imagebox2, xy,
                         xybox=(0.,0.),
@@ -490,6 +516,37 @@ for idx in xrange(NUM_SCENARIOS):
 #            item.set_weight('bold')
 
 
+######################################
+# Little Kia (Inset)
+######################################   
+# FIG: Inset
+
+kia = fig.add_axes([0.08, 0.72, 0.08, 0.14], facecolor='white')
+
+#kia.set_xlim([0.1, 10**3])
+#kia.set_xscale('log')
+
+kia.set_ylim([1, n_predict_list[1]+10])
+#kia.set_yscale('log')
+
+#kia.axvspan(1, 10**3,  color='linen', label=r'$f_n$ undersampled')
+kia.axvspan(1, 2,  color='mistyrose',label='r < 2')
+kia.plot(tc7, [100, 50, 25, 10, 7] , '--', c='brown', label='Equal $t$ ')
+kia.legend(loc=4)
+
+
+kia.axhline(n_predict_list[1],  color='brown')
+kia.set(xlabel=dial_label , ylabel="Parity [stps fwd]")
+kia.xaxis.tick_top()
+kia.xaxis.set_label_position('top')
+kia.tick_params(direction='in', which='both')
+
+idx_var=0
+for idx_var in xrange(NUM_SCENARIOS):
+    kia.plot(dial[idx_var], max_stp_fwd[idx_var], 'o', c=us_colour_list[idx_var], markersize=10)
+
+for item2 in ([kia.title, kia.xaxis.label, kia.yaxis.label] + kia.get_xticklabels() + kia.get_yticklabels()):
+    item2.set_fontsize(11) 
 
 ######################################
 # Save and Close
