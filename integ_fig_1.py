@@ -186,11 +186,19 @@ for idx in xrange(NUM_SCENARIOS):
                 label=ax_kea_labels[idx],
                 c=us_colour_list[idx])
 
-    if ADD_LS_DATA == 'Yes' and idx==0:
+    if DO_SKF=='Yes' and ADD_LS_DATA == 'Yes' and idx==0:
         ls_data = '/ls_data_for_plotting/ls_norm_tc_'+str(test_case_list[idx])+'_var_'+str(variation_list[idx])+'.npz'
         norm_means = np.load(path_to_directory+ls_data)['Normalised_Means']
-        ax_kea.plot(x_axis[n_testbefore_list[variation_list[idx]]: n_testbefore_list[variation_list[idx]] + 50], norm_means,'k', label='A (LS Filter)') # max LS n_predict =50
-
+        ax_kea.plot(x_axis[n_testbefore_list[variation_list[idx]]: n_testbefore_list[variation_list[idx]] + 50], norm_means,'k', label='A (LS)') # max LS n_predict =50
+    
+    elif DO_SKF !='Yes' and ADD_LS_DATA == 'Yes':
+        ls_data = '/ls_data_for_plotting/ls_norm_tc_'+str(test_case_list[idx])+'_var_'+str(variation_list[idx])+'.npz'
+        norm_means = np.load(path_to_directory+ls_data)['Normalised_Means']
+        ax_kea.plot(x_axis[n_testbefore_list[variation_list[idx]]: n_testbefore_list[variation_list[idx]] + 50], norm_means,
+                '-',
+                label=ax_kea_labels[idx]+' (LS)',
+                c=us_colour_list[idx])
+    
     ax_kea.set_yscale('log')
     ax_kea.set_ylim([10**(-5), kea_max])
     
@@ -500,6 +508,8 @@ if DO_SKF == 'Yes':
                         )
 
     ax_tui.add_artist(ab2)
+
+
 
 ######################################
 # Font Sizes
