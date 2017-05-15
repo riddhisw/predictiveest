@@ -185,6 +185,12 @@ for idx in xrange(NUM_SCENARIOS):
                 '--',
                 label=ax_kea_labels[idx],
                 c=us_colour_list[idx])
+
+    if ADD_LS_DATA == 'Yes' and idx==0:
+        ls_data = '/ls_data_for_plotting/ls_norm_tc_'+str(test_case_list[idx])+'_var_'+str(variation_list[idx])+'_.npz'
+        norm_means = np.load(path_to_directory+ls_data)['Normalised_Means']
+        ax.kea(x_axis[n_testbefore_list[variation_list[idx]]:], norm_means,'k', label='A (LS Filter)')
+
     ax_kea.set_yscale('log')
     ax_kea.set_ylim([10**(-5), kea_max])
     
@@ -205,10 +211,6 @@ ax_kea.axvspan(-50,0, color='gray', alpha=0.3, label="Training")
 ax_kea.axhline(1.0, linestyle='-', color='darkblue', label='Predict Mean')
 ax_kea.legend(bbox_to_anchor=(0.002, 1.05, 1.0, 0.2), loc=2, mode="expand",ncol=3, frameon=False, fontsize=fsize)   
 
-if ADD_LS_DATA == 'Yes' and idx==0:
-    ls_data = '/ls_data_for_plotting/ls_norm_tc_'+str(test_case_list[idx])+'_var_'+str(variation_list[idx])+'_.npz'
-    norm_means = np.load(path_to_directory+ls_data)['Normalised_Means']
-    ax.kea(x_axis[n_testbefore_list[variation_list[idx]]:], norm_means,'k', label='A (LS Filter)')
 
 ######################################
 # Add broken lines to x_axis
