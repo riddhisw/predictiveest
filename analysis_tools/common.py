@@ -9,6 +9,13 @@ Created on Thu Apr 20 19:20:43 2017
 from __future__ import division, print_function, absolute_import
 import numpy as np
 
+
+def sqr_err(predictions, truth):
+    ''' Returns the squared error sequence between predictions sequence and truth sequence
+    '''
+    return (predictions.real - truth.real)**2
+    
+
 def truncate_losses_( list_of_loss_vals, truncation):
     '''
     Returns truncation number of hyperparameters for lowest risk from a sequence of outcomes.

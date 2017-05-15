@@ -14,6 +14,7 @@ from kf import detailed as dkf
 # test
 from analysis_tools.experiment import Experiment
 from analysis_tools.noisydata import Noisy_Data
+from analysis_tools.common import sqr_err
 
 FUDGE = 0.5
 HILBERT_TRANSFORM = 2.0
@@ -65,12 +66,6 @@ class Kalman(Experiment, Noisy_Data):
 
         pass
 
-
-    def sqr_err(self, predictions, truth):
-        ''' Returns the squared error sequence between predictions sequence and truth sequence
-        '''
-        return (predictions.real - truth.real)**2
-    
     
     def calc_phase_correction(self, bdelta, Delta_S_Sampling, phase_correction):
         ''' Calculates phase correction for noise traces, else returns zero.
