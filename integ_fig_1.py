@@ -15,6 +15,9 @@ from analysis_tools.case_data_explorer import CaseExplorer as cs
 
 path_to_directory = '/scratch/RDS-FSC-QCL_KF-RW/Kalman'
 savefigname = 'tc_7_'
+ADD_LS_DATA = 'Yes'
+DO_SKF = 'Yes'
+
 test_case_list = [7, 7, 7, 7, 7] # Equal len
 variation_list = [1, 2, 4, 6, 7] # Equal len
 
@@ -52,8 +55,6 @@ n_testbefore_list = [0, 50, 25, 17, 13, 10, 5, 3 ]
 # n_testbefore_list = [0, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
 # n_predict_list = n_testbefore_list 
 # n_predict_list = [0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
-
-DO_SKF = 'Yes'
 
 
 ########################################
@@ -204,6 +205,10 @@ ax_kea.axvspan(-50,0, color='gray', alpha=0.3, label="Training")
 ax_kea.axhline(1.0, linestyle='-', color='darkblue', label='Predict Mean')
 ax_kea.legend(bbox_to_anchor=(0.002, 1.05, 1.0, 0.2), loc=2, mode="expand",ncol=3, frameon=False, fontsize=fsize)   
 
+if ADD_LS_DATA == 'Yes' and idx==0:
+    ls_data = '/ls_data_for_plotting/ls_norm_tc_'+str(test_case_list[idx])+'_var_'+str(variation_list[idx])+'_.npz'
+    norm_means = np.load(path_to_directory+ls_data)['Normalised_Means']
+    ax.kea(x_axis[n_testbefore_list[variation_list[idx]]:], norm_means,'k', label='A (LS Filter)')
 
 ######################################
 # Add broken lines to x_axis
