@@ -13,9 +13,9 @@ from analysis_tools.truth import Truth
 class Noisy_Data(Truth):
 
 
-    def __init__(self, msmt_noise_params, true_noise_params, user_defined_variance=None):
+    def __init__(self, msmt_noise_params, true_noise_params, user_defined_variance=None, **kwargs):
 
-        Truth.__init__(self, true_noise_params)
+        Truth.__init__(self, true_noise_params, **kwargs)
 
         # Msmt Noise params
         self.msmt_noise_params = msmt_noise_params
