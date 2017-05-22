@@ -137,7 +137,7 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
         
         k=k+1
 
-    np.savez(descriptor, descriptor='AKF_'+descriptor,
+    np.savez(descriptor+'_AKF_', descriptor=descriptor+'_AKF_',
         y_signal=y_signal,
         order= order, 
         x_hat=store_x_hat, 
@@ -156,5 +156,5 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
         n_testbefore=n_testbefore,
         skip_msmts=skip_msmts)
     
-    return store_x_hat, store_P_hat, store_W, store_S
+    return store_x_hat[0,0, n_train - n_testbefore: ]
 
