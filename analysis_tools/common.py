@@ -132,14 +132,17 @@ def calc_periodogram(x_p, Delta_S_Sampling, Delta_T_Sampling):
     ''' Calculates periodogram of time domain signal, x_p, based on sampling rates.
     '''
     
-    number_of_points = 1.0/(Delta_S_Sampling*Delta_T_Sampling)
+    number_of_points = int(1.0/(Delta_S_Sampling*Delta_T_Sampling))
     halfN = int((number_of_points - 1)/ 2.0)
+
+    S_est = np.zeros(halfN)
+    omega = np.zeros(halfN)
 
     for idx_j in range(1, halfN, 1):
         omega_j = 2.0*np.pi*idx_j*Delta_S_Sampling
 
         one_j_term = 0
-        for idx_t in range(0, n_train, 1):
+        for idx_t in range(0, number_of_points, 1):
             one_j_term += x_p[idx_t]*np.exp(-1.0j*idx_t*Delta_T_Sampling*omega_j)
 
         S_est[idx_j] = (1.0/(2.0*np.pi*number_of_points))*abs(one_j_term)**2
@@ -150,11 +153,17 @@ def calc_periodogram(x_p, Delta_S_Sampling, Delta_T_Sampling):
     
 def calc_AR_PSD(phi_p, sigma_n_sqr, Delta_S_Sampling, Delta_T_Sampling):
     ''' Returns power spectral density S(w) and w for an autogressive, covariance stationary process of order p.
+    REF:
+    Lecture Notes (http://www.lmd.ens.fr/E2C2/class/SASP_lecture_notes.pdf) 
+    Wikipedia (https://en.wikipedia.org/wiki/Autoregressive_model#Spectrum)
     '''
     
     number_of_points = 1.0/(Delta_S_Sampling*Delta_T_Sampling)
     halfN = int((number_of_points - 1) / 2.0)
     order_p = phi_p.shape[0]
+
+    S_thr = np.zeros(halfN)
+    omega = np.zeros(halfN)
     
     for idx_j in range(1, halfN, 1):
 

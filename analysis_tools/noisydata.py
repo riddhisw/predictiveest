@@ -32,7 +32,7 @@ class Noisy_Data(Truth):
         msmt_noise_var = self.msmt_noise_level*num_of_standard_dev*np.sqrt(np.var(one_realisation))
         #print one_realisation
         #print one_realisation[0]
-        return msmt_noise_var
+        return msmt_noise_var # this is not variance. It's a new standard deviation.
 
 
     
@@ -47,7 +47,8 @@ class Noisy_Data(Truth):
 
         if self.msmt_noise_variance != None:
             truth = self.beta_z()[0]
-            y_signal =  truth + self.msmt_noise_variance*np.random.randn(self.number_of_points)
+            y_signal =  truth + self.msmt_noise_variance*np.random.randn(self.number_of_points) # This is a standard deviation. True noise variance = msmt_noise_var **2 
+            # Double check that np.random.normal(loc=0,scale=sdev) == sdev*np.random.randn()
             return  truth, y_signal
 
         return "boo"
