@@ -49,7 +49,7 @@ for idx_randparams in xrange(kf_original_obj.num_randparams):
                                 n_predict=kf_original_obj.n_predict,
                                 p0=10000, skip_msmts=skip_msmts)
 
-        truth_ = truth_[kf_original_obj.n_train - kf_original_obj.n_testbefore : kf_original_obj.n_train + kf_original_obj.n_predict]
+        truth_ = truth[kf_original_obj.n_train - kf_original_obj.n_testbefore : kf_original_obj.n_train + kf_original_obj.n_predict]
         residuals_sqr_errors = (akf_prediction.real - truth_.real)**2
 
         prediction_errors.append(residuals_sqr_errors[0: kf_original_obj.n_testbefore])
