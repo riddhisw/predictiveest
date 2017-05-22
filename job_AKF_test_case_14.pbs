@@ -1,0 +1,18 @@
+#PBS -P QCL_KF
+#PBS -N AKF_test_case_14
+#PBS -J 1-5
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=80GB
+#PBS -l walltime=200:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+
+test_case=14
+variation=(0 1 2 4 6 7)
+
+module load python
+
+python ./test_script_riskanalysiscompare.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman
