@@ -40,9 +40,6 @@ for idx_randparams in xrange(kf_original_obj.num_randparams):
         init_ = kf_original_obj.random_hyperparams_list[idx_randparams, :]
         truth = kf_original_obj.macro_truth[idx_randparams, idx_d, :]
         y_signal = truth + kf_original_obj.msmt_noise_variance*np.random.randn(truth.shape[0])
-
-        np.savez(filepath_LS_Ensemble+'_BR_AKF_MAP', test='success')
-        raise RuntimeError
         
         akf_prediction = akf(descriptor, y_signal, weights, 
                                 init_[0], 
