@@ -121,24 +121,28 @@ style = ['-', '-', '-', '-']
 ax_kea_labels=['A', 'B', 'C', 'D', 'E']
 ax_tui_labels=['A*', 'B*', 'C*', 'D*', 'E*']
 
-########################################
-# FIG: Loss Map on Variational Plots
-########################################
-
-idx_ax2_list = [0, 2] # Loss Map on 1st and 3rd rows
+idx_ax1_list = [0, 2] # Loss Map on 1st and 3rd rows
+idx_ax2_list = [1, 3] # Loss Histogram on second and last rows
 
 for idx in xrange(NUM_SCENARIOS):
 
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
-    output = vars()[obj_].return_low_loss_hyperparams_list() # this has data from kf and akf
+    output = vars()[obj_].return_low_loss_hyperparams_list(truncation_=2) # this has data from kf and akf
 
     for idx_kf_type in xrange(2): 
-        
-        idx_ax2 = idx_ax2_list[idx_kf_type]
+
+        ########################################
+        # Break data up into KF (idx_kf_type=0) and AKF (idx_kf_type=1)
+        ########################################
 
         s0, R0, s1, R1, sigma, R, p_index, p_losses = [item for item in output[idx_kf_type]]
+
+        ########################################
+        # FIG: Loss Map (Sigma v. R)
+        ########################################
         
-        ax_ = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)]
+        idx_ax1 = idx_ax1_list[idx_kf_type]       
+        ax_ = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax1)]
 
         if idx==0:
             ax_.set_ylabel(r' Kalman $R$ [$f_n^2$]')
@@ -155,7 +159,7 @@ for idx in xrange(NUM_SCENARIOS):
         ax_.plot(s0[0], R0[0],'*', color=optimal_star, markersize=15, mew=2)
         ax_.tick_params(direction='in', which='both')
 
-        if idx_ax2==0 :
+        if idx_ax1==0 :
             ax_.annotate(ax_kea_labels[idx], xy=(0, 1.5), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
@@ -165,7 +169,7 @@ for idx in xrange(NUM_SCENARIOS):
                     ha='left',
                     va='center')
 
-        if idx_ax2 == 0 and idx==0 :     
+        if idx_ax1 == 0 and idx==0 :     
             ax_.annotate('KF - Basis of Oscillators', xy=(-0.5, 1.06), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
@@ -175,7 +179,7 @@ for idx in xrange(NUM_SCENARIOS):
                     ha='left',
                     va='center')
         
-        if idx_ax2 == 2 and idx==0:     
+        if idx_ax1 == 2 and idx==0:     
             ax_.annotate('KF - Autoregressive AR(q=101) with LS Weights', xy=(-0.5, 1.08), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
@@ -184,61 +188,68 @@ for idx in xrange(NUM_SCENARIOS):
                     color='r',
                     ha='left',
                     va='center')
-
-########################################
-# FIG: Loss Histograms on Variational Plots
-########################################
-
-idx_ax2_list = [1 , 3] # Loss Histogram on second and last rows
-
-for idx in xrange(NUM_SCENARIOS):
-
-    obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
-    output = vars()[obj_].return_low_loss_hyperparams_list() # this has data from kf and akf
-
-    for idx_kf_type in xrange(2): 
+        
+        ########################################
+        # FIG: Loss Map on Variational Plots
+        ########################################
         
         idx_ax2 = idx_ax2_list[idx_kf_type]
-
-        s0, R0, s1, R1, sigma, R, p_index, p_losses = [item for item in output[idx_kf_type]]
-
-        ax_ = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)]
+        ax_2 = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)]
 
         start_at = vars()[obj_].n_testbefore - n_testbefore_list[variation_list[idx]] #== 0 if Delta_T is not changing
         end_at = n_predict_list[variation_list[idx]] #==  n_predict if Delta_T is not changing
+        
         x_axis = PLOT_SCALE*vars()[obj_].Delta_T_Sampling*np.arange(start_at - vars()[obj_].n_testbefore, end_at, 1)
+
+        # Define the optimal trajectory
         opt_index = p_index[0]
+        print('For Variation %s, Opt Index = %s' %(variation_list[idx], opt_index) )
+
+        # Define {unoptimal trajectories} == {all trajectories} - {top X "optimally" lowest lost trajectories, X = truncation value}
         unopt_index_list = list(set(range(0, vars()[obj_].num_randparams, 1)) - set(p_index))
 
         count=0
         alpha=0.1
+
+        # Choose dataset (KF v. AKF):
+        PRED_DICT = {'0': np.mean(vars()[obj_].macro_prediction_errors, axis=1),
+                     '1': np.mean(vars()[obj_].akf_macro_prediction_errors, axis=1)}
+        FORE_DICT = {'0': np.mean(vars()[obj_].macro_forecastng_errors, axis=1), 
+                     '1': np.mean(vars()[obj_].akf_macro_forecastng_errors, axis=1)}
+
+        # Plot unoptimal trajectories from dataset:
         for chosen_index in unopt_index_list:
-            ax_.plot(x_axis[:n_testbefore_list[variation_list[idx]]], np.mean(vars()[obj_].macro_prediction_errors[chosen_index,:,start_at:], axis=0), 
+            ax_2.plot(x_axis[ : n_testbefore_list[variation_list[idx]] ], PRED_DICT[str(idx_kf_type)][chosen_index, start_at: ], 
                     '-', markersize=4, alpha=alpha, c='k')
-            ax_.plot(x_axis[n_testbefore_list[variation_list[idx]] :], np.mean(vars()[obj_].macro_forecastng_errors[chosen_index,:,0:end_at], axis=0), 
+            ax_2.plot(x_axis[ n_testbefore_list[variation_list[idx]] : ], FORE_DICT[str(idx_kf_type)][chosen_index, 0:end_at ], 
                     '-', markersize=4, alpha=alpha, c='k')
+        
+        # Plot optimal trajectories from dataset:
         alpha=0.5
         count=0
         for chosen_index in p_index[1:] + [opt_index]:
             if chosen_index==opt_index:
                 count=2
                 alpha=1.0
-            ax_.plot(x_axis[:n_testbefore_list[variation_list[idx]]], np.mean(vars()[obj_].macro_prediction_errors[chosen_index,:,start_at:], axis=0), 
-                    style[count], markersize=4, alpha=alpha, c=loss_color_list[count])
-            ax_.plot(x_axis[n_testbefore_list[variation_list[idx]] :], np.mean(vars()[obj_].macro_forecastng_errors[chosen_index,:,0:end_at], axis=0), 
-                    style[count+1], markersize=4, alpha=alpha, c=loss_color_list[count+1])
+            ax_2.plot(x_axis[:n_testbefore_list[variation_list[idx]]], PRED_DICT[str(idx_kf_type)][chosen_index, start_at: ], 
+                    style[count], 
+                    markersize=4, alpha=1.0, c=loss_color_list[count])
+            ax_2.plot(x_axis[n_testbefore_list[variation_list[idx]] :],FORE_DICT[str(idx_kf_type)][chosen_index, 0:end_at ], 
+                    style[count+1], 
+                    markersize=4, alpha=1.0, c=loss_color_list[count+1])
         
-        ax_.set_yscale('log')
-        ax_.set_xlim([-50,50])
-        ax_.set_ylim([loss_hist_min, loss_hist_max])
-        ax_.axvspan(-50,0, color='gray', alpha=0.3)
+
+        ax_2.set_yscale('log')
+        ax_2.set_xlim([-50,50])
+        ax_2.set_ylim([loss_hist_min, loss_hist_max])
+        ax_2.axvspan(-50,0, color='gray', alpha=0.3)
         
         if idx==0:
-            ax_.set_ylabel(r'log($\langle (f_n -\hat{f_n})^2 \rangle_D$) [log($f_n^2$)]')
+            ax_2.set_ylabel(r'log($\langle (f_n -\hat{f_n})^2 \rangle_D$) [log($f_n^2$)]')
         if idx==2:
-            ax_.set_xlabel('Stps Fwd [num]')
+            ax_2.set_xlabel('Stps Fwd [num]')
         
-        ax_.tick_params(direction='in', which='both')
+        ax_2.tick_params(direction='in', which='both')
 
 ######################################
 # Font Sizes
