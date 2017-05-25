@@ -88,7 +88,7 @@ class CaseExplorer(Experiment,Truth):
         
         if AKF_load != 'No':
 
-            data = np.load(self.path_to_directory +'LS_Ensemble_Folder/'+self.filename0+'_BR_AKF_MAP.npz' )
+            data = np.load(self.path_to_directory +'/LS_Ensemble_Folder/'+self.filename0+'_BR_AKF_MAP.npz' )
             self.akf_lowest_pred_BR_pair = None
             self.akf_lowest_fore_BR_pair = None
             self.akf_means_lists_ = None
@@ -101,7 +101,7 @@ class CaseExplorer(Experiment,Truth):
         
         if LS_load != 'No':
 
-            data = np.load(self.path_to_directory +'LS_Ensemble_Folder/'+self.filename0+'_LS_Ensemble.npz' )
+            data = np.load(self.path_to_directory +'/LS_Ensemble_Folder/'+self.filename0+'_LS_Ensemble.npz' )
             self.ls_macro_weights = data['macro_weights']
             self.n_start_at = data['n_start_at']
             
