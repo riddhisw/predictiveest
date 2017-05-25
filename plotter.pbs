@@ -16,4 +16,5 @@ export MPLBACKEND=Agg
 echo $MPLBACKEND
 which python
 
-python integ_fig_1.py
+python KF_pred_comparison.py
+python KF_loss_comparison.py
