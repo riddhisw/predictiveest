@@ -45,7 +45,7 @@ def propagate_states_no_gamma(a, x_hat, P_hat, Q):
 
 
 def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50, 
-           n_predict=50, p0=10000, skip_msmts=1):
+           n_predict=50, p0=10000, skip_msmts=1,  switch_off_save='No'):
 
     num = y_signal.shape[0]
     order = weights.shape[0]
@@ -137,24 +137,25 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
         
         k=k+1
 
-    np.savez(descriptor+'_AKF_', descriptor=descriptor+'_AKF_',
-        y_signal=y_signal,
-        order= order, 
-        x_hat=store_x_hat, 
-        P_hat=store_P_hat, 
-        a=a,
-        h=h,
-        weights=weights,
-        e_z=e_z,
-        W=store_W,
-        Q=store_Q,
-        S=store_S,
-        oe=oe, 
-        rk=rk,
-        n_train=n_train,
-        n_predict=n_predict,
-        n_testbefore=n_testbefore,
-        skip_msmts=skip_msmts)
+    if  switch_off_save == 'Yes':
+        np.savez(descriptor+'_AKF_', descriptor=descriptor+'_AKF_',
+            y_signal=y_signal,
+            order= order, 
+            x_hat=store_x_hat, 
+            P_hat=store_P_hat, 
+            a=a,
+            h=h,
+            weights=weights,
+            e_z=e_z,
+            W=store_W,
+            Q=store_Q,
+            S=store_S,
+            oe=oe, 
+            rk=rk,
+            n_train=n_train,
+            n_predict=n_predict,
+            n_testbefore=n_testbefore,
+            skip_msmts=skip_msmts)
     
     return store_x_hat[0,0, n_train - n_testbefore: ]
 

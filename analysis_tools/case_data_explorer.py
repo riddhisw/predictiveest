@@ -6,13 +6,15 @@
 
 from __future__ import division, print_function, absolute_import
 import numpy as np
-from analysis_tools.common import get_tuned_params_, truncate_losses_
+from analysis_tools.common import get_tuned_params_, truncate_losses_, analyse_loss
 from analysis_tools.experiment import Experiment
 from analysis_tools.truth import Truth
 import sys
 import os
 import kf.fast_2 as Kalman
 from kf.common import calc_inst_params
+
+from kf.armakf import autokf as akf 
 
 sys.path.append("../") # look in the parent directory containing both kf and analysis_tools packages
 
@@ -22,18 +24,21 @@ count_steps_DICT = {'A': 0, 'B': 2, 'C': 4}
 FUDGE = 0.5
 HILBERT_TRANSFORM = 2.0
 
-
-
 class CaseExplorer(Experiment,Truth):
 
     def __init__(self, test_case, variation, skip,
                  max_forecast_loss, path_to_directory,
-                 Hard_load='No', SKF_load='No'):
+                 Hard_load='No', SKF_load='No', 
+                 AKF_load='Yes', LS_load = 'Yes'):
 
         self.test_case = test_case
         self.variation = variation
+        self.AKF_load = AKF_load
+        self.LS_load = LS_load
 
-        self.savetopath = path_to_directory +'/test_case_'+str(self.test_case)+'/'
+        self.path_to_directory = path_to_directory
+
+        self.savetopath = self.path_to_directory +'/test_case_'+str(self.test_case)+'/'
         self.filename0 = 'test_case_'+str(self.test_case)+'_var_'+str(self.variation)
         self.filename_BR = self.filename0+str('BR_Map')
         self.filename_and_path_BR = os.path.join(self.savetopath, str(self.filename_BR)+'.npz')
@@ -53,7 +58,7 @@ class CaseExplorer(Experiment,Truth):
         self.num_randparams = data['num_randparams']
         self.random_hyperparams_list = data['random_hyperparams_list']
         self.kalman_params = data['kalman_params'] # Duplicated in KF Results
-        
+        self.macro_truth = data['macro_truth'] 
         self.max_it_BR = data['max_it_BR']
 
         self.truncation = 20
@@ -81,6 +86,28 @@ class CaseExplorer(Experiment,Truth):
         self.msmts = data['noisydata']
         self.truth =  data['truth']
         
+        if AKF_load != 'No':
+
+            data = np.load(self.path_to_directory +'LS_Ensemble_Folder/'+self.filename0+'_BR_AKF_MAP.npz' )
+            self.akf_lowest_pred_BR_pair = None
+            self.akf_lowest_fore_BR_pair = None
+            self.akf_means_lists_ = None
+            self.akf_macro_prediction_errors = data['akf_macro_prediction_errors']
+            self.akf_macro_forecastng_errors = data['akf_macro_forecastng_errors']
+            self.akf_weights = data['weights']
+            
+            pass
+
+        
+        if LS_load != 'No':
+
+            data = np.load(self.path_to_directory +'LS_Ensemble_Folder/'+self.filename0+'_LS_Ensemble.npz' )
+            self.ls_macro_weights = data['macro_weights']
+            self.n_start_at = data['n_start_at']
+            
+            pass
+        
+
 
         if Hard_load !='No':
             
@@ -90,7 +117,7 @@ class CaseExplorer(Experiment,Truth):
             self.max_it = data['max_it']
             self.skip_msmts = data['skip_msmts']
             self.true_signal_params = data['true_signal_params'] # Duplicated in KF Results
-            self.macro_truth = data['macro_truth']      
+                 
 
             data = np.load(self.filename_skippy+'.npz' )
             self.max_it = data['max_it']
@@ -132,38 +159,40 @@ class CaseExplorer(Experiment,Truth):
     def generate_ordered_losses(self, truncation=20):
         """ Generates a list of (sigma, R) pairs from lowest to highest mean prediction 
         and forecasting losses, as well as optimal (sigma, R) for each type of loss"""
+
+
         self.means_lists_, self.lowest_pred_BR_pair, self.lowest_fore_BR_pair = get_tuned_params_(self.max_forecast_loss,
                                                                                                 np.array(self.num_randparams), 
                                                                                                 np.array(self.macro_prediction_errors), 
                                                                                                 np.array(self.macro_forecastng_errors),
                                                                                                 np.array(self.random_hyperparams_list),
                                                                                                 truncation)
+
+        if self.AKF_load != 'No':
+            self.akf_means_lists_, self.akf_lowest_pred_BR_pair, self.akf_lowest_fore_BR_pair = get_tuned_params_(self.max_forecast_loss,
+                                                                                                np.array(self.num_randparams), 
+                                                                                                np.array(self.akf_macro_prediction_errors), 
+                                                                                                np.array(self.akf_macro_forecastng_errors),
+                                                                                                np.array(self.random_hyperparams_list),
+                                                                                                truncation)            
         pass
 
 
     def return_low_loss_hyperparams_list(self, truncation_=20):
-        """ Returns a list of sigma, R ordered by loss values for mean prediction and 
-        forecasting loss. The length of the list can be from 1 to num_randparams, 
-        but is truncated by default."""
+        '''Returns optimisation data for KF and AKF
+        '''
 
         self.generate_ordered_losses(truncation=truncation_)
 
-        R = [x[1] for x in self.random_hyperparams_list]
-        sigma = [x[0] for x in self.random_hyperparams_list]
+        if self.AKF_load == 'No':
+            return analyse_loss(self.means_lists_, self.random_hyperparams_list)
 
-        for means_ind in xrange(2):
+        elif self.AKF_load != 'No':
+            kf_loss_analysis = analyse_loss(self.means_lists_, self.random_hyperparams_list)
+            akf_loss_analysis = analyse_loss(self.akf_means_lists_, self.random_hyperparams_list)
+            
+            return kf_loss_analysis, akf_loss_analysis
 
-            vars()['index'+str(means_ind)], vars()['loss'+str(means_ind)] = truncate_losses_(self.means_lists_[means_ind], truncation_)
-            vars()['sigma'+str(means_ind)] = np.zeros(truncation_)
-            vars()['R'+str(means_ind)] = np.zeros(truncation_)
-
-            count=0
-            for idx_pair in  vars()['index'+str(means_ind)]:
-                vars()['sigma'+str(means_ind)][count] = sigma[idx_pair]
-                vars()['R'+str(means_ind)][count]= R[idx_pair]
-                count +=1
-        
-        return vars()['sigma'+str(0)], vars()['R'+str(0)], vars()['sigma'+str(1)], vars()['R'+str(1)], sigma, R, vars()['index'+str(0)], vars()['loss'+str(0)]
 
 
     def count_steps(self, Basis='A'):
@@ -201,7 +230,7 @@ class CaseExplorer(Experiment,Truth):
         return x_data, y_data, self.true_S_norm
 
 
-    def return_SKF_skip_msmts(self, y_signal, newSKFfile, method):
+    def return_SKF_skip_msmts(self, y_signal, newSKFfile, method): # delete newSKFfile
 
         oe = self.lowest_pred_BR_pair[0] # Optimally tuned
         rk = self.lowest_pred_BR_pair[1] # Optimally tuned
@@ -221,5 +250,51 @@ class CaseExplorer(Experiment,Truth):
 
         x_data, y_data, self.true_S_norm = self.return_fourier_amps(freq_basis_array=freq_basis_array, 
                                                                     instantA=instantA)
-        return x_data, y_data, self.true_S_norm, predictions
+        return x_data, y_data, self.true_S_norm, predictions # this has theory and KF data
 
+
+    def return_AKF(self, y_signal):
+
+        from analysis_tools.common import calc_AR_PSD 
+
+        oe = self.akf_lowest_pred_BR_pair[0] # Optimally tuned
+        rk = self.akf_lowest_pred_BR_pair[1] # Optimally tuned
+        weights = self.akf_weights
+        order = weights.shape[0]
+
+        akf_pred = akf('AKF', y_signal, weights, oe, rk, n_train=self.n_train, n_testbefore=self.n_testbefore, 
+           n_predict=self.n_predict, p0=self.kalman_params[3], skip_msmts=1,  switch_off_save='Yes')
+        
+        akf_x, akf_y = calc_AR_PSD(weights, oe, self.Delta_S_Sampling, self.Delta_T_Sampling)
+        akf_y_norm = akf_y*1.0/self.true_S_norm
+
+        print('Total coeff', np.sum(akf_y), np.sum(akf_y_norm))
+
+        return akf_x, akf_y, akf_y_norm, akf_pred 
+
+    
+    def return_LS(self, y_signal):
+
+        from analysis_tools.common import calc_AR_PSD
+        import sys
+        sys.path.append(self.path_to_directory+'LS_Ensemble_Folder/')
+        import statePredictions as sp
+
+        weights = np.mean(self.ls_macro_weights[:,:,:,0],  axis=0) # Dims: ensemble x stpsfwd x pastmsmts x 1
+        n_predict = weights.shape[0]
+        order = weights.shape[1]
+
+        predictions = np.zeros(n_predict)
+
+        for idx_steps in range(0, n_predict, 1):
+
+            validation_data = sp.build_training_dataset(y_signal, 
+                                                    past_msmts=order,
+                                                    steps_forward=idx_steps, # testing data for n-step ahead
+                                                    steps_between_msmts=1)
+            
+            past_measurements = validation_data[:,1:]
+            actual_values = validation_data[:,0]
+            predictions[idx_steps] = sp.get_predictions(weights[idx_steps,:], past_measurements)[self.n_start_at] # prediction post n_train at idx_steps ahead
+
+        return predictions

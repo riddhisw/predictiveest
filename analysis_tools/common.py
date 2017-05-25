@@ -57,6 +57,28 @@ def get_tuned_params_(max_forecast_loss, num_randparams,
     return means_lists_, lowest_pred_BR_pair, lowest_fore_BR_pair
 
 
+def analyse_loss(means_list, random_hyperparams_list, truncation_=20):
+    """ Returns a list of sigma, R ordered by loss values for mean prediction and 
+    forecasting loss. The length of the list can be from 1 to num_randparams, 
+    but is truncated by default."""
+
+    R = [x[1] for x in random_hyperparams_list]
+    sigma = [x[0] for x in random_hyperparams_list]
+
+    for means_ind in xrange(2):
+
+        vars()['index'+str(means_ind)], vars()['loss'+str(means_ind)] = truncate_losses_(means_list[means_ind], truncation_)
+        vars()['sigma'+str(means_ind)] = np.zeros(truncation_)
+        vars()['R'+str(means_ind)] = np.zeros(truncation_)
+
+        count=0
+        for idx_pair in  vars()['index'+str(means_ind)]:
+            vars()['sigma'+str(means_ind)][count] = sigma[idx_pair]
+            vars()['R'+str(means_ind)][count]= R[idx_pair]
+            count +=1
+
+    return vars()['sigma'+str(0)], vars()['R'+str(0)], vars()['sigma'+str(1)], vars()['R'+str(1)], sigma, R, vars()['index'+str(0)], vars()['loss'+str(0)]
+
 #########################
 # LS ANALYSIS
 #########################
