@@ -9,7 +9,11 @@ import matplotlib.patches as mpatches
 from analysis_tools.case_data_explorer import CaseExplorer as cs
 from kf.armakf import autokf as akf 
 from kf.fast_2 import kf_2017 as kf 
+
+# Import figure making dictionaries and parameters
 from analysis_tools.testcaseDict import tcDict
+from analysis_tools.testcaseFigstyle import *
+from analysis_tools.testcaseParams import *
 
 path_to_directory = sys.argv[1]
 dict_key = sys.argv[2]
@@ -21,30 +25,12 @@ dial = tcDict[dict_key][2]
 dial_label = tcDict[dict_key][3]
 n_predict_list = tcDict[dict_key][4]
 n_testbefore_list = tcDict[dict_key][5]
-
-
-########################################
-# REFERENCE PARAMETERS (NO CHANGE) 
-########################################
-ADD_LS_DATA='Yes'
-DO_SKF='No'
-max_stp_fwd=[]
-
-loss_hist_min = 10**-2
-loss_hist_max = 10**6
-amp_PSD_min = 10**-10
-stps_fwd_truncate_=50
-kea_max = 10**3
-
-max_forecast_loss_list = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-skip_list = [1, 1, 1 , 1 , 1 , 1, 1, 1, 1, 1, 1, 1, 1]
-skip_list_2 = [0, 1, 2, 3, 4, 5, 10, 16]
+tagline = tcDict[dict_key][6]
+loss_hist_min = float(tcDict[dict_key][7])
+loss_hist_max = float(tcDict[dict_key][8])
+amp_PSD_min = float(tcDict[dict_key][9])
 
 NUM_SCENARIOS = len(test_case_list) # == len(variation_list)
-
-Hard_load='No' 
-SKF_load='No'
-
 
 for idx in xrange(NUM_SCENARIOS):
         vars()['obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])] = cs(
@@ -54,26 +40,19 @@ for idx in xrange(NUM_SCENARIOS):
             max_forecast_loss_list[idx],
             path_to_directory)
 
-## Amplitudes
-FUDGE = 0.5
-HILBERT_TRANSFORM = 2.0
-
-## Kalman Basis
-BASIS_PRED_NUM = 0 # or 1 for Basis A
-
 ########################################
 # FIG: Grid Specs
 ########################################
-
-gs = gridspec.GridSpec(3, NUM_SCENARIOS ,
+ROWS =3
+gs = gridspec.GridSpec(ROWS, NUM_SCENARIOS ,
                        left=0.05, right=0.97, 
-                       top=0.9, bottom=0.05, 
+                       top=0.87, bottom=0.05, 
                        wspace=0.3, hspace=0.45)
 
-fig = plt.figure(figsize=( 5.0*(NUM_SCENARIOS), 3.0*4))
+fig = plt.figure(figsize=( 5.0*(NUM_SCENARIOS), 3.25*4))
 
 count=0
-ROWS =3
+
 for idx in xrange((NUM_SCENARIOS)):
     for idx_ax2 in xrange(ROWS):
         if variation_list[idx]==7 and DO_SKF=='Yes':
@@ -82,22 +61,11 @@ for idx in xrange((NUM_SCENARIOS)):
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx])
         #vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)].locator_params(axis='x', numticks=4)
 
-########################################
-# FIG: Size, Colors and Labels
-########################################
-fsize=13.5
-PLOT_SCALE = 1000
-savefig='Yes'
-us_colour_list = ['g', 'dodgerblue', 'purple', 'maroon', 'darkorange']
 
-style = ['-', '-', '-', '-']
-ax_kea_labels=['A', 'B', 'C', 'D', 'E']
-ax_tui_labels=['A*', 'B*', 'C*', 'D*', 'E*']
 
 ########################################
 # FIG: Single Predictions Comparison
 ########################################
-
 idx_ax0 = 0 # Time predictions on the first row
 idx_ax1 = 1 # Amp predictions on the second row
 idx_ax2 = 2 # Ensemble Avg predictions on the third row
@@ -108,7 +76,7 @@ for idx in xrange(NUM_SCENARIOS):
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
     
     # Get data
-    output = vars()[obj_].return_low_loss_hyperparams_list(truncation_=2) # this has data from kf and akf
+    output = vars()[obj_].return_low_loss_hyperparams_list(truncation_=TRUNCATION) # this has data from kf and akf
     y_signal = vars()[obj_].msmts
     truth =  vars()[obj_].truth
     end_train = vars()[obj_].n_train
@@ -125,15 +93,20 @@ for idx in xrange(NUM_SCENARIOS):
     x_axis = PLOT_SCALE*vars()[obj_].Delta_T_Sampling*np.arange(start_at - vars()[obj_].n_testbefore, 
                                                                     end_at - vars()[obj_].n_testbefore ,
                                                                     1)    
-    ax.plot(x_axis, kf_pred[start_at :end_at], 'o', 
-                label='KF - Basis of Oscillators',
+    
+    ax.plot(x_axis, vars()[obj_].truth[start2:end2][start_at: end_at], 'r', label = 'Truth')# color = color_list[2], alpha=0.5)
+    
+    ax.plot(x_axis[0 : vars()[obj_].n_testbefore - start_at ], vars()[ obj_].msmts[start2 : vars()[obj_].n_train ][start_at:], 'kx', label='Msmts')#), markr_list[2], color = color_list[2], alpha=0.5, label=lbl_list[2])
+    
+    ax.plot(x_axis, kf_pred[start_at :end_at], '-', 
+                label=kf_label,
                 c=us_colour_list[idx],
                 markersize = 5,
                 alpha=0.8)
 
-    ax.plot(x_axis, akf_pred[start_at :end_at], 'o', 
-            label='KF - Autoregressive AR(q=101) with LS Weights',
-            c='k', 
+    ax.plot(x_axis, akf_pred[start_at :end_at], '--', 
+            label=akf_label,
+            c=akf_color, 
             markersize = 5,
             alpha=0.8)
 
@@ -144,14 +117,11 @@ for idx in xrange(NUM_SCENARIOS):
 
     ax.plot(x_axis[n_testbefore_list[variation_list[idx]]: n_testbefore_list[variation_list[idx]] + fudge], ls_pred[:n_predict_list[variation_list[idx]]], 
             '-', 
-            label='LS',
-            c=us_colour_list[idx],
+            label=ls_label,
+            c=ls_color,
             markersize = 5,
             alpha=1.0)
 
-    ax.plot(x_axis, vars()[obj_].msmts[start2:end2][start_at: end_at], 'kx', label='Msmts')#), markr_list[2], color = color_list[2], alpha=0.5, label=lbl_list[2])
-    ax.plot(x_axis, vars()[obj_].truth[start2:end2][start_at: end_at], 'r', label = 'Truth')# color = color_list[2], alpha=0.5)
-    
     ax.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
     ax.axhline(0.0,  color='darkblue')#,label='Predict Zero Mean')
     
@@ -160,16 +130,25 @@ for idx in xrange(NUM_SCENARIOS):
     ax.tick_params(direction='in', which='both')
     #ax.legend(loc=2)
 
-    ax.annotate(ax_kea_labels[idx], xy=(0, 1.3), 
+    ax.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(dial[idx]), xy=(0, 1.35), 
             xycoords=('axes fraction', 'axes fraction'),
             xytext=(1,1),
             textcoords='offset points',
-            size=24,
+            size=16,
             color=us_colour_list[idx],
             ha='left',
             va='center')
     
     if idx==0:
+        ax.annotate(tagline, xy=(0, 1.5), 
+            xycoords=('axes fraction', 'axes fraction'),
+            xytext=(1,1),
+            textcoords='offset points',
+            size=20,
+            color='k',
+            ha='left',
+            va='center')
+        
         ax.set_ylabel(r'Predictions [$f_n$]')
         ax.legend(bbox_to_anchor=(-0.3, 1.06, 4.0, 0.2), loc=2, ncol=6, frameon=True, fontsize=13.5,
                    facecolor='linen',
@@ -219,22 +198,22 @@ for idx in xrange(NUM_SCENARIOS):
     akf_cut_off_idx = int(float(akf_x.shape[0])/(akf_x[-1]/300.0)) # S(w) from AR(q) weights trucnated at omega = 300 rad
     #ax1.plot(akf_x[0:akf_cut_off_idx], akf_y[0:akf_cut_off_idx], 'kx') # Unnormalised S(w) from weights, 
     if akf_cut_off_idx > 0 :
-        ax1.plot(akf_x[0:akf_cut_off_idx], akf_y_norm[0:akf_cut_off_idx], 'ko', markersize=5) 
+        ax1.plot(akf_x[0:akf_cut_off_idx], akf_y_norm[0:akf_cut_off_idx], 'ko--', markersize=5) 
     elif akf_cut_off_idx == 0:
-        ax1.plot(akf_x, akf_y_norm, 'ko', markersize=5) 
+        ax1.plot(akf_x, akf_y_norm, 'ko--', markersize=5) 
     ax1.annotate('T.Pow AKF: %.3e'%(np.sum(akf_y_norm)), xy=(0.95, 1.05), 
                 xycoords=('axes fraction', 'axes fraction'),
                 xytext=(1,1),
                 textcoords='offset points',
                 size=10,
-                color='k',
+                color=akf_color,
                 ha='right',
                 va='center')
 
     bandedge = vars()[obj_].f0*(vars()[obj_].J-1)*2.0*np.pi
     compedge = vars()[obj_].bandwidth*2.0*np.pi
     ax1.axvline(x=bandedge, ls='--', c='r', label= 'True Band Edge')
-    ax1.axvline(x=compedge, ls='--', c='k', label= 'KF Basis Ends')
+    ax1.axvline(x=compedge, ls='--', c='m', label= 'KF Basis Ends')
 
     if idx==0:
         ax1.set_ylabel(r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
@@ -289,11 +268,14 @@ for idx in xrange(NUM_SCENARIOS):
 
         print("idx =", idx, idx_kf_type, normalised_means.shape)
 
-        colorchoice = us_colour_list[idx]
-        if idx_kf_type != 0:
-            colorchoice = 'k'
 
-        ax2.plot(x_axis, normalised_means[start_at : end_at], 'o',
+        colorchoice = us_colour_list[idx]
+        en_avg_linestyle_ = '-'
+        if idx_kf_type != 0:
+            colorchoice = akf_color
+            en_avg_linestyle_ = '--'
+
+        ax2.plot(x_axis, normalised_means[start_at : end_at], en_avg_linestyle_,
                 alpha=0.8,
                 markersize=5,
                 c=colorchoice)
@@ -316,7 +298,7 @@ for idx in xrange(NUM_SCENARIOS):
             '-', 
             alpha=0.8,
             markersize=5,
-            c=us_colour_list[idx]) # max LS n_predict =50
+            c=ls_color) # max LS n_predict =50
     
     ax2.set_yscale('log')
     ax2.set_ylim([10**(-5), kea_max])

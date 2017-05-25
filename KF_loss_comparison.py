@@ -3,11 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as mtick
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
+
 
 from analysis_tools.case_data_explorer import CaseExplorer as cs
+
+# Import figure making dictionaries and parameters
 from analysis_tools.testcaseDict import tcDict
+from analysis_tools.testcaseFigstyle import *
+from analysis_tools.testcaseParams import *
 
 path_to_directory = sys.argv[1]
 dict_key = sys.argv[2]
@@ -19,29 +22,12 @@ dial = tcDict[dict_key][2]
 dial_label = tcDict[dict_key][3]
 n_predict_list = tcDict[dict_key][4]
 n_testbefore_list = tcDict[dict_key][5]
+tagline = tcDict[dict_key][6]
+loss_hist_min = float(tcDict[dict_key][7])
+loss_hist_max = float(tcDict[dict_key][8])
+amp_PSD_min = float(tcDict[dict_key][9])
 
-########################################
-# REFERENCE PARAMETERS (NO CHANGE) 
-########################################
-ADD_LS_DATA='Yes'
-DO_SKF='No'
-max_stp_fwd=[]
-
-loss_hist_min = 10**-2
-loss_hist_max = 10**6
-amp_PSD_min = 10**-10
-stps_fwd_truncate_=50
-kea_max = 10**3
-
-max_forecast_loss_list = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-skip_list = [1, 1, 1 , 1 , 1 , 1, 1, 1, 1, 1, 1, 1, 1]
-skip_list_2 = [0, 1, 2, 3, 4, 5, 10, 16]
-
-NUM_SCENARIOS = len(test_case_list) # == len(variation_list)
-
-Hard_load='No' 
-SKF_load='No'
-
+NUM_SCENARIOS = len(test_case_list) 
 
 for idx in xrange(NUM_SCENARIOS):
         vars()['obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])] = cs(
@@ -51,23 +37,16 @@ for idx in xrange(NUM_SCENARIOS):
             max_forecast_loss_list[idx],
             path_to_directory)
 
-## Amplitudes
-FUDGE = 0.5
-HILBERT_TRANSFORM = 2.0
-
-## Kalman Basis
-BASIS_PRED_NUM = 0 # or 1 for Basis A
-
 ########################################
 # FIG: Grid Specs
 ########################################
 ROWS = 4
 gs = gridspec.GridSpec(ROWS, NUM_SCENARIOS ,
                        left=0.08, right=0.97, 
-                       top=0.9, bottom=0.05, 
+                       top=0.88, bottom=0.05, 
                        wspace=0.6, hspace=0.5)
 
-fig = plt.figure(figsize=( 3.0*(NUM_SCENARIOS ), 3.0*4))
+fig = plt.figure(figsize=( 3.0*(NUM_SCENARIOS ), 3.2*4))
 
 count=0
 
@@ -79,55 +58,23 @@ for idx in xrange((NUM_SCENARIOS)):
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx])
         #vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)].locator_params(axis='x', numticks=4)
 
-########################################
-# FIG: Custom Legends
-########################################
-optimal_star = 'magenta'
-
-l_train = mpatches.Patch(color='gray', alpha=0.3)
-predictzeroline =  mlines.Line2D([], [], linestyle='-', color='darkblue')
-
-randinit = mlines.Line2D([], [], linestyle='None', color=None, marker='v', markerfacecolor='k', markeredgecolor='k', markersize=7)
-
-optimalstar = mlines.Line2D([], [], linestyle='None',  color=None, marker='*', markerfacecolor=optimal_star, markeredgecolor=optimal_star, markersize=7, alpha=1)
-
-pred_circ = mlines.Line2D([], [], linestyle='-',  color='tan', marker='o', markerfacecolor='tan', markeredgecolor='tan', markersize=7)
-pred_line = mlines.Line2D([], [], linestyle='-',  color=optimal_star)
-
-fore_circ = mlines.Line2D([], [], linestyle='-',  color='c', marker='o', markerfacecolor='c', markeredgecolor='c', markersize=7)
-fore_line = mlines.Line2D([], [], linestyle='-',  color='teal')
-
-un_opt_traj = mlines.Line2D([], [], linestyle='-', color='gray')
-opt_traj = mlines.Line2D([], [], linestyle='-', color=optimal_star)
-
-
+# Add custom legend for loss plots
 vars()['ax_var'+str(variation_list[2])+'_'+str(0)].legend(handles=(randinit,  un_opt_traj,  pred_circ, fore_circ, optimalstar, opt_traj),
                                                                   labels= [r'Random Init. ($\sigma, R$)', 'Unoptimal Risk Traj.', 'Low State Est. Risk', 'Low Prediction Risk', r'Tuned ($\sigma, R$)',  'Optimal Risk Traj.'],
                                                                   bbox_to_anchor=(-3.8, 1.21, 5.0, 0.2), loc=2, ncol=6, frameon=True, fontsize=12.5,
                                                                   facecolor='linen',
                                                                   edgecolor='white')
 
-
 ########################################
-# FIG: Size, Colors and Labels
+# FIG: Loss Plots
 ########################################
-fsize=13.5
-PLOT_SCALE = 1000
-savefig='Yes'
-us_colour_list = ['g', 'dodgerblue', 'purple', 'maroon', 'darkorange']
-
-loss_color_list = ['tan', 'c', optimal_star, optimal_star]
-style = ['-', '-', '-', '-']
-ax_kea_labels=['A', 'B', 'C', 'D', 'E']
-ax_tui_labels=['A*', 'B*', 'C*', 'D*', 'E*']
-
 idx_ax1_list = [0, 2] # Loss Map on 1st and 3rd rows
 idx_ax2_list = [1, 3] # Loss Histogram on second and last rows
 
 for idx in xrange(NUM_SCENARIOS):
 
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
-    output = vars()[obj_].return_low_loss_hyperparams_list(truncation_=2) # this has data from kf and akf
+    output = vars()[obj_].return_low_loss_hyperparams_list(truncation_=TRUNCATION) # this has data from kf and akf
 
     for idx_kf_type in xrange(2): 
 
@@ -160,16 +107,26 @@ for idx in xrange(NUM_SCENARIOS):
         ax_.tick_params(direction='in', which='both')
 
         if idx_ax1==0 :
-            ax_.annotate(ax_kea_labels[idx], xy=(0, 1.5), 
+            ax_.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(dial[idx]), xy=(-0.15, 1.45), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
                     textcoords='offset points',
-                    size=24,
+                    size=14.5,
                     color=us_colour_list[idx],
                     ha='left',
                     va='center')
 
-        if idx_ax1 == 0 and idx==0 :     
+        if idx_ax1 == 0 and idx==0 :
+
+            ax_.annotate(tagline, xy=(-0.5, 1.65), 
+                    xycoords=('axes fraction', 'axes fraction'),
+                    xytext=(1,1),
+                    textcoords='offset points',
+                    size=20,
+                    color='k',
+                    ha='left',
+                    va='center')
+     
             ax_.annotate('KF - Basis of Oscillators', xy=(-0.5, 1.06), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
