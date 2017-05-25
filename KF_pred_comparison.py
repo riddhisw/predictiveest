@@ -108,7 +108,7 @@ for idx in xrange(NUM_SCENARIOS):
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
     
     # Get data
-    output = vars()[obj_].return_low_loss_hyperparams_list() # this has data from kf and akf
+    output = vars()[obj_].return_low_loss_hyperparams_list(truncation_=2) # this has data from kf and akf
     y_signal = vars()[obj_].msmts
     truth =  vars()[obj_].truth
     end_train = vars()[obj_].n_train
