@@ -32,7 +32,10 @@ def truncate_losses_( list_of_loss_vals, truncation):
 def get_tuned_params_(max_forecast_loss, num_randparams, 
                       macro_prediction_errors, macro_forecastng_errors, 
                       random_hyperparams_list, truncation):
-    
+    """Returns: Means_list which is the bayes risk (ensemble averaged) loss summed 
+    over all time steps (in state estimation or forecasting) to give a single 
+    loss value for a particular choice of (sigma, R)
+    """
     prediction_errors_stats = np.zeros((num_randparams, 2)) 
     forecastng_errors_stats = np.zeros((num_randparams, 2)) 
     
@@ -60,7 +63,12 @@ def get_tuned_params_(max_forecast_loss, num_randparams,
 def analyse_loss(means_list, random_hyperparams_list, truncation_=20):
     """ Returns a list of sigma, R ordered by loss values for mean prediction and 
     forecasting loss. The length of the list can be from 1 to num_randparams, 
-    but is truncated by default."""
+    but is truncated by default.
+    
+    sigma_
+    
+    
+    """
 
     R = [x[1] for x in random_hyperparams_list]
     sigma = [x[0] for x in random_hyperparams_list]

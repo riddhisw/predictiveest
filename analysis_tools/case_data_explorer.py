@@ -152,15 +152,20 @@ class CaseExplorer(Experiment,Truth):
             # self.z = data['z' ]
             # self.store_S_Outer_W = data['store_S_Outer_W']
             # self.Propagate_Foward = data['Propagate_Foward']
-            
+        
+        self.OPT_PARAMS_SET = False
         pass
 
 
     def generate_ordered_losses(self, truncation=20):
         """ Generates a list of (sigma, R) pairs from lowest to highest mean prediction 
         and forecasting losses, as well as optimal (sigma, R) for each type of loss"""
-
-
+        
+        if self.OPT_PARAMS_SET == True:
+            print("WARNING: No calc done - generate_ordered_losses has already run for this instance")
+            pass
+        
+        
         self.means_lists_, self.lowest_pred_BR_pair, self.lowest_fore_BR_pair = get_tuned_params_(self.max_forecast_loss,
                                                                                                 np.array(self.num_randparams), 
                                                                                                 np.array(self.macro_prediction_errors), 
@@ -175,22 +180,29 @@ class CaseExplorer(Experiment,Truth):
                                                                                                 np.array(self.akf_macro_forecastng_errors),
                                                                                                 np.array(self.random_hyperparams_list),
                                                                                                 truncation)            
+        self.OPT_PARAMS_SET = True
+
+        # print('Macro pred KF Shape', self.macro_prediction_errors.shape, type(self.macro_prediction_errors))
+        # print('Macro pred AKF Shape', self.akf_macro_prediction_errors.shape, type(self.akf_macro_prediction_errors))
+
         pass
 
 
     def return_low_loss_hyperparams_list(self, truncation_=20):
         '''Returns optimisation data for KF and AKF
         '''
-
-        self.generate_ordered_losses(truncation=truncation_)
+        
+        if self.OPT_PARAMS_SET != True:
+            self.generate_ordered_losses(truncation=truncation_)
+            print("return_low_loss_hyperparams_list - calculated optimised values (sigma, R)")
+  
 
         if self.AKF_load == 'No':
-            return analyse_loss(self.means_lists_, self.random_hyperparams_list)
+            return analyse_loss(self.means_lists_, self.random_hyperparams_list, truncation_=truncation_)
 
         elif self.AKF_load != 'No':
-            kf_loss_analysis = analyse_loss(self.means_lists_, self.random_hyperparams_list)
-            akf_loss_analysis = analyse_loss(self.akf_means_lists_, self.random_hyperparams_list)
-            
+            kf_loss_analysis = analyse_loss(self.means_lists_, self.random_hyperparams_list, truncation_=truncation_)
+            akf_loss_analysis = analyse_loss(self.akf_means_lists_, self.random_hyperparams_list, truncation_=truncation_)
             return kf_loss_analysis, akf_loss_analysis
 
 
@@ -231,7 +243,15 @@ class CaseExplorer(Experiment,Truth):
 
 
     def return_SKF_skip_msmts(self, y_signal, newSKFfile, method): # delete newSKFfile
-
+        
+        if self.OPT_PARAMS_SET == True:
+            print("return_SKF_skip_msmts is using optimisation values set for this isntance")
+        
+        elif self.OPT_PARAMS_SET != True:
+            self.generate_ordered_losses(truncation=truncation_)
+            print("return_SKF_skip_msmts - calculated optimised values (sigma, R)")
+        
+        
         oe = self.lowest_pred_BR_pair[0] # Optimally tuned
         rk = self.lowest_pred_BR_pair[1] # Optimally tuned
         x0 = self.kalman_params[2]
@@ -255,8 +275,15 @@ class CaseExplorer(Experiment,Truth):
 
     def return_AKF(self, y_signal):
 
-        from analysis_tools.common import calc_AR_PSD 
-
+        from analysis_tools.common import calc_AR_PSD
+        
+        if self.OPT_PARAMS_SET == True:
+            print("return_AKF is using optimisation values set for this isntance")
+        
+        elif self.OPT_PARAMS_SET != True:
+            self.generate_ordered_losses(truncation=truncation_)
+            print("return_AKF - calculated optimised values (sigma, R)")
+        
         oe = self.akf_lowest_pred_BR_pair[0] # Optimally tuned
         rk = self.akf_lowest_pred_BR_pair[1] # Optimally tuned
         weights = self.akf_weights
