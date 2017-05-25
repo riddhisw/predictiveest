@@ -98,8 +98,8 @@ ax_tui_labels=['A*', 'B*', 'C*', 'D*', 'E*']
 # FIG: Single Predictions Comparison
 ########################################
 
-idx_ax0 = 0 # Single predictions on the first row
-idx_ax1 = 1 # Kalman amp predictions on the second row
+idx_ax0 = 0 # Time predictions on the first row
+idx_ax1 = 1 # Amp predictions on the second row
 idx_ax2 = 2 # Ensemble Avg predictions on the third row
 
 for idx in xrange(NUM_SCENARIOS):
@@ -272,10 +272,15 @@ for idx in xrange(NUM_SCENARIOS):
         opt_index = p_index[0]
         predict_zero_opt_run = predict_zero_ensmbl[opt_index, vars()[obj_].n_train - vars()[obj_].n_testbefore : ]
 
-        # get bayes loss for optimal index for one type of Kalman filter
+        # Choose dataset (KF v. AKF):
+        PRED_DICT = {'0': np.mean(vars()[obj_].macro_prediction_errors, axis=1),
+                     '1': np.mean(vars()[obj_].akf_macro_prediction_errors, axis=1)}
+        FORE_DICT = {'0': np.mean(vars()[obj_].macro_forecastng_errors, axis=1), 
+                     '1': np.mean(vars()[obj_].akf_macro_forecastng_errors, axis=1)}
         
-        bayesloss_p = np.mean(vars()[obj_].macro_prediction_errors[opt_index,:,:], axis=0)
-        bayesloss_f = np.mean(vars()[obj_].macro_forecastng_errors[opt_index,:,:], axis=0)
+        #get bayes loss for optimal index for one type of Kalman filter
+        bayesloss_p = PRED_DICT[str(idx_kf_type)][opt_index,:]
+        bayesloss_f = FORE_DICT[str(idx_kf_type)][opt_index,:]
 
         # normalise prediction means
         normalised_means[0: vars()[obj_].n_testbefore] = bayesloss_p/predict_zero_opt_run[0: vars()[obj_].n_testbefore]
