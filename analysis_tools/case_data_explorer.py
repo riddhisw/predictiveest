@@ -277,7 +277,7 @@ class CaseExplorer(Experiment,Truth):
 
         from analysis_tools.common import calc_AR_PSD
         import sys
-        sys.path.append(self.path_to_directory+'LS_Ensemble_Folder/')
+        sys.path.append(self.path_to_directory+'/LS_Ensemble_Folder/')
         import statePredictions as sp
 
         weights = np.mean(self.ls_macro_weights[:,:,:,0],  axis=0) # Dims: ensemble x stpsfwd x pastmsmts x 1
