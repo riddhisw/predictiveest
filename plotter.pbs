@@ -1,8 +1,9 @@
 #PBS -P QCL_KF
 #PBS -N plotter_1
+#PBS -J 1-12
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
-#PBS -l select=1:ncpus=1:mem=80GB
+#PBS -l select=1:ncpus=1:mem=20GB
 #PBS -l walltime=10:00:00 
 #PBS -q defaultQ
 #PBS -j oe
@@ -16,5 +17,8 @@ export MPLBACKEND=Agg
 echo $MPLBACKEND
 which python
 
-python KF_pred_comparison.py
-python KF_loss_comparison.py
+path_to_directory='/scratch/RDS-FSC-QCL_KF-RW/Kalman'
+dict_key=(0 'tc_7' 'tc_8' 'tc_10' 'tc_12' 'tc_14' 'st_1' 'st_2' 'st_3' 'st_4' 'st_6' 'st_7' 'st_8')
+
+python KF_pred_comparison.py $path_to_directory ${dict_key[$PBS_ARRAY_INDEX]} 
+python KF_loss_comparison.py $path_to_directory ${dict_key[$PBS_ARRAY_INDEX]} 

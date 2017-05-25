@@ -9,58 +9,32 @@ import matplotlib.patches as mpatches
 from analysis_tools.case_data_explorer import CaseExplorer as cs
 from kf.armakf import autokf as akf 
 from kf.fast_2 import kf_2017 as kf 
+from analysis_tools.testcaseDict import tcDict
+
+path_to_directory = sys.argv[1]
+dict_key = sys.argv[2]
+savefigname = dict_key
+
+test_case_list = tcDict[dict_key][0]
+variation_list = tcDict[dict_key][1]
+dial = tcDict[dict_key][2]
+dial_label = tcDict[dict_key][3]
+n_predict_list = tcDict[dict_key][4]
+n_testbefore_list = tcDict[dict_key][5]
+
 
 ########################################
-# INPUT DATA 
+# REFERENCE PARAMETERS (NO CHANGE) 
 ########################################
-
-path_to_directory = '/scratch/RDS-FSC-QCL_KF-RW/Kalman'
-savefigname = 'tc_7_'
-ADD_LS_DATA = 'Yes'
-DO_SKF = 'No'
-
-test_case_list = [7, 7, 7, 7, 7] # Equal len
-variation_list = [1, 2, 4, 6, 7] # Equal len
-
+ADD_LS_DATA='Yes'
+DO_SKF='No'
 max_stp_fwd=[]
-
-story1 = [2.0, 1.0, 0.998, 0.994, 0.99] # r'$f_0 / \Delta\omega^B $'
-story2 = [0.1988, 0.3976, 0.7952, 1.1928, 1.988] # r'$f_0 J / \Delta\omega^B_{max} $'
-story3 = [1.8181818182, 0.9523809524, 0.487804878, 0.3278688525, 0.2469135802] # r'$ \Delta s$ '
-story4 = [0.01, 0.05, 0.1, 0.2, 0.25] # r'Msmt Noise Lvl [% of 3 St. Dev $f_n$ Pts]'
-story6 = [0.1777777778, 0.3555555556, 0.8000000001, 1.0666666668, 1.4222222224] # r'$f_0 J / \Delta\omega^B_{max} $'
-story7 = [0.9090909091, 0.4761904762, 0.3225806452, 0.243902439, 0.1960784314] #r'$ \Delta s$ '
-story8 = story4
-tc7 = [20, 10, 5, 2, 1.25] # 'Nyquist r [dimless]'
-tc8 = tc7
-tc10 = tc7
-tc12 = tc7
-tc13 = tc7 
-tc14 = tc7
-
-dial = tc7
-dial_label = 'Nyquist r [dimless]'
-# r'$\Delta \omega^B / f_0$'
 
 loss_hist_min = 10**-2
 loss_hist_max = 10**6
 amp_PSD_min = 10**-10
 stps_fwd_truncate_=50
 kea_max = 10**3
-
-## Scenarios with Changing Delta T
-n_predict_list = [0, 100, 50, 33, 25, 20, 10, 7] 
-n_testbefore_list = [0, 50, 25, 17, 13, 10, 5, 3 ] 
-
-## Scenarios with no Changing Delta T
-#n_testbefore_list = [0, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-#n_predict_list = n_testbefore_list 
-#n_predict_list = [0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
-
-
-########################################
-# REFERENCE PARAMETERS (NO CHANGE) 
-########################################
 
 max_forecast_loss_list = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
 skip_list = [1, 1, 1 , 1 , 1 , 1, 1, 1, 1, 1, 1, 1, 1]
@@ -109,27 +83,6 @@ for idx in xrange((NUM_SCENARIOS)):
         #vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)].locator_params(axis='x', numticks=4)
 
 ########################################
-# FIG: Custom Legends
-########################################
-optimal_star = 'magenta'
-
-#l_train = mpatches.Patch(color='gray', alpha=0.3)
-#predictzeroline =  mlines.Line2D([], [], linestyle='-', color='darkblue')
-
-#randinit = mlines.Line2D([], [], linestyle='None', color=None, marker='v', markerfacecolor='k', markeredgecolor='k', markersize=7)
-#optimalstar = mlines.Line2D([], [], linestyle='None',  color=None, marker='*', markerfacecolor=optimal_star, markeredgecolor=optimal_star, markersize=7, alpha=1)
-
-#pred_circ = mlines.Line2D([], [], linestyle='None',  color=None, marker='o', markerfacecolor='tan', markeredgecolor='tan', markersize=7)
-#pred_line = mlines.Line2D([], [], linestyle='-',  color=optimal_star)
-
-#fore_circ = mlines.Line2D([], [], linestyle='None',  color=None, marker='o', markerfacecolor='c', markeredgecolor='c', markersize=7)
-#fore_line = mlines.Line2D([], [], linestyle='-',  color='teal')
-
-#truthline = mlines.Line2D([], [], linestyle='-', color='r')
-#noisy_x = mlines.Line2D([], [], linestyle='None', color=None, marker='x', markerfacecolor='k', markeredgecolor='k', markersize=7)
-
-
-########################################
 # FIG: Size, Colors and Labels
 ########################################
 fsize=13.5
@@ -137,7 +90,6 @@ PLOT_SCALE = 1000
 savefig='Yes'
 us_colour_list = ['g', 'dodgerblue', 'purple', 'maroon', 'darkorange']
 
-loss_color_list = ['tan', 'c', optimal_star, optimal_star]
 style = ['-', '-', '-', '-']
 ax_kea_labels=['A', 'B', 'C', 'D', 'E']
 ax_tui_labels=['A*', 'B*', 'C*', 'D*', 'E*']
@@ -418,5 +370,5 @@ for idx in xrange(NUM_SCENARIOS):
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
             item.set_fontsize(fsize)
 
-fig.savefig(savefigname+'predcompare.png', format='png')
+fig.savefig(savefigname+'pred_comparison.png', format='png')
 plt.close(fig)
