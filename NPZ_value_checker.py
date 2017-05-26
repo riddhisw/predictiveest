@@ -61,6 +61,6 @@ print(unloaded_files)
 print('...')
 print('...')
 
-np.savez('NPZ_Results', exp_list=exp_list,unloaded_files=unloaded_files err_list=err_list,sch_filename_list=sch_filename_list,sch_files=sch_files, err_count=err_count)
+np.savez('NPZ_Results', exp_list=exp_list,unloaded_files=unloaded_files, err_list=err_list, sch_filename_list=sch_filename_list,sch_files=sch_files, err_count=err_count)
 
 print('COMPLETE')
