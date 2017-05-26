@@ -2,8 +2,8 @@
 #PBS -N PBS_check_job
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
-#PBS -l select=1:ncpus=1:mem=60GB
-#PBS -l walltime=120:00:00 
+#PBS -l select=1:ncpus=1:mem=20GB
+#PBS -l walltime=60:00:00 
 #PBS -q defaultQ
 #PBS -j oe
 
