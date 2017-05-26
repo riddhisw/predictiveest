@@ -61,18 +61,12 @@ for idx in xrange((NUM_SCENARIOS)):
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx])
         #vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)].locator_params(axis='x', numticks=4)
 
-
-
-########################################
-# FIG: Single Predictions Comparison
-########################################
 idx_ax0 = 0 # Time predictions on the first row
 idx_ax1 = 1 # Amp predictions on the second row
 idx_ax2 = 2 # Ensemble Avg predictions on the third row
 
 for idx in xrange(NUM_SCENARIOS):
 
-    ax = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax0)]
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
     
     # Get data
@@ -81,10 +75,6 @@ for idx in xrange(NUM_SCENARIOS):
     truth =  vars()[obj_].truth
     end_train = vars()[obj_].n_train
 
-    kf_omega, kf_amp, kf_Snorm, kf_pred =  vars()[obj_].return_SKF_skip_msmts(y_signal, 'newSKFfile'+str(1), 'ZeroGain')
-    akf_x, akf_y, akf_y_norm, akf_pred  = vars()[obj_].return_AKF(y_signal)
-    ls_pred = vars()[obj_].return_LS(y_signal)
-    
     start_at = vars()[obj_].n_testbefore - n_testbefore_list[variation_list[idx]]
     end_at = n_predict_list[variation_list[idx]] + vars()[obj_].n_testbefore
     start2 = vars()[obj_].n_train - vars()[obj_].n_testbefore
@@ -93,43 +83,20 @@ for idx in xrange(NUM_SCENARIOS):
     x_axis = PLOT_SCALE*vars()[obj_].Delta_T_Sampling*np.arange(start_at - vars()[obj_].n_testbefore, 
                                                                     end_at - vars()[obj_].n_testbefore ,
                                                                     1)    
-    
+
+    ########################################
+    # FIG: Single Predictions Comparison
+    ########################################
+
+    ax = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax0)]
     ax.plot(x_axis, vars()[obj_].truth[start2:end2][start_at: end_at], 'r', label = 'Truth')# color = color_list[2], alpha=0.5)
-    
     ax.plot(x_axis[0 : vars()[obj_].n_testbefore - start_at ], vars()[ obj_].msmts[start2 : vars()[obj_].n_train ][start_at:], 'kx', label='Msmts')#), markr_list[2], color = color_list[2], alpha=0.5, label=lbl_list[2])
-    
-    ax.plot(x_axis, kf_pred[start_at :end_at], '-', 
-                label=kf_label,
-                c=us_colour_list[idx],
-                markersize = 5,
-                alpha=0.8)
-
-    ax.plot(x_axis, akf_pred[start_at :end_at], '--', 
-            label=akf_label,
-            c=akf_color, 
-            markersize = 5,
-            alpha=0.8)
-
-    fudge = n_predict_list[variation_list[idx]]
-
-    if fudge > 50:
-        fudge = 50
-
-    ax.plot(x_axis[n_testbefore_list[variation_list[idx]]: n_testbefore_list[variation_list[idx]] + fudge], ls_pred[:n_predict_list[variation_list[idx]]], 
-            '-', 
-            label=ls_label,
-            c=ls_color,
-            markersize = 5,
-            alpha=1.0)
-
     ax.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
     ax.axhline(0.0,  color='darkblue')#,label='Predict Zero Mean')
     
     ax.set_xlim([-50,stps_fwd_truncate_])
     ax.axvspan(-50,0, color='gray', alpha=0.3, label="Training")
     ax.tick_params(direction='in', which='both')
-    #ax.legend(loc=2)
-
     ax.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(dial[idx]), xy=(0, 1.35), 
             xycoords=('axes fraction', 'axes fraction'),
             xytext=(1,1),
@@ -155,7 +122,6 @@ for idx in xrange(NUM_SCENARIOS):
                    edgecolor='white')
     if idx==2:
         ax.set_xlabel('Stps Fwd [num]')
-    
 
     ########################################
     # FIG: Amplitude Graphs 
@@ -174,41 +140,9 @@ for idx in xrange(NUM_SCENARIOS):
         UNDSAMPL_FUDGE=1.0 # This correction doesn't apply to adequately sampled regimes
     #print("UNDSAMPL_FUDGE=", UNDSAMPL_FUDGE)
 
-    ax1.plot(kf_omega[0], kf_amp[0]*(1.0/UNDSAMPL_FUDGE), 'o', c=us_colour_list[idx])
-
     ax1.set_yscale('log')
     ax1.set_ylim([amp_PSD_min, 100]) # Starts log scale at amp_PSD_min
     ax1.tick_params(direction='in', which='both')
-
-    print('KF AMP ', type(kf_amp), kf_amp[0].shape)
-
-    ax1.annotate('T.Pow KF: %.3e'%(np.sum(kf_amp[0])), xy=(0.95, 1.1), 
-                xycoords=('axes fraction', 'axes fraction'),
-                xytext=(1,1),
-                textcoords='offset points',
-                size=10,
-                color=us_colour_list[idx],
-                ha='right',
-                va='center')
-
-    ax1.plot(kf_omega[1], kf_amp[1], 'r') # Truth
-
-    print('AKF AMP ', type(akf_y_norm), akf_y_norm.shape)
-
-    akf_cut_off_idx = int(float(akf_x.shape[0])/(akf_x[-1]/300.0)) # S(w) from AR(q) weights trucnated at omega = 300 rad
-    #ax1.plot(akf_x[0:akf_cut_off_idx], akf_y[0:akf_cut_off_idx], 'kx') # Unnormalised S(w) from weights, 
-    if akf_cut_off_idx > 0 :
-        ax1.plot(akf_x[0:akf_cut_off_idx], akf_y_norm[0:akf_cut_off_idx], 'ko--', markersize=5) 
-    elif akf_cut_off_idx == 0:
-        ax1.plot(akf_x, akf_y_norm, 'ko--', markersize=5) 
-    ax1.annotate('T.Pow AKF: %.3e'%(np.sum(akf_y_norm)), xy=(0.95, 1.05), 
-                xycoords=('axes fraction', 'axes fraction'),
-                xytext=(1,1),
-                textcoords='offset points',
-                size=10,
-                color=akf_color,
-                ha='right',
-                va='center')
 
     bandedge = vars()[obj_].f0*(vars()[obj_].J-1)*2.0*np.pi
     compedge = vars()[obj_].bandwidth*2.0*np.pi
@@ -223,6 +157,94 @@ for idx in xrange(NUM_SCENARIOS):
     if idx==2:
         ax1.set_xlabel(r'$\omega$ [rad]')
 
+    ########################################
+    # FIG: Make and Plot Data 
+    ########################################
+    
+    ####################### KF #######################
+    try:
+        kf_omega, kf_amp, kf_Snorm, kf_pred =  vars()[obj_].return_SKF_skip_msmts(y_signal, 'newSKFfile'+str(1), 'ZeroGain')
+        ax.plot(x_axis, kf_pred[start_at :end_at], '-', 
+                    label=kf_label,
+                    c=us_colour_list[idx],
+                    markersize = 5,
+                    alpha=0.8)
+        
+        ax1.plot(kf_omega[0], kf_amp[0]*(1.0/UNDSAMPL_FUDGE), 'o', c=us_colour_list[idx])
+        print('KF AMP ', type(kf_amp), kf_amp[0].shape)
+        ax1.annotate('T.Pow KF: %.3e'%(np.sum(kf_amp[0])), xy=(0.95, 1.1), 
+                    xycoords=('axes fraction', 'axes fraction'),
+                    xytext=(1,1),
+                    textcoords='offset points',
+                    size=10,
+                    color=us_colour_list[idx],
+                    ha='right',
+                    va='center')
+
+        ax1.plot(kf_omega[1], kf_amp[1], 'r') # Truth
+    
+    except Exception as inst:
+        print("KF EXCEPTION")
+        print("Test_case = %s , Variation = %s" %(test_case_list[idx], variation_list[idx]))
+        print("Exception Raised KF %s"%(type(inst)))
+        print(inst)
+        print("END EXCEPTION")
+    
+    ####################### AKF #######################
+    try:
+        akf_x, akf_y, akf_y_norm, akf_pred  = vars()[obj_].return_AKF(y_signal)
+        ax.plot(x_axis, akf_pred[start_at :end_at], '--', 
+                label=akf_label,
+                c=akf_color, 
+                markersize = 5,
+                alpha=0.8)
+        
+        print('AKF AMP ', type(akf_y_norm), akf_y_norm.shape)
+
+        akf_cut_off_idx = int(float(akf_x.shape[0])/(akf_x[-1]/300.0)) # S(w) from AR(q) weights trucnated at omega = 300 rad
+        #ax1.plot(akf_x[0:akf_cut_off_idx], akf_y[0:akf_cut_off_idx], 'kx') # Unnormalised S(w) from weights, 
+        if akf_cut_off_idx > 0 :
+            ax1.plot(akf_x[0:akf_cut_off_idx], akf_y_norm[0:akf_cut_off_idx], 'ko--', markersize=5) 
+        elif akf_cut_off_idx == 0:
+            ax1.plot(akf_x, akf_y_norm, 'ko--', markersize=5) 
+        ax1.annotate('T.Pow AKF: %.3e'%(np.sum(akf_y_norm)), xy=(0.95, 1.05), 
+                    xycoords=('axes fraction', 'axes fraction'),
+                    xytext=(1,1),
+                    textcoords='offset points',
+                    size=10,
+                    color=akf_color,
+                    ha='right',
+                    va='center')
+    
+    except Exception as inst:
+        print("AKF EXCEPTION")
+        print("Test_case = %s , Variation = %s" %(test_case_list[idx], variation_list[idx]))
+        print("Exception Raised KF %s"%(type(inst)))
+        print(inst)
+        print("END EXCEPTION")
+    
+    ####################### LS #######################
+    
+    try:
+        ls_pred = vars()[obj_].return_LS(y_signal)
+        fudge = n_predict_list[variation_list[idx]]
+
+        if fudge > 50:
+            fudge = 50
+
+        ax.plot(x_axis[n_testbefore_list[variation_list[idx]]: n_testbefore_list[variation_list[idx]] + fudge], ls_pred[:n_predict_list[variation_list[idx]]], 
+                '-', 
+                label=ls_label,
+                c=ls_color,
+                markersize = 5,
+                alpha=1.0)
+    
+    except Exception as inst:
+        print("LS EXCEPTION")
+        print("Test_case = %s , Variation = %s" %(test_case_list[idx], variation_list[idx]))
+        print("Exception Raised KF %s"%(type(inst)))
+        print(inst)
+        print("END EXCEPTION") 
 
     ########################################
     # FIG: Ensemble Avg Graphs
