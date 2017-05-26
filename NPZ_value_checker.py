@@ -10,10 +10,20 @@ sch_files=0
 err_list = []
 sch_filename_list=[]
 exp_list = []
+unloaded_files = []
+unload_count = 0
 
 for filename in glob.glob(path_to_dir+file_type):
 
-    obj_ = np.load(filename)
+    try:
+        obj_ = np.load(filename)
+    
+    except:
+        print('%s could not be loaded' %(filename))
+        unloaded_files.append(filename)
+        unload_count +=1
+        continue
+    
     sch_filename_list.append(filename)
     sch_files +=1
 
@@ -43,4 +53,14 @@ for filename in glob.glob(path_to_dir+file_type):
 print('Total NPZ files: ', sch_files)
 print('Total Data Inf, Nan, not Finite Instances: ', len(err_list))
 print('Total Exception Instances: ', len(exp_list))
-np.savez('./NPZ_Results', exp_list=exp_list, err_list=err_list,sch_filename_list=sch_filename_list,sch_files=sch_files, err_count=err_count)
+print('Total Unloaded Files: ', unload_count)
+print('...')
+print('...')
+print('The following files could not be loaded')
+print(unloaded_files)
+print('...')
+print('...')
+
+np.savez('NPZ_Results', exp_list=exp_list,unloaded_files=unloaded_files err_list=err_list,sch_filename_list=sch_filename_list,sch_files=sch_files, err_count=err_count)
+
+print('COMPLETE')

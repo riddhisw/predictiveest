@@ -10,5 +10,6 @@
 cd $PBS_O_WORKDIR/
 
 module load python
-python PBS_output_checker.py
+
 python NPZ_value_checker.py
+python PBS_output_checker.py
