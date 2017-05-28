@@ -139,7 +139,7 @@ class Kalman(Experiment, Noisy_Data):
 
             truth, y_signal = self.generate_data_from_truth(self.user_defined_variance)
             truth_datasets[:, run] = truth
-            Predict_Zero_Means += (1.0/float(self.max_it))*self.sqr_err(np.zeros(self.n_testbefore + self.n_predict ), truth[ self.n_train - self.n_testbefore : self.n_train +self.n_predict])
+            Predict_Zero_Means += (1.0/float(self.max_it))*sqr_err(np.zeros(self.n_testbefore + self.n_predict ), truth[ self.n_train - self.n_testbefore : self.n_train +self.n_predict])
             
             choice_counter = 0 # choice_counter takes values from 0, 1, ..., NO_OF_KALMAN_VARIATIONS -1
             
@@ -148,7 +148,7 @@ class Kalman(Experiment, Noisy_Data):
                 for choice2 in self.prediction_method_list: # Loop over Prediction Methods
     
                     predictions = self.single_prediction(y_signal, skip_msmts, init=chosen_params, basis_choice=choice1, prediction_method_default=choice2)
-                    KF_Error_Means[choice_counter, :] += (1.0/float(self.max_it))*self.sqr_err(predictions, truth[self.n_train-self.n_testbefore : self.n_train + self.n_predict])
+                    KF_Error_Means[choice_counter, :] += (1.0/float(self.max_it))*sqr_err(predictions, truth[self.n_train-self.n_testbefore : self.n_train + self.n_predict])
                     KF_Predictions_Matrix[choice_counter, :, run] = predictions
 
                     choice_counter +=1
