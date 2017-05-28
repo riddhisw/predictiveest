@@ -3,8 +3,8 @@
 #PBS -J 1-12
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
-#PBS -l select=1:ncpus=1:mem=20GB
-#PBS -l walltime=10:00:00 
+#PBS -l select=1:ncpus=1:mem=60GB
+#PBS -l walltime=100:00:00 
 #PBS -q defaultQ
 #PBS -j oe
 
