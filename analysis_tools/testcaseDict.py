@@ -109,4 +109,4 @@ tcDict['tc_14'] = [tc_14, va_1, tc_14_dial, tc_14_lbl, n_predict_1, n_testbefore
 # Not yet sorted
 tcDict['tc_8'] = [tc_8, va_1, tc_8_dial, tc_8_lbl, n_predict_1, n_testbefore_1, taglines[2], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
 tcDict['tc_10'] = [tc_10, va_1, tc_10_dial, tc_10_lbl, n_predict_1, n_testbefore_1, taglines[3], loss_hist_min_1, loss_hist_max_3, amp_PSD_min_3]
-tcDict['tc_12'] = [tc_12, va_1, tc_12_dial, tc_12_lbl, n_predict_1, n_testbefore_1, taglines[4], loss_hist_min_2, loss_hist_max_3, amp_PSD_min_4]
+tcDict['tc_12'] = [tc_12, va_1, tc_12_dial, tc_12_lbl, n_predict_1, n_testbefore_1, taglines[4], loss_hist_min_2, loss_hist_max_3, 10**-20]
