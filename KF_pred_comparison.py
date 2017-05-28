@@ -97,7 +97,7 @@ for idx in xrange(NUM_SCENARIOS):
     ax.set_xlim([-50,stps_fwd_truncate_])
     ax.axvspan(-50,0, color='gray', alpha=0.3, label="Training")
     ax.tick_params(direction='in', which='both')
-    ax.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(dial[idx]), xy=(0, 1.35), 
+    ax.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(np.round(dial[idx], 3)), xy=(0, 1.35), 
             xycoords=('axes fraction', 'axes fraction'),
             xytext=(1,1),
             textcoords='offset points',
