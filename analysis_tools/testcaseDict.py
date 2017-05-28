@@ -91,7 +91,7 @@ loss_hist_max_4 = None
 amp_PSD_min_1 = 10**-10
 amp_PSD_min_2 = 10**-12
 amp_PSD_min_3 = 10**-14
-amp_PSD_min_4 = 10**-16
+amp_PSD_min_4 = 10**-18
 
 ########################################
 # REFERENCE DICTIONARY CREATE

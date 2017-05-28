@@ -56,7 +56,7 @@ count=0
 for idx in xrange((NUM_SCENARIOS)):
     for idx_ax2 in xrange(ROWS):
         if (idx==3 or idx==4) and (dict_key[0:2]=='tc' or dict_key=='st_2' or dict_key=='st_6'):
-            vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx], facecolor='mistyrose')
+            vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx], facecolor='linen')
         else:
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx])
         #vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)].locator_params(axis='x', numticks=4)
@@ -249,9 +249,10 @@ for idx in xrange(NUM_SCENARIOS):
         print("END EXCEPTION") 
 
     # Add legend to single predictions
-    ax.legend(bbox_to_anchor=(-0.3, 1.06, 4.0, 0.2), loc=2, ncol=6, frameon=True, fontsize=13.5,
-             facecolor='linen',
-             edgecolor='white')
+    if idx==0:
+        ax.legend(bbox_to_anchor=(-0.3, 1.06, 4.0, 0.2), loc=2, ncol=6, frameon=True, fontsize=13.5,
+                facecolor='linen',
+                edgecolor='white')
     ########################################
     # FIG: Ensemble Avg Graphs
     ########################################

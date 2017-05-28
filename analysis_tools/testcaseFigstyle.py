@@ -8,7 +8,7 @@ fsize=13.5
 PLOT_SCALE = 1000
 optimal_star = 'magenta'
 savefig='Yes'
-us_colour_list = ['dodgerblue', 'blue', 'purple', 'olive', 'darkorange']
+us_colour_list = ['dodgerblue', 'blue', 'purple', 'darkgoldenrod', 'darkorange']
 
 style = ['-', '-', '-', '-']
 ax_kea_labels=['A', 'B', 'C', 'D', 'E']
