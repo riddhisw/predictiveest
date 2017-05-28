@@ -8,7 +8,7 @@ fsize=13.5
 PLOT_SCALE = 1000
 optimal_star = 'magenta'
 savefig='Yes'
-us_colour_list = ['dodgerblue', 'blue', 'navy', 'purple', 'brown']
+us_colour_list = ['dodgerblue', 'blue', 'purple', 'olive', 'darkorange']
 
 style = ['-', '-', '-', '-']
 ax_kea_labels=['A', 'B', 'C', 'D', 'E']
@@ -22,6 +22,8 @@ ls_label = 'LS (past msmts: q=101)'
 akf_color = 'k'
 ls_color = 'g'
 
+true_band_edge_color = 'r'
+kf_basis_edge_color = 'teal'
 ########################################
 # FIG: Custom Legends
 ########################################

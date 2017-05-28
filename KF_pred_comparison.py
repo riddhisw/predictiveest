@@ -55,7 +55,7 @@ count=0
 
 for idx in xrange((NUM_SCENARIOS)):
     for idx_ax2 in xrange(ROWS):
-        if variation_list[idx]==7 and DO_SKF=='Yes':
+        if (idx==3 or idx==4) and (dict_key[0:2]=='tc' or dict_key=='st_2' or dict_key=='st_6'):
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx], facecolor='mistyrose')
         else:
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx])
@@ -117,9 +117,7 @@ for idx in xrange(NUM_SCENARIOS):
             va='center')
         
         ax.set_ylabel(r'Predictions [$f_n$]')
-        ax.legend(bbox_to_anchor=(-0.3, 1.06, 4.0, 0.2), loc=2, ncol=6, frameon=True, fontsize=13.5,
-                   facecolor='linen',
-                   edgecolor='white')
+
     if idx==2:
         ax.set_xlabel('Stps Fwd [num]')
 
@@ -146,8 +144,8 @@ for idx in xrange(NUM_SCENARIOS):
 
     bandedge = vars()[obj_].f0*(vars()[obj_].J-1)*2.0*np.pi
     compedge = vars()[obj_].bandwidth*2.0*np.pi
-    ax1.axvline(x=bandedge, ls='--', c='r', label= 'True Band Edge')
-    ax1.axvline(x=compedge, ls='--', c='m', label= 'KF Basis Ends')
+    ax1.axvline(x=bandedge, ls='--', c=true_band_edge_color, label= 'True Band Edge')
+    ax1.axvline(x=compedge, ls='--', c=kf_basis_edge_color, label= 'KF Basis Ends')
 
     if idx==0:
         ax1.set_ylabel(r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
@@ -201,12 +199,16 @@ for idx in xrange(NUM_SCENARIOS):
         
         print('AKF AMP ', type(akf_y_norm), akf_y_norm.shape)
 
+
         akf_cut_off_idx = int(float(akf_x.shape[0])/(akf_x[-1]/300.0)) # S(w) from AR(q) weights trucnated at omega = 300 rad
         #ax1.plot(akf_x[0:akf_cut_off_idx], akf_y[0:akf_cut_off_idx], 'kx') # Unnormalised S(w) from weights, 
-        if akf_cut_off_idx > 0 :
+        if dict_key[0:2] == 'tc' and variation_list[idx] > 4: 
+             ax1.plot(akf_x, akf_y_norm, 'ko--', markersize=5)
+        elif akf_cut_off_idx > 0 :
             ax1.plot(akf_x[0:akf_cut_off_idx], akf_y_norm[0:akf_cut_off_idx], 'ko--', markersize=5) 
         elif akf_cut_off_idx == 0:
-            ax1.plot(akf_x, akf_y_norm, 'ko--', markersize=5) 
+            ax1.plot(akf_x, akf_y_norm, 'ko--', markersize=5)
+
         ax1.annotate('T.Pow AKF: %.3e'%(np.sum(akf_y_norm)), xy=(0.95, 1.05), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
@@ -246,6 +248,10 @@ for idx in xrange(NUM_SCENARIOS):
         print(inst)
         print("END EXCEPTION") 
 
+    # Add legend to single predictions
+    ax.legend(bbox_to_anchor=(-0.3, 1.06, 4.0, 0.2), loc=2, ncol=6, frameon=True, fontsize=13.5,
+             facecolor='linen',
+             edgecolor='white')
     ########################################
     # FIG: Ensemble Avg Graphs
     ########################################
@@ -373,6 +379,8 @@ for idx in xrange(NUM_SCENARIOS):
 
     ax2.add_artist(ab)
 
+
+    
 for idx in xrange(NUM_SCENARIOS):
     for idx_ax in xrange(ROWS):
         ax = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax)]

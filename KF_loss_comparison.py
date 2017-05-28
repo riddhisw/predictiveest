@@ -52,7 +52,7 @@ count=0
 
 for idx in xrange((NUM_SCENARIOS)):
     for idx_ax2 in xrange(ROWS):
-        if variation_list[idx]==7 and DO_SKF=='Yes':
+        if (idx==3 or idx==4) and (dict_key[0:2]=='tc' or dict_key=='st_2' or dict_key=='st_6'):
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx], facecolor='mistyrose')
         else:
             vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)] = fig.add_subplot(gs[idx_ax2, idx])
@@ -107,7 +107,7 @@ for idx in xrange(NUM_SCENARIOS):
         ax_.tick_params(direction='in', which='both')
 
         if idx_ax1==0 :
-            ax_.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(dial[idx]), xy=(-0.15, 1.45), 
+            ax_.annotate(ax_kea_labels[idx] + ': ' + dial_label + ' = ' + str(np.round(dial[idx], 3)), xy=(-0.15, 1.45), 
                     xycoords=('axes fraction', 'axes fraction'),
                     xytext=(1,1),
                     textcoords='offset points',

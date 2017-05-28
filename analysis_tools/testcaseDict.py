@@ -91,16 +91,11 @@ loss_hist_max_4 = None
 amp_PSD_min_1 = 10**-10
 amp_PSD_min_2 = 10**-12
 amp_PSD_min_3 = 10**-14
-amp_PSD_min_4 = None
+amp_PSD_min_4 = 10**-16
 
 ########################################
 # REFERENCE DICTIONARY CREATE
 ########################################
-tcDict['tc_7'] = [tc_7, va_1, tc_7_dial, tc_7_lbl, n_predict_1, n_testbefore_1, taglines[1], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
-tcDict['tc_8'] = [tc_8, va_1, tc_8_dial, tc_8_lbl, n_predict_1, n_testbefore_1, taglines[2], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
-tcDict['tc_10'] = [tc_10, va_1, tc_10_dial, tc_10_lbl, n_predict_1, n_testbefore_1, taglines[3], loss_hist_min_2, loss_hist_max_3, amp_PSD_min_3]
-tcDict['tc_12'] = [tc_12, va_1, tc_12_dial, tc_12_lbl, n_predict_1, n_testbefore_1, taglines[4], loss_hist_min_2, loss_hist_max_4, amp_PSD_min_4]
-tcDict['tc_14'] = [tc_14, va_1, tc_14_dial, tc_14_lbl, n_predict_1, n_testbefore_1, taglines[5], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_3]
 tcDict['st_1'] = [st_1, va_2 , st_1_dial , st_1_lbl, n_predict_2, n_testbefore_2, taglines[6], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
 tcDict['st_2'] = [st_2, va_1 , st_2_dial , st_2_lbl, n_predict_2, n_testbefore_2, taglines[7], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
 tcDict['st_3'] = [st_3, va_3 , st_3_dial , st_3_lbl, n_predict_2, n_testbefore_2, taglines[8], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
@@ -108,3 +103,10 @@ tcDict['st_4'] = [st_4, va_4 , st_4_dial , st_4_lbl, n_predict_3, n_testbefore_2
 tcDict['st_6'] = [st_6, va_5 , st_6_dial , st_6_lbl, n_predict_3, n_testbefore_2, taglines[10], loss_hist_min_1, loss_hist_max_2, amp_PSD_min_3]
 tcDict['st_7'] = [st_7, va_6 , st_7_dial , st_7_lbl, n_predict_3, n_testbefore_2, taglines[11], loss_hist_min_1, loss_hist_max_2, amp_PSD_min_3]
 tcDict['st_8'] = [st_8, va_4 , st_8_dial , st_8_lbl, n_predict_3, n_testbefore_2, taglines[12], loss_hist_min_3, loss_hist_max_3, amp_PSD_min_3]
+tcDict['tc_7'] = [tc_7, va_1, tc_7_dial, tc_7_lbl, n_predict_1, n_testbefore_1, taglines[1], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
+tcDict['tc_14'] = [tc_14, va_1, tc_14_dial, tc_14_lbl, n_predict_1, n_testbefore_1, taglines[5], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_3]
+
+# Not yet sorted
+tcDict['tc_8'] = [tc_8, va_1, tc_8_dial, tc_8_lbl, n_predict_1, n_testbefore_1, taglines[2], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
+tcDict['tc_10'] = [tc_10, va_1, tc_10_dial, tc_10_lbl, n_predict_1, n_testbefore_1, taglines[3], loss_hist_min_1, loss_hist_max_3, amp_PSD_min_3]
+tcDict['tc_12'] = [tc_12, va_1, tc_12_dial, tc_12_lbl, n_predict_1, n_testbefore_1, taglines[4], loss_hist_min_2, loss_hist_max_3, amp_PSD_min_4]
