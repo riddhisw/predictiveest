@@ -18,7 +18,7 @@ filepath_LS_Ensemble =  filepath+'/LS_Ensemble_Folder/test_case_'+str(test_case)
 
 # We now load truths, hyperams, and noisy data from BR Maps
 
-kf_original_obj = cs(test_case, variation, 1, 50, filepath, Hard_load='Yes')
+kf_original_obj = cs(test_case, variation, 1, 50, filepath, Hard_load='Yes', AKF_load='No')
 descriptor = os.path.join(filepath, kf_original_obj.filename0+'_AKF_')
 
 choose_one = 0 # or randomise, or take a mean across ensemble
