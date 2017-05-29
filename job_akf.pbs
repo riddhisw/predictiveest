@@ -1,0 +1,19 @@
+#PBS -P QCL_KF
+#PBS -N job_akf
+#PBS -J 1-7
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=20GB
+#PBS -l walltime=24:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+
+test_case=26
+variation=(0 1 2 3 4 5 6 7)
+
+module load python
+
+python ./test_script_generator_whitenoise.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman
+
