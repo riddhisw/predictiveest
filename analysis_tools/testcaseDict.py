@@ -11,6 +11,7 @@ tc_8 = [8, 8, 8, 8, 8]
 tc_10 = [10, 10, 10, 10, 10] 
 tc_12 = [12, 12, 12, 12, 12]
 tc_14 = [14, 14, 14, 14, 14]
+tc_26 = [26, 26,26, 26, 26]
 
 va_1 = [1, 2, 4, 6, 7] 
 
@@ -34,11 +35,12 @@ tc_8_lbl = tc_7_lbl
 tc_10_lbl = tc_7_lbl
 tc_12_lbl = tc_7_lbl
 tc_14_lbl = tc_7_lbl
+tc_26_lbl = tc_7_lbl
 
 st_1_lbl = r'$f_0 / \Delta\omega^B $ [1]'
 st_2_lbl = r'$f_0 J /\omega^B_{max} [1]$'
 st_3_lbl = r'$ \Delta s [Hz] $ '
-st_4_lbl = r'Msmt N. Lvl [$y_n^2$]'
+st_4_lbl = r'Msmt N.L. [$y_n^2$]'
 st_6_lbl = st_2_lbl
 st_7_lbl = st_3_lbl
 st_8_lbl = st_4_lbl
@@ -48,6 +50,8 @@ tc_8_dial = tc_7_dial
 tc_10_dial = tc_7_dial
 tc_12_dial = tc_7_dial
 tc_14_dial = tc_7_dial 
+tc_26_dial = tc_7_dial
+
 st_1_dial = [2.0, 1.0, 0.998, 0.994, 0.99] 
 st_2_dial = [0.1988, 0.3976, 0.7952, 1.1928, 1.988] 
 st_3_dial = [1.8181818182, 0.9523809524, 0.487804878, 0.3278688525, 0.2469135802] 
@@ -106,7 +110,10 @@ tcDict['st_8'] = [st_8, va_4 , st_8_dial , st_8_lbl, n_predict_3, n_testbefore_2
 tcDict['tc_7'] = [tc_7, va_1, tc_7_dial, tc_7_lbl, n_predict_1, n_testbefore_1, taglines[1], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
 tcDict['tc_14'] = [tc_14, va_1, tc_14_dial, tc_14_lbl, n_predict_1, n_testbefore_1, taglines[5], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_3]
 
-# Not yet sorted
+# Formatting not yet sorted
 tcDict['tc_8'] = [tc_8, va_1, tc_8_dial, tc_8_lbl, n_predict_1, n_testbefore_1, taglines[2], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_2]
 tcDict['tc_10'] = [tc_10, va_1, tc_10_dial, tc_10_lbl, n_predict_1, n_testbefore_1, taglines[3], loss_hist_min_1, loss_hist_max_3, amp_PSD_min_3]
 tcDict['tc_12'] = [tc_12, va_1, tc_12_dial, tc_12_lbl, n_predict_1, n_testbefore_1, taglines[4], loss_hist_min_2, loss_hist_max_3, 10**-20]
+
+# New - not implemented until LS / AKF data has been generated
+tcDict['tc_26'] = [tc_26, va_1, tc_26_dial, tc_26_lbl, n_predict_1, n_testbefore_1, taglines[5], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_3]
