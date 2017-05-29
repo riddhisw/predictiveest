@@ -11,9 +11,9 @@
 cd $PBS_O_WORKDIR/
 
 test_case=26
-variation=(0 1 2 3 4 5 6 7)
+variation=(0 1 2 4 6 7)
 
 module load python
 
-python ./test_script_generator_whitenoise.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman
+python ./test_script_riskanalysiscompare.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman
 
