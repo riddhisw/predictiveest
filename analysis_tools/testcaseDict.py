@@ -80,7 +80,7 @@ taglines.append('Increasing Msmt Noise for Perfect Learning for White Noise with
 taglines.append(r'Increasing True Cut-off / Bandwidth Assump. ($f_0 J/B$) for Imperfect Learning for Sev. Undersampled  White Noise')
 taglines.append(r'Increasing Fourier Res ($\Delta s, \Delta \omega_B $) for Imperfect Learning for Sev. Undersampled  White Noise')
 taglines.append('Increasing Msmt Noise for Imperfect Learning for Sev. Undersampled  White Noise')
-
+taglines.append(r'Increasing $\Delta t (f_s)$ for Perfect Learning with White Noise (J=80)')
 
 loss_hist_min_1 = 10**-2
 loss_hist_min_2 = 10**6
@@ -116,4 +116,4 @@ tcDict['tc_10'] = [tc_10, va_1, tc_10_dial, tc_10_lbl, n_predict_1, n_testbefore
 tcDict['tc_12'] = [tc_12, va_1, tc_12_dial, tc_12_lbl, n_predict_1, n_testbefore_1, taglines[4], loss_hist_min_2, loss_hist_max_3, 10**-20]
 
 # New - not implemented until LS / AKF data has been generated
-tcDict['tc_26'] = [tc_26, va_1, tc_26_dial, tc_26_lbl, n_predict_1, n_testbefore_1, taglines[5], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_3]
+tcDict['tc_26'] = [tc_26, va_1, tc_26_dial, tc_26_lbl, n_predict_1, n_testbefore_1, taglines[13], loss_hist_min_1, loss_hist_max_1, amp_PSD_min_3]
