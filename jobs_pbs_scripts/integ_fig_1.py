@@ -13,7 +13,7 @@ from analysis_tools.case_data_explorer import CaseExplorer as cs
 # INPUT DATA 
 ########################################
 
-path_to_directory = '/scratch/RDS-FSC-QCL_KF-RW/Kalman'
+path_to_directory = './'#'/scratch/RDS-FSC-QCL_KF-RW/Kalman'
 savefigname = 'tc_7_'
 ADD_LS_DATA = 'Yes'
 DO_SKF = 'Yes'
@@ -252,7 +252,8 @@ idx_ax2 = 0# Loss Map
 for idx in xrange(NUM_SCENARIOS):
 
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
-    s0, R0, s1, R1, sigma, R, p_index, p_losses = vars()[obj_].return_low_loss_hyperparams_list()
+    kf, akf = vars()[obj_].return_low_loss_hyperparams_list()
+    s0, R0, s1, R1, sigma, R, p_index, p_losses = [item for item in kf]
     
     ax_ = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)]
 
@@ -290,7 +291,8 @@ idx_ax2 = 1 # Loss Histogram
 for idx in xrange(NUM_SCENARIOS):
 
     obj_ = 'obj_'+str(test_case_list[idx])+'_'+str(variation_list[idx])
-    s0, R0, s1, R1, sigma, R, p_index, p_losses = vars()[obj_].return_low_loss_hyperparams_list()
+    kf, akf = vars()[obj_].return_low_loss_hyperparams_list()
+    s0, R0, s1, R1, sigma, R, p_index, p_losses = [item for item in kf]
 
     ax_ = vars()['ax_var'+str(variation_list[idx])+'_'+str(idx_ax2)]
 
