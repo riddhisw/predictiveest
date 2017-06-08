@@ -80,9 +80,10 @@ def inf(trainx, trainy, testx, hyp) :
 if __name__ == "__main__" :
 
 	hyp = train(sample_trainx, sample_trainy)
+	print(hyp)
 	test_mu, test_sig = inf(sample_trainx, sample_trainy, sample_testx, hyp)
-	for mu, sig in zip(test_mu, test_sig) :
-         print mu, sig, 
+	#for mu, sig in zip(test_mu, test_sig) :
+         #print mu, sig, 
          
 np.savez('GPR_TF_Example',test_mu=test_mu, test_sig=test_sig, sample_trainy=sample_trainy, sample_trainx=sample_trainx, sample_testx=sample_testx)
          
