@@ -2,4 +2,4 @@ numpy
 numba
 matplotlib
 scipy
-
+GPy

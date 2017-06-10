@@ -61,7 +61,12 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
     #print('Apriori x_hat 1', x_hat.shape)
     #print('Apriori P_hat 1', P_hat.shape)
 
-    Q = oe*np.eye(order)
+    # Q = oe*np.eye(order) # This is incorrect but stable. Also should be oe**2 not oe
+    
+    # This is correct, but likely to be unstable
+    Q = np.zeros((order, order))
+    Q[0,0] = oe**2 
+    
     a = get_autoreg_model(order, weights)
     #print('a', a, a.shape)
     h[0] = 1.0

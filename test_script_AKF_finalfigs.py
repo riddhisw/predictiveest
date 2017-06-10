@@ -9,7 +9,7 @@ import numpy as np
 
 from kf.armakf import autokf as akf
 from kf.fast_2 import kf_2017 as skf
-from analysis_tools.case_data_explorer import CaseExplorer as cs
+from plotting_tools.case_data_explorer import CaseExplorer as cs
 
 test_case = int(sys.argv[1])
 variation = int(sys.argv[2])

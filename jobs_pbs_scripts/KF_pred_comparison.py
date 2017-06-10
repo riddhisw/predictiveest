@@ -6,14 +6,14 @@ import matplotlib.ticker as mtick
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 
-from analysis_tools.case_data_explorer import CaseExplorer as cs
+from plotting_tools.case_data_explorer import CaseExplorer as cs
 from kf.armakf import autokf as akf 
 from kf.fast_2 import kf_2017 as kf 
 
 # Import figure making dictionaries and parameters
-from analysis_tools.testcaseDict import tcDict
-from analysis_tools.testcaseFigstyle import *
-from analysis_tools.testcaseParams import *
+from plotting_tools.testcaseDict import tcDict
+from plotting_tools.testcaseFigstyle import *
+from plotting_tools.testcaseParams import *
 
 path_to_directory = sys.argv[1]
 dict_key = sys.argv[2]

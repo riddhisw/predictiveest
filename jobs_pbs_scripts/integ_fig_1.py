@@ -6,7 +6,7 @@ import matplotlib.ticker as mtick
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 
-from analysis_tools.case_data_explorer import CaseExplorer as cs
+from plotting_tools.case_data_explorer import CaseExplorer as cs
 
 
 ########################################
