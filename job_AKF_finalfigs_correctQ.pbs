@@ -15,4 +15,4 @@ variation=(0 12 11 1 2 4 7 2 1 5 3 1 5 8 1 5 8)
 
 module load python
 
-python ./test_script_AKF_finalfigs.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman
+python ./test_script_AKF_finalfigs.py ${test_case[$PBS_ARRAY_INDEX]} ${variation[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman
