@@ -65,7 +65,7 @@ for idx_d in xrange(kf_original_obj.max_it_BR):
     # Optimise GPy Model
     print('Run: ', idx_d)
     print('Before Optimisation: ', [m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
-    m1.optimize([m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
+    m1.optimize()
     GPR_opt_params.append([m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
     print('After Optimisation: ', [m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
     
