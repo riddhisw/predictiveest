@@ -35,9 +35,7 @@ GPR_opt_params = []
 # Initialise Kernel
 ####
 
-kernel_per = GPy.kern.StdPeriodic(1, period=period_0, variance=sigma_0, lengthscale=length_scale_0)
-gauss = GPy.likelihoods.Gaussian(variance=R_0)
-exact = GPy.inference.latent_function_inference.ExactGaussianInference()
+
 
 idx_randparams = 0 # OR RANDOMLY SELECT FROM 0 - 74
 
@@ -56,14 +54,21 @@ for idx_d in xrange(kf_original_obj.max_it_BR):
     Y = y_signal[0:kf_original_obj.n_train, np.newaxis]
     testx = kf_original_obj.Time_Axis[kf_original_obj.n_train - kf_original_obj.n_testbefore : ]
     
-    # Optimise during training using GPy
+    # Reset GPy Model
+    kernel_per = GPy.kern.StdPeriodic(1, period=period_0, variance=sigma_0, lengthscale=length_scale_0)
+    gauss = GPy.likelihoods.Gaussian(variance=R_0)
+    exact = GPy.inference.latent_function_inference.ExactGaussianInference()
     m1 = GPy.core.GP(X=X, Y=Y, kernel=kernel_per, likelihood=gauss, inference_method=exact)
     m1.std_periodic.variance.constrain_bounded(0, SigmaMx)
     m1.Gaussian_noise.variance.constrain_bounded(0, RMx)
-    m1.optimize()
-    GPR_opt_params.append([m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]]) 
     
-    # Make predictions using GPy  
+    # Optimise GPy Model
+    print('Before Optimisation: ', [m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
+    m1.optimize([m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
+    GPR_opt_params.append([m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
+    print('After Optimisation: ', [m1.std_periodic.variance[0], m1.Gaussian_noise.variance[0], m1.std_periodic.period[0], m1.std_periodic.lengthscale[0]])
+    
+    # Make predictions using Optimised GPy  
     gpr_predictions = m1.predict(testx[:,np.newaxis])[0].flatten()
     
     # Calc RMS error
