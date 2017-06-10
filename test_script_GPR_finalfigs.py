@@ -77,7 +77,6 @@ np.savez(filepath_LS_Ensemble+'_GPR_PER_',
                 msmt_noise_variance= kf_original_obj.msmt_noise_variance, 
                 max_it_BR = kf_original_obj.max_it_BR, 
                 macro_truth=kf_original_obj.macro_truth[idx_randparams, :, :],
-                skip_msmts = skip_msmts,
                 GPR_opt_params=GPR_opt_params,
                 GPR_PER_prediction_errors=prediction_errors, 
                 GPR_PER_forecastng_errors=forecastng_errors)
