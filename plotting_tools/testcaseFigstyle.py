@@ -1,6 +1,7 @@
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 
+
 ########################################
 # FIG: Size, Colors and Labels
 ########################################
@@ -24,6 +25,8 @@ ls_color = 'g'
 
 true_band_edge_color = 'r'
 kf_basis_edge_color = 'teal'
+
+
 ########################################
 # FIG: Custom Legends
 ########################################
