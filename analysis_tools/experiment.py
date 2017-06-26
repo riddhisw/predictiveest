@@ -1,3 +1,16 @@
+'''
+PACKAGE: analysis_tools
+MODULE: analysis_tools.experiment
+
+The purpose of analysis_tools is to optimise and generate analysis for Livska
+Kalman Filter on experimental scenarios indexed by (test_case, variation). 
+
+MODULE PURPOSE: Stores experimentally controlled sampling parameters.
+
+METHODS: 
+experiment_params: Returns Fourier and time domain sampling paramters
+
+'''
 from __future__ import division, print_function, absolute_import
 import numpy as np
 

@@ -1,3 +1,25 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 20 19:20:43 2017
+
+@author: riddhisw
+
+PACKAGE: analysis_tools
+MODULE: analysis_tools.kalman
+
+The purpose of analysis_tools is to optimise and generate analysis for Livska
+Kalman Filter on experimental scenarios indexed by (test_case, variation). 
+
+MODULE PURPOSE: Implements analysis for Livska Kalman Filter using Fixed Basis.
+
+kalman.single_prediction was used to generate cluster data 
+but methods in this module are  now are retired. 
+
+METHODS: 
+single_prediction: Returns predictions from a fast, memoryless LKFFB implementation
+[LEGACY METHODS]
+"""
 
 from __future__ import division, print_function, absolute_import
 

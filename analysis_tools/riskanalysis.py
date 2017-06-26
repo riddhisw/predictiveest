@@ -1,4 +1,14 @@
-# -*- coding: utf-8 -*-
+'''
+PACKAGE: analysis_tools
+MODULE: analysis_tools.risk analysis
+
+The purpose of analysis_tools is to optimise and generate analysis for Livska
+Kalman Filter on experimental scenarios indexed by (test_case, variation). 
+
+MODULE PURPOSE: Optimises LKFFB for a single scenario given by (testcase, variation)
+
+'''
+
 from __future__ import division, print_function, absolute_import
 import os
 import numpy as np

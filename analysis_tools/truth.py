@@ -1,16 +1,37 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Sat Apr  8 11:32:27 2017
+Created on Thu Apr 20 19:20:43 2017
 
 @author: riddhisw
+
+PACKAGE: analysis_tools
+MODULE: analysis_tools.truth
+
+The purpose of analysis_tools is to optimise and generate analysis for Livska
+Kalman Filter on experimental scenarios indexed by (test_case, variation). 
+
+MODULE PURPOSE: Defines true stochastic state and its properties; as dictated by
+(test_case, variation). Learning algorithms are blind to these properties.
+
+METHODS: 
+beta_z: Returns true stochastic state in discrete time, namely f(n)
+beta_z_truePSD: Returns theoretical PSD for beta_z
+average_PSD: Returns numerical PSD estimate using beta_z() realisations.
+norm_squared: Returns magnitude squared of a vector
+
 """
+
 from __future__ import division, print_function, absolute_import
 import numpy as np
 #import scipy.stats as pdf
 
 #PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
 Moments = {'Mean':np.mean, 'Variance':np.var}
+
+FUDGE_1 = 0.5  # (Kalman Amplitudes vs. Theory)
+HILBERT_TRANSFORM_ = 2.0 # (Kalman Amplitudes vs. Theory)
+FUDGE_2 = 2.0*np.pi # Guessed numerically (Numerical averaging vs. Theory)
 
 
 class Truth(object):
@@ -113,9 +134,9 @@ class Truth(object):
             self.num_norms[ensemble,1] = np.sum(PSDnoise_realisation) # Energy of the signal in the Fourier domain. These norms are equal
             PSD_ensemble += PSDnoise_realisation
 
-        fudge= 2.0*np.pi # Guessed numerically
+        
         avg_PSD = (1.0/self.ensemble_size)*PSD_ensemble # Ensemble averaging
-        self.num_S_estimate = fudge*(1.0/self.number_of_points)*(avg_PSD) #Taking the limit with respect to time.
+        self.num_S_estimate = FUDGE_2*(1.0/self.number_of_points)*(avg_PSD) #Taking the limit with respect to time.
 
         #Total Power
         self.num_S_norm = np.sum(self.num_S_estimate) 
