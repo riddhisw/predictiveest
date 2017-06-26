@@ -3,3 +3,5 @@ numba
 matplotlib
 scipy
 GPy
+PyPDF2
+jupyter

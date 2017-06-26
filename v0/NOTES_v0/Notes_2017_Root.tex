@@ -1,0 +1,61 @@
+\documentclass[aps12pt4-1, twocolumn]{revtex4-1}
+\usepackage{amssymb,amsmath}
+\usepackage{graphicx, import}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{placeins}
+\graphicspath{ {../FIGS_v0/} }
+
+% Define Dirac and Pauli notation
+\newcommand{\ket}[1]{| #1 \rangle} %mathmode only
+\newcommand{\bra}[1]{\langle #1 |} %mathmode only 
+\newcommand{\op}[1]{\hat{#1}} %mathmode only - operator hat
+\newcommand{\p}[1]{\hat{\sigma}_{#1}} %mathmode only - pauli operators
+\newcommand{\idn}[0]{\op{\mathcal{I}}} %mathmode only - identity
+\newcommand{\pj}[1]{\ket{#1}\bra{#1}} %mathmode only - projection operator
+\newcommand{\pjs}[2]{\bra{#1}#2\rangle} %mathmoe only - state projection
+
+% Define commmon linear operators
+\newcommand{\dd}[0]{(t)} %mathmode only - time dependence
+\newcommand{\dr}[1]{\frac{d #1}{dt}} %mathmode only - time derivative 
+\newcommand{\ex}[1]{\mathbb{E}[#1]} %mathmode only - expectation values
+\newcommand{\norm}[1]{||#1||} %mathmode only - norm
+
+% Define apriori and aposteriori estimates for $x$ and $P$ in Kalman Filtering
+\newcommand{\amx}[1]{\hat{x}_{#1}(-)} %mathmode only - apriori x at index [1]
+\newcommand{\apx}[1]{\hat{x}_{#1}(+)} %mathmode only - aposteriori x at index [1]
+\newcommand{\amp}[1]{\hat{P}_{#1}(-)} %mathmode only - apriori P at index [1]
+\newcommand{\app}[1]{\hat{P}_{#1}(+)} %mathmode only - aposteriori P at index [1]
+
+%Define format for defintions
+\newtheorem{defn}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{azm}{Assumption} 
+
+
+
+\begin{document}
+% \listoffigures
+% \listoftables
+\begin{widetext} 
+\tableofcontents
+\end{widetext} 
+
+\include{./tex/Notes_2017_Main_v3}
+\appendix
+\begin{widetext}
+% \include{./tex/Notes_2017_A_Setup}
+% \include{./tex/Notes_2017_A_StationaryStochasticProcesses}
+% \include{./tex/Notes_2017_A_ApproxStationaryProcesses}
+% \include{./tex/Notes_2017_A_LinearPredictors}
+% \include{./tex/Notes_2017_A_Forecasting}
+% \include{./tex/Notes_2017_A_Kernels_for_GPR_Learning}
+% \include{./tex/Notes_2017_A_Optimisation_v2}
+% \include{./tex/Notes_2017_A_NumericalDefs}
+\end{widetext}
+\bibliographystyle{apsrev4-1}
+\bibliography{./tex/Biblio_ML}
+\end{document}
+
+
+

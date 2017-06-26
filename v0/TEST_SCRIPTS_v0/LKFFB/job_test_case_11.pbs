@@ -1,0 +1,28 @@
+#PBS -P QCL_KF
+#PBS -N job_2_test_case_11
+#PBS -J 1-7
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=20GB
+#PBS -l walltime=24:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+
+# Same as Test Case 8 but for perfect projection.
+
+test_case=11
+variation=(0 1 2 3 4 5 6 7)
+var_n_train_=(0 2000 1000 667 500 400 200 125)
+var_n_predict_=100
+var_multiplier_=(0 20.0 10.0 6.6666666666667 5.0 4.0 2.0 1.25)
+var_f0_=0.001
+var_J_=45000
+var_alpha_=1000.0
+var_noiselvl_=0.01
+
+module load python
+
+python ./test_script_generator.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_} ${var_J_} ${var_multiplier_[$PBS_ARRAY_INDEX]} ${var_n_train_[$PBS_ARRAY_INDEX]} ${var_n_predict_} ${var_alpha_} ${var_noiselvl_} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case}
+

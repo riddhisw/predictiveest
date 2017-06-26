@@ -1,0 +1,33 @@
+#PBS -P QCL_KF
+#PBS -N job_3_test_case_25
+#PBS -J 1-7
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=100GB
+#PBS -l walltime=400:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+# Test_case_25 mimics test_case_24 for demonstrating the effects of varying f_cutoff and
+# computational aliasing on max no of steps forwards, but for a severely
+# undersampled case. 
+
+test_case=25
+variation=(0 1 2 3 4 5 6 7)
+var_n_train_=2000
+var_n_predict_=50
+var_multiplier_=20.0
+var_f0_=0.000888888889
+var_J_=(0 11250 22500 33750 45000 56250 67500 112500)
+var_alpha_=1000.0
+var_noiselvl_=0.01
+var_bdelta_=0.5
+
+module load python
+
+python ./test_script_generator_whitenoise_varbdelta_less.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_} ${var_J_[$PBS_ARRAY_INDEX]} ${var_multiplier_} ${var_n_train_} ${var_n_predict_} ${var_alpha_} ${var_noiselvl_} ${var_bdelta_} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case}
+
+
+
+

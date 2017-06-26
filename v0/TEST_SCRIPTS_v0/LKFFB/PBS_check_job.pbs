@@ -1,0 +1,15 @@
+#PBS -P QCL_KF
+#PBS -N PBS_check_job
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=80GB
+#PBS -l walltime=200:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+
+module load python
+
+python NPZ_value_checker.py
+python PBS_output_checker.py
