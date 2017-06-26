@@ -1,6 +1,23 @@
-# The purpose of this script is to write an autoregressive process order (p) 
-# in a state space model, and implement Kalamn Filtering for a tuned (known) set of 
-# weights. 
+'''
+Created on Thu Apr 20 19:20:43 2017
+
+@author: riddhisw
+
+PACKAGE: akf
+MODULE: akf.common
+
+The purpose of akf package is to implement autoregressive Kalman Filtering (AKF).
+
+MODULE PURPOSE: Converts an autoregressive process order (q) 
+in a state space model, and implements Kalman Filtering for a learned set of 
+(LSF) weights.
+
+METHODS: 
+get_autoreg_model --  Returns the dynamic state space model for AR(q) 
+propagate_states_no_gamma -- Returns state propagation without a Kalman update
+autokf -- Returns predictions from an autoregressive kalman filtering run
+'''
+from __future__ import division, print_function, absolute_import
 
 import numpy as np
 import sys
@@ -10,11 +27,11 @@ from kf.common import calc_residuals, calc_Kalman_Gain
 
 def get_autoreg_model(order, weights):
     """ Returns the dynamic state space model based 
-    on order of autoregressive process and time invariant tuned weight.
+    on order of autoregressive process and time invariant tuned weights.
 
-    a: [Dim: order x order. dtype=float64]
-    order:[Dim:  1x1. dtype=int]
-    weights = [Dim: 1 x order. dtype=float64]
+    a --  [Dim: order x order. dtype=float64]
+    order -- [Dim:  1x1. dtype=int]
+    weights --  [Dim: 1 x order. dtype=float64]
 
     """
     a = np.zeros((order, order))
@@ -45,7 +62,12 @@ def propagate_states_no_gamma(a, x_hat, P_hat, Q):
 
 
 def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50, 
-           n_predict=50, p0=10000, skip_msmts=1,  switch_off_save='No'):
+           n_predict=50, p0=10000, skip_msmts=1,  save='No'):
+
+    '''
+    Returns predictions from an autoregressive kalman filtering run. Kalman model 
+    parameters are defined in LKFFB (e.g. kf.fast) and are not repeated here. 
+    '''
 
     num = y_signal.shape[0]
     order = weights.shape[0]
@@ -142,7 +164,8 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
         
         k=k+1
 
-    if  switch_off_save == 'Yes':
+    if  save == 'Yes':
+        
         np.savez(descriptor+'_AKF_', descriptor=descriptor+'_AKF_',
             y_signal=y_signal,
             order= order, 
