@@ -4,10 +4,95 @@ reported in analysis.
 
 '''
 import matplotlib.pyplot as plt, numpy as np, matplotlib
+import os
+    
+from data_tools.data_risk_analysis import build_risk_dict
+from plot_tools.plot_figstyle_sheet import *
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
-from plotting_tools.risk_analysis import build_risk_dict
-#from plotting_tools.load_raw_cluster_data import LoadExperiment as le
-from plotting_tools.plot_figstyle_sheet import *
+##################################################################
+# GENERAL
+##################################################################
+
+def cm2inch(value):
+    return value/2.54
+
+def pts2cm(pts):
+    return 0.0352778*pts
+
+def cm2pts(cm):
+    return cm/0.0352778
+
+def cm2px(cm, mydpi):
+    return 
+
+def svg2pdf(filename):
+    ''' Converts svg --> pdf'''
+
+    filenamesvg = str(filename)+'.svg'
+    filenamepdf = str(filename)+'.pdf'
+    cmd = 'inkscape --file={filenamesvg} --export-pdf={filenamepdf}'.format(filenamesvg=filenamesvg, filenamepdf=filenamepdf)
+    os.system(cmd)
+
+    pass
+
+
+def stackNcrop(outputname, filename1, filename2, 
+           right=0, left=0, top=0, bottom=0):
+    '''Vertically tacks fig 1 on top of fig 2 assuming both figs have same width.
+    Crops the final result if required.'''
+    
+    # input PDFs
+    file1 = PdfFileReader(file(filename1+'.pdf', "rb"))
+    file2 = PdfFileReader(file(filename2+'.pdf', "rb"))
+    page = file1.getPage(0)
+    page2 = file2.getPage(0)    
+    
+    # Output canvas dims
+    total_w = page.mediaBox.getWidth() 
+    total_h = page2.mediaBox.getHeight() + page.mediaBox.getHeight()
+
+    # Uncropped Output, Stack Figs
+    output = PdfFileWriter() 
+    canvas = output.insertBlankPage(width=total_w, height= total_h)
+    canvas.mergeTranslatedPage(page, 0, page2.mediaBox.getHeight())
+    canvas.mergeTranslatedPage(page2, 0, 0)
+    canvas_ = output.getPage(0) # finalises canvas
+    
+    # Crop 
+    cropped_canvas = croppage(canvas_, right=right, left=left, top=top, bottom=bottom)
+    output_c = PdfFileWriter() 
+    output_c.addPage(cropped_canvas)
+    
+    
+    # Write Cropped Output
+    outputStream = file(outputname+'.pdf', "wb")
+    output_c.write(outputStream)
+    outputStream.close()
+    
+    pass
+
+
+def croppage(page1, right=0, left=0, top=0, bottom=0):
+    ''' PyPDF2 cropping function for stackNcrop()
+    '''
+    if right+left+top+bottom != 0:
+        page1.mediaBox.upperRight = (page1.mediaBox.getUpperRight_x() - right, page1.mediaBox.getUpperRight_y() - top) 
+        page1.mediaBox.lowerLeft = (page1.mediaBox.getLowerLeft_x() + left, page1.mediaBox.getLowerLeft_y() + bottom)
+    return page1
+   
+def pdf2latek(outputname):
+    ''' Converts pdf --> svg --> pdf for latek [NOT USED]'''
+
+    filepdf = outputname+'.pdf'
+    filesvg = outputname+'.svg'
+    cmd = 'inkscape --file={filepdf} --export-plain-svg={filesvg}'.format(filesvg=filesvg, filepdf=filepdf)
+    os.system(cmd)
+    cmd = 'inkscape --file={filesvg} --export-pdf={filepdf} --export-latex'.format(filesvg=filesvg, filepdf=filepdf)
+    os.system(cmd)
+    #!inkscape --file=$filesvg --export-pdf=$filepdf --export-latex
+    pass
+
 
 ##################################################################
 # RISK MAP AND TRAJECTORIES
@@ -24,7 +109,7 @@ def plot_risk_map(figaxes, algotype, RISKDICT,
     sstep = max state estimation steps forward
     lowloss = the lowest'lowloss' number of loss values are shaded as low loss regions
     '''
-    from plotting_tools.risk_analysis import riskmapdata
+    from data_tools.data_risk_analysis import riskmapdata
     
     p_err, hyp, f_err = RISKDICT[algotype][0:3]
     
@@ -42,10 +127,10 @@ def plot_risk_map(figaxes, algotype, RISKDICT,
     # As per algorithm code for AKF, LKFFB, we implemented sigma and R^2. To make both units
     # variances, we need to square all the sigmas. 
     
-    figaxes.plot(s_sigma[0:lowloss]**2, s_R[0:lowloss], 'o', c='tan', markersize=25, alpha=0.7)
-    figaxes.plot(f_sigma[0:lowloss]**2, f_R[0:lowloss], 'o', c='cyan', markersize=15, alpha=0.7)
-    figaxes.plot(s_sigma**2, s_R, 'kv', markersize=5, alpha=1.0)
-    figaxes.plot(s_sigma[0]**2, s_R[0],'*', color='m', markersize=15, mew=2)
+    figaxes.plot(s_sigma[0:lowloss]**2, s_R[0:lowloss], 'o', c='tan', markersize=8, alpha=0.7)
+    figaxes.plot(f_sigma[0:lowloss]**2, f_R[0:lowloss], 'o', c='cyan', markersize=4, alpha=0.7)
+    figaxes.plot(s_sigma**2, s_R, 'kv', markersize=1.5, alpha=1.0)
+    figaxes.plot(s_sigma[0]**2, s_R[0],'*', color='m', markersize=4, mew=2)
     figaxes.tick_params(direction='in', which='both')
     
     figaxes.set(title=algotype, xlabel=r'$\sigma^2 \quad [f_n^2] $', ylabel =r'$R \quad [f_n^2]$')
@@ -67,7 +152,7 @@ def plot_risk_trajectories(figaxes, algotype, RISKDICT,
     lowloss = the lowest'lowloss' number of loss values are shaded as low loss regions
     '''
         
-    from plotting_tools.risk_analysis import riskmapdata
+    from data_tools.data_risk_analysis import riskmapdata
     
     p_err, hyp, f_err = RISKDICT[algotype][0:3]
     s_traj, f_traj = riskmapdata(p_err, 
@@ -137,12 +222,13 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
                             GPRP_load='Yes', LSF_load='Yes', AKF_load='Yes', LKFFB_load='Yes',
                             fstep=50, sstep=50, lowloss=20, lgd_loc=4,
                             ylim_amps = [-4.5, 1], yscale='linear', true_undersampl_scale=0):
+    
     '''Returns single predictions from all algorithms, spectral estimates from AKF/LSF, LKKFB'''
     
     # import FIGSTYLES
-    from plotting_tools.risk_analysis import build_risk_dict, norm_risk, riskmapdata, analyse_kalman_errs
-    from plotting_tools.tuned_run_analysis import TUNED_RUNS_DICT
-    from plotting_tools.load_raw_cluster_data import LoadExperiment as le
+    from data_tools.data_risk_analysis import build_risk_dict, norm_risk, riskmapdata, analyse_kalman_errs
+    from data_tools.data_tuned_run_analysis import TUNED_RUNS_DICT
+    from data_tools.load_raw_cluster_data import LoadExperiment as le
     import numpy as np
 
     testobj = le(test_case, variation, 
@@ -164,7 +250,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
         true_undersampl_const = calc_undersampling(testobj)
     
     # plot data
-    figaxes.plot(x_axis[ : ntb], signal[ntn - ntb : ntn], 'x', label='Data')
+    figaxes.plot(x_axis[ : ntb], signal[ntn - ntb : ntn], 'x', label='Data', markersize=MSIZE_AMPS)
     figaxes.plot(x_axis, truth[ntn - ntb : ntn + fstep], 'r', label='Truth')
     
     for algo_type in ALGOLIST:
@@ -179,7 +265,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
                                                    50)[2:]
 
             KWGS = {'opt_sigma': opt_sigma[0], 'opt_R': opt_R[0]}
-            faxis, amp, norm, pred = TUNED_RUNS_DICT[algo_type](testobj, signal, **KWGS)
+            faxis, amp, thirdVar, pred = TUNED_RUNS_DICT[algo_type](testobj, signal, **KWGS)
             
             # Plot predictions (Kalman)
             figaxes.plot(x_axis[ : ntb], pred[: ntb ], '-', x_axis[ntb: ], pred[ntb : ntb + fstep], '--',
@@ -192,15 +278,15 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
                 # LKFFB
                 figaxes_amps.plot(faxis[0], amp[0]*(1.0/true_undersampl_const), 'o', 
                                   c=COLOURDICT[algo_type], alpha=ALPHA_AMPS, markersize= MSIZE_AMPS,
-                                  label=' T.Pow: %.1e' %(norm[0]))
+                                  label=' T.Pw: %.1e' %(thirdVar[0]))
                 # Truth
-                figaxes_amps.plot(faxis[1], amp[1], 'r-', label='T.Pow: %.1e' %(norm[1]))     
+                figaxes_amps.plot(faxis[1], amp[1], 'r-', label='T.Pw: %.1e' %(thirdVar[1]))     
                 
             else:
                 truncatedata = int(faxis.shape[0]*300.0/ faxis[-1])
-                figaxes_amps.plot(faxis[0: truncatedata], norm[0: truncatedata], 'o', 
+                figaxes_amps.plot(faxis[0: truncatedata], thirdVar[0: truncatedata], 'o', 
                                   c=COLOURDICT[algo_type], alpha=ALPHA_AMPS, markersize= MSIZE_AMPS,
-                                  label=' T.Pow: %.1e' %(np.sum(norm)))
+                                  label=' T.Pw: %.1e' %(np.sum(thirdVar)))
         else:
 
             # Plot predictions (Non Kalman)
@@ -241,7 +327,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
     figaxes.ticklabel_format(style='sci', scilimits=(0,2), axis='y')
     
     # Set labels
-    figaxes_amps.legend(loc=lgd_loc)
+    figaxes_amps.legend(loc=lgd_loc, fontsize=6)
     figaxes_amps.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
     figaxes.set(xlabel='Time Stps [num]', ylabel=r'Predictions [$f_n$]')
     
@@ -258,8 +344,8 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
                       ylim = [-11, 3], yscale='log'):
     
     # import FIGSTYLES
-    from plotting_tools.risk_analysis import build_risk_dict, norm_risk, riskmapdata, analyse_kalman_errs
-    from plotting_tools.load_raw_cluster_data import LoadExperiment as le
+    from data_tools.data_risk_analysis import build_risk_dict, norm_risk, riskmapdata, analyse_kalman_errs
+    from data_tools.load_raw_cluster_data import LoadExperiment as le
 
     testobj = le(test_case, variation, 
                  AKF_path=path, AKF_load=AKF_load,
@@ -267,6 +353,15 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
                  LSF_path=path, LSF_load=LSF_load,
                  GPRP_path=path, GPRP_load=GPRP_load)
     RISKDICT = build_risk_dict(testobj)
+
+    try:
+        n_train = testobj.Expt.n_train
+    except:
+        try:
+            n_train = testobj.LSF_n_train
+        except:
+            print("Using hardcoded value for n_train at 2000")
+            n_train = 2000
 
     print(testobj.test_case, testobj.variation)
 
@@ -285,18 +380,18 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
 
             norm_s, norm_f = norm_risk(f_err[opt_idx, ..., 0:fstep], 
                                        truth[opt_idx, ...], 
-                                       testobj.Expt.n_train,
+                                       n_train,
                                        opt_state_err=p_err[opt_idx, ...],
                                        LSF=lsf)
             if lsf == 'No':
-
+                print("didn't get here")
                 figaxes.plot(range(-norm_s.shape[0]-1,-1,1), norm_s, 
                              c=COLOURDICT[algo_type], label=algo_type+' State Est')
 
-            figaxes.plot(range(0,norm_f.shape[0],1), norm_f, '--', 
+            figaxes.plot(range(0,norm_f.shape[0],1), norm_f, 
                             c=COLOURDICT[algo_type], label=algo_type+' Forecast')
 
-            inset.plot(range(0,norm_f.shape[0],1), norm_f, '--', c=COLOURDICT[algo_type])
+            inset.plot(range(0,norm_f.shape[0],1), norm_f, c=COLOURDICT[algo_type])
         
 
     
