@@ -1,0 +1,145 @@
+\section{Set Up}\label{sec:ap_setup}
+ We reproduce an alternative derivation to \cite{soare} to justify that a sequence of Ramsey measurements on a qubit interacting with a dephasing noise field will encode information about the underlying phase noise. This will also establish notation for the rest of the Appendices. 
+ \\
+ \\
+Below, we start with the Hamiltonian for a two level system interacting with a classical field. We consider probability amplitude equations of motion for our two level energy eigenstates in the presence of a noisy classical field. We move to an interaction picture twice to see that the derivative of phase noise will affect the expectation value of a projective $\p{z}$ measurement. 
+\\
+\\
+In a particular parameter regime, we recover the final result of \cite{soare}. We argue that performing a series of Ramsey measurements, then, is effectively discretising a true (unknown) continous time stochastic process, $\beta_z \dd $.
+
+\subsection{Two Level System in Free Evolution}
+
+We define a two level system interacting with a magnetic field in Fig. \ref{fig:set_up}, and expand the system Hamiltonian as: 
+\\
+\begin{align}
+\op{H_0} &= E_1\ket{1}\bra{1} + E_2\ket{2}\bra{2} \\
+\p{z} &\equiv \ket{2}\bra{2} - \ket{1}\bra{1} \\
+\op{\mathcal{I}} & \equiv \ket{1}\bra{1} + \ket{2}\bra{2} \\
+\Rightarrow \op{H_0} & = \frac{1}{2} (E_1\ket{1}\bra{1}+ E_2\ket{2}\bra{2}) \\
+& + \frac{1}{2} [(E_2 - E_1)\p{z} + E_1 \ket{2}\bra{2} + E_2 \ket{1}\bra{1}]\\
+& = \op{\mathcal{I}} \left( \frac{E_1 + E_2}{2} \right) + \p{z}(\frac{E_2 - E_1}{2}) \\
+\text{Let: } \quad E_{1,2} &\equiv \mp \frac{1}{2} \hbar \omega_A, \quad \text{to result in:} \\
+\op{H_0} &= \frac{1}{2} \hbar \omega_A \p{z}
+\end{align}
+\\
+\\
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{two_level_system.png}
+	\caption[Setup: Diagram of Two Level System]{Diagram of Two Level System}
+	\label{fig:set_up}
+\end{figure}
+\\
+\\
+\subsection{Classical Field with Noise}
+
+We define our magnetic field with noise identically to \cite{soare}, as:
+\begin{align}
+\vec{B} &\equiv \Omega(t) \cos(\omega_\mu t + \phi(t)) \op{z} \\
+\phi(t) & \equiv \phi_C(t) + \phi_N(t)
+\end{align}
+with a real control amplitude $\Omega(t)$, carrier frequency $\omega_\mu$, controlled phase $\phi_C(t)$ and stochastic phase noise $\phi_N(t)$.  It is possible to add amplitude noise to the control, i.e. $\Omega(t) \equiv \Omega_C(t) + \Omega_N(t)$, however we set $\Omega_N(t) =0$ at present. 
+\\
+\\
+\subsection{System-Field Interaction}
+
+We define the dipole operator for a spin half particle in a magnetic field, $\op{d}$, as:
+\begin{align}
+\idn \op{d} \idn & = (\pj{1} + \pj{2})\op{d} (\pj{1} + \pj{2}) \\
+& = \pj{1}\op{d}\pj{2} +  \pj{2}\op{d}\pj{1} \\
+& = \vec{g}\p{-} + \vec{g}^*\p{+}
+\end{align}
+
+In the second line, the absence of a permanent magnetic dipole, the symmetry of states $\ket{1}, \ket{2}$ suggests that $\bra{1}\op{d}\ket{1} = \bra{2}\op{d}\ket{2} \equiv 0$. We note that $\op{d}$ has a direction which is inherited by the complex coupling term, $\vec{g}$ in the third line.
+
+In the Schrodinger picture:
+\begin{align}
+\op{H}_{AF} &\equiv -\op{d} \cdot \vec{B} \\
+\kappa & \equiv \vec{g} \cdot \op{z} = \bra{1} \op{d} \cdot \op{z} \ket{2} \\
+\Rightarrow \op{H}_{AF} & = -\kappa \Omega(t)  \cos(\omega_\mu t + \phi(t)) \p{-} - \kappa^* \Omega(t)  \cos(\omega_\mu t + \phi(t)) \p{+}
+\end{align} 
+ 
+In the Heisenberg picture, the Heisenberg equations of motion for $\p{\pm}(t)_H \propto e^{\pm i \omega_A t} \p{\pm}(0)$, and we implement the rotating wave approximation by throwing away terms far detuned from our two level system. This is at the same level of accuracy as  implementing a two-level system approximation, and corresponds to throwing away the first line below:
+
+\begin{align}
+\op{H}_{AF}^H &= \frac{\Omega\dd}{2} \kappa^* e^{i(\omega_A + \omega_\mu)t}e^{i\phi\dd}\p{+}(0) + h.c. \quad \text{(drop in H-picture)}\\
+&+ \frac{\Omega\dd}{2} \kappa^* e^{i(\omega_A - \omega_\mu )t}e^{-i\phi\dd}\p{+}(0) + h.c. \quad \text{(keep in H-picture)} \\
+\Rightarrow  \op{H}_{AF}^{RWA, S} &= \frac{\Omega\dd}{2} \kappa^*
+ e^{-i( \omega_\mu t + \phi\dd}\p{+} + \frac{\Omega\dd}{2} \kappa e^{i( \omega_\mu t + \phi\dd)}\p{-} \quad \text{(S-picture)}
+\end{align}
+
+Then equations of motion for probability amplitudes of our two state system, given arbitrary $\ket{\psi} = c_1 \ket{1} + c_2\ket{2} $ become:
+\begin{align}
+\dr{\pjs{1}{\psi}} &\equiv \dot{c_1} = \frac{-i}{\hbar}\bra{1} \op{H}_0 + \op{H}_{AF}^{RWA}
+  \ket{\psi} = \frac{i\omega_A }{2}c_1 - \frac{i}{\hbar}Z_0\dd e^{i\omega_\mu t}c_2\\
+\dr{\pjs{2}{\psi}} &\equiv \dot{c_2} = \frac{-i}{\hbar}\bra{2} \op{H}_0 + \op{H}_{AF}^{RWA}  \ket{\psi} = -\frac{i\omega_A }{2}c_2 - \frac{i}{\hbar}Z_0^*\dd e^{-i\omega_\mu t}c_1\\
+\text{with} \quad Z_0\dd &\equiv \frac{\Omega\dd\kappa}{2}e^{i\phi\dd}.
+\end{align}
+\\
+\\
+\subsection{First Interaction Picture}
+
+Define transformation as:
+\begin{align}
+\tilde{c}_1 &= c_1e^{i\lambda t} \\
+\tilde{c}_2 &= c_2e^{-i\lambda t}
+\end{align}
+The equations of motion transform as follows:
+\begin{align}
+\dot{\tilde{c}}_1 & = \dot{c}_1 e^{i \lambda t} + i \lambda \dot{\tilde{c}}_1 \\
+& =  i(\frac{\omega_A}{2} + \lambda)\tilde{c}_1 - \frac{i}{\hbar}Z_0\dd e^{i(\omega_\mu +2\lambda)t}\tilde{c}_2\\
+& \nonumber \\
+\dot{\tilde{c}}_2 & = \dot{c}_2 e^{-i \lambda t} - i \lambda \dot{\tilde{c}}_2 \\
+& =  -i(\frac{\omega_A}{2} + \lambda)\tilde{c}_2- \frac{i}{\hbar}Z_0^*\dd e^{-i(\omega_\mu +2\lambda)t}\tilde{c}_1
+\end{align}
+We set $2\lambda \equiv -\omega_\mu$ and $\Delta \omega \equiv \omega_A -\omega_\mu$ to remove the time dependence due to the carrier, resulting in:
+\begin{align}
+\dot{\tilde{c}}_1 & =  \frac{i\Delta\omega}{2}\tilde{c}_1 - \frac{i}{\hbar}Z_0\dd \tilde{c}_2\\
+& \nonumber \\
+\dot{\tilde{c}}_2 & =  -\frac{i\Delta \omega }{2}\tilde{c}_2- \frac{i}{\hbar}Z_0^*\dd \tilde{c}_1\\
+ \Rightarrow \op{H}_{\omega_\mu}^{I} &\equiv \frac{\hbar \Delta\omega}{2}\p{z} + Z_0\dd\p{-} + Z_0^*\dd\p{+}.
+\end{align}
+In the last line, $\op{H}_{\omega_\mu}^{I}$ is the effective interaction picture Hamiltonian acting on the transformed state $\ket{\psi} = \tilde{c}_1\ket{1} + \tilde{c}_2\ket{2}$ with transformed field amplitudes $Z_0\dd$.
+\\
+\\
+\subsection{Second Interaction Picture}
+
+Define transformation as:
+\begin{align}
+\alpha_1 &= \tilde{c}_1e^{i\lambda\dd} \\
+\alpha_2 &= \tilde{c}_2e^{-i\lambda\dd}
+\end{align}
+The equations of motion transform as follows:
+\begin{align}
+\dot{\alpha}_1 & = \dot{\tilde{c}}_1 e^{i \lambda\dd} + i \dot{\lambda}\dd \alpha_1 \\
+& =  i(\frac{\Delta \omega}{2} + \dot{\lambda}\dd)\alpha_1 - \frac{i}{\hbar}Z_0\dd e^{i2\lambda\dd}\alpha_2\\
+& \nonumber \\
+\dot{\alpha}_2 & = \dot{\tilde{c}}_2 e^{-i \lambda\dd} - i \dot{\lambda}\dd\dot{\alpha}_2 \\
+& =  -i(\frac{\Delta \omega}{2} + \dot{\lambda}\dd)\alpha_2- \frac{i}{\hbar}Z_0^*\dd e^{-i2\lambda\dd}\alpha_1
+\end{align}
+We substitute $Z_0\dd$ and set $2\lambda\dd \equiv -\phi_N\dd$  as in \cite{soare}, resulting in:
+\begin{align}
+\dot{\alpha}_1 & =  i\frac{\Delta \omega - \dot{\phi}\dd}{2}\alpha_1 - \frac{i}{2\hbar}(\Omega\dd \kappa e^{i\phi_C\dd}) \alpha_2\\
+& \nonumber \\
+\dot{\alpha}_2 & =  -i\frac{\Delta \omega - \dot{\phi}\dd}{2}\alpha_2- \frac{i}{2\hbar}(\Omega\dd \kappa^* e^{-i\phi_C\dd})\alpha_1\\
+&\nonumber \\
+\Rightarrow \op{H}^{I}_{\omega_\mu,\phi_N\dd} &\equiv \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (\kappa e^{i\phi_C\dd}\p{-} + \kappa^* e^{-i\phi_C\dd}\p{+}) \label{eqn:Hi}
+\end{align}
+In the last line, $\op{H}^{I}_{\omega_\mu,\phi_N\dd}$ is the effective interaction picture Hamiltonian acting on the transformed state $\ket{\psi} = \alpha_1\ket{1} + \alpha_2\ket{2}$. For the case where we set $\kappa^* = \kappa \equiv 1$ (real coupling constant), we recover the effective interaction picture Hamiltonian in \cite{soare}:
+
+\begin{align}
+\op{H}^{I}_{\omega_\mu,\phi_N\dd} & = \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (e^{i\phi_C\dd}\frac{\p{x} - i\p{y}}{2} + e^{-i\phi_C\dd}\frac{\p{x} + i\p{y}}{2})\\
+& = \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{4} (\p{x} (e^{i\phi_C\dd}\ +  e^{-i\phi_C\dd})- i\p{y} ( e^{i\phi_C\dd} - e^{-i\phi_C\dd} ))\\
+& = \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (\p{x} \cos(\phi_C\dd) + \p{y} \sin(\phi_C\dd)) \label{eqn:Hi_kappareal}
+\end{align}
+\\
+\\
+Without any changes to the approach above, we may also expand $\Delta \omega \equiv \omega_A -\omega_\mu -\delta_N$, where $\delta_N$, is a perfectly correlated but unknown experimental error in our detuning for any single run. Although it is impossible to transform to this interaction picture (phase noise is unknown), both \ref{eqn:Hi} or \ref{eqn:Hi_kappareal} confirm that our Ramsey measurements encode the derivatives of the phase noise field, and that measurements can also encode perfectly correlated but unknown detuning errors.
+\\
+\\
+In Appendix \ref{sec:ap_randomprocess}, we justify we can learn noise correlations for an appropriate class of stochastic processes ($\phi_N\dd$); however, resolving unknown but perfectly correlated detuning errors ($\delta_N$) will be beyond the scope of our techniques. To this end, we set $\Delta \omega \equiv 0$.
+\\
+\\
+\subsection{Ramsey Measurement Protocol [PLACEHOLDER]}
+
+(Summarise Ramsey Measurement protocol and link to discretisation of phase noise field.)

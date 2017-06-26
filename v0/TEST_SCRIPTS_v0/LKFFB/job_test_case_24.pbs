@@ -1,0 +1,38 @@
+#PBS -P QCL_KF
+#PBS -N job_3_test_case_24
+#PBS -J 1-11
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=100GB
+#PBS -l walltime=400:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+# Test_case_23 shows how KF average loss curves move up as perfect project 
+# is not possible. However, the curves do not move left or right. we pick 
+# test_case_23 Variation 10, as it acheives parity with Zero mean in the
+# desired region of stp fwd approx 10
+
+# Test_case_24 tries to establish whether these curves can shift left or right
+# 1:7 test the impact of cut off frequency.
+# 7:11 test the impact of increasing Fourier resolution
+
+test_case=24
+variation=(0 1 2 3 4 5 6 7 8 9 10 11)
+var_n_train_=(0 2000 2000 2000 2000 2000 2000 2000 500 1000 3000 4000)
+var_n_predict_=50
+var_multiplier_=20.0
+var_f0_=0.497
+var_J_=(0 20 40 60 80 100 120 200 80 80 80 80)
+var_alpha_=1.0
+var_noiselvl_=0.01
+var_bdelta_=(0 0.5 0.5 0.5 0.5 0.5 0.5 0.5 2.0 1.0 0.333 0.25)
+
+module load python
+
+python ./test_script_generator_whitenoise_varbdelta.py ${test_case} ${variation[$PBS_ARRAY_INDEX]} ${var_f0_} ${var_J_[$PBS_ARRAY_INDEX]} ${var_multiplier_} ${var_n_train_[$PBS_ARRAY_INDEX]} ${var_n_predict_} ${var_alpha_} ${var_noiselvl_} ${var_bdelta_[$PBS_ARRAY_INDEX]} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case}
+
+
+
+

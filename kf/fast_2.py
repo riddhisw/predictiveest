@@ -49,7 +49,7 @@ PredictionMethod = {
 
 def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, 
             rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", 
-            skip_msmts=1, descriptor='Fast_KF_Results'):
+            skip_msmts=1, descriptor='Fast_KF_Results', switch_off_save='No'):
     '''    
     Keyword Arguments:
     ------------------
@@ -104,10 +104,10 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     
     '''    
-    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor)
+    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor, switch_off_save)
 
 
-def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor):
+def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor, switch_off_save):
 
     #print(descriptor)
     #print(prediction_method_)
@@ -140,33 +140,33 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
     P_hat[diag_indx, diag_indx] = p0
     
     store_x_hat = np.zeros((twonumf,1,num))
-    #store_P_hat = np.zeros((twonumf,twonumf,num))
+    store_P_hat = np.zeros((twonumf,twonumf,num))
     store_x_hat[:,:,0] = x_hat
-    #store_P_hat[:,:,0] = P_hat  
+    store_P_hat[:,:,0] = P_hat  
     
-    #store_W = np.zeros((twonumf,1,num)) 
-    #store_S_Outer_W = np.zeros((twonumf,twonumf,num))
-    #store_Q = np.zeros((twonumf,twonumf,num))
-    #store_S = np.zeros((1,1,num))
+    store_W = np.zeros((twonumf,1,num)) 
+    store_S_Outer_W = np.zeros((twonumf,twonumf,num))
+    store_Q = np.zeros((twonumf,twonumf,num))
+    store_S = np.zeros((1,1,num))
     predictions = np.zeros(n_testbefore + n_predict)
     
     # Start Filtering
     k = 1
     while (k< num): 
         
-        x_hat_apriori, P_hat_apriori, dumpQ = propagate_states(a, x_hat, P_hat, oe, numf)
+        x_hat_apriori, P_hat_apriori, store_Q[:,:, k]= propagate_states(a, x_hat, P_hat, oe, numf)
         
         if prediction_method_ == ZERO_GAIN and k> (n_train):
             # This loop is equivalent to setting the gain to zero 
             x_hat = x_hat_apriori
             store_x_hat[:,:,k] = x_hat
             P_hat = P_hat_apriori
-            #store_P_hat[:,:,k] = P_hat
+            store_P_hat[:,:,k] = P_hat
             k = k+1 
             continue 
         
         W, S = calc_Kalman_Gain(h, P_hat_apriori, rk)    
-        #store_S[:,:, k] = S
+        store_S[:,:, k] = S
         
         #Skip msmts        
         if k % skip_msmts !=0:
@@ -175,15 +175,16 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         e_z[k] = calc_residuals(h, x_hat_apriori, z[k])
         
         x_hat = x_hat_apriori + W*e_z[k]
-        #store_S_Outer_W[:,:,k] = S*np.outer(W,W.T)
+        store_S_Outer_W[:,:,k] = S*np.outer(W,W.T)
         P_hat = P_hat_apriori - S*np.outer(W,W.T) #Equivalent to outer(W, W)
         
         store_x_hat[:,:,k] = x_hat
-        #store_P_hat[:,:,k] = P_hat         
-        #store_W[:,:,k] = W
+        store_P_hat[:,:,k] = P_hat         
+        store_W[:,:,k] = W
 
            
         if prediction_method_ == PROP_FORWARD and (k==n_train):
+        
             # This loop initiates propagation forward at n_train
             Propagate_Foward, instantA, instantP = makePropForward(freq_basis_array, x_hat,Delta_T_Sampling,phase_correction,num,n_train,numf)
             # We use previous state estimates to "predict" for n < n_train
@@ -191,11 +192,64 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             # We use Prop Forward to "forecast" for n> n_train
             predictions[n_testbefore:] = Propagate_Foward[n_train:]
             
+            if switch_off_save == 'Yes':
+                return predictions, store_x_hat
+            
+            np.savez(descriptor, 
+                    descriptor=descriptor,
+                    predictions=predictions, 
+                    y_signal=y_signal,
+                    freq_basis_array= freq_basis_array, 
+                    x_hat=store_x_hat, 
+                    P_hat=store_P_hat, 
+                    a=a,
+                    h=h,
+                    z=z, 
+                    e_z=e_z,
+                    W=store_W,
+                    Q=store_Q,
+                    store_S_Outer_W=store_S_Outer_W,
+                    S=store_S,
+                    instantA=instantA,
+                    instantP=instantP,
+                    oe=oe, 
+                    rk=rk,
+                    n_train=n_train,
+                    n_predict=n_predict,
+                    n_testbefore=n_testbefore,
+                    skip_msmts=skip_msmts,
+                    Propagate_Foward=Propagate_Foward,
+                    phase_correction=phase_correction)
+            
             return predictions
         
         k=k+1
         
     predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
-        
+    
+    if switch_off_save == 'Yes':
+        return predictions, store_x_hat
+
+    np.savez(descriptor, descriptor=descriptor,
+             predictions=predictions, 
+             y_signal=y_signal,
+             freq_basis_array= freq_basis_array, 
+             x_hat=store_x_hat, 
+             P_hat=store_P_hat, 
+             a=a,
+             h=h,
+             z=z,
+             e_z=e_z,
+             W=store_W,
+             Q=store_Q,
+             store_S_Outer_W=store_S_Outer_W,
+             S=store_S,
+             oe=oe, 
+             rk=rk,
+             n_train=n_train,
+             n_predict=n_predict,
+             n_testbefore=n_testbefore,
+             skip_msmts=skip_msmts)
+    
     return predictions
 

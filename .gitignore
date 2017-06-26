@@ -3,8 +3,9 @@
 *.svg
 *.pdf
 
-Archive/
+Data/
 Images/
+test_case_7/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

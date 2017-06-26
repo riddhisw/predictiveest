@@ -1,11 +1,11 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
-import numba as nb
+#import numba as nb
 import numpy.linalg as la
 
 
-@nb.jit(nopython=True)
+#@nb.jit(nopython=True)
 def calc_inst_params(x_hat_time_slice):
     '''
     Returns instantaneous amplitudes and instaneous phases associated with each Kalman basis osccilator using state estimate, x_hat, at a given time step. 
@@ -17,7 +17,7 @@ def calc_inst_params(x_hat_time_slice):
     return instantA_slice, instantP_slice
 
 
-@nb.jit(nopython=True)
+#@nb.jit(nopython=True)
 def calc_pred(x_hat_series):
     
     '''
@@ -37,7 +37,7 @@ def calc_pred(x_hat_series):
     return pred
 
 
-@nb.jit(nopython=True)
+#@nb.jit(nopython=True)
 def calc_Gamma(x_hat, oe, numf):
     '''Returns a vector of noise features used to calculate Q in Kalman Filtering
        Could be simplified via slicing. Not yet implemented.
@@ -89,9 +89,11 @@ def calc_Kalman_Gain(h, P_hat_apriori, rk):
     instead of 1.0/S.
     '''
     #S = la.multi_dot([h,P_hat_apriori,h.T]) + rk 
-    intermediary = np.dot(P_hat_apriori, h.T)
-    S = np.dot(h, intermediary) + rk 
-    #S = np.dot(h, np.dot(P_hat_apriori, h.T)) + rk # Same as linalg.multi_dot for this problem
+    #intermediary = np.dot(P_hat_apriori, h.T)
+    #S = np.dot(h, intermediary) + rk 
+    
+    #S = np.dot(np.dot(h, P_hat_apriori), h.T) + rk #Agreement between detailed KFs
+    S = np.dot(h, np.dot(P_hat_apriori, h.T)) + rk #Agreement between fast KFs, same as linalg.multi_dot for associativity problem
 
     S_inv = 1.0/S # 1.0/S and np.linalg.inv(S) are equivalent when S is rank 1
     
@@ -99,7 +101,7 @@ def calc_Kalman_Gain(h, P_hat_apriori, rk):
         print("S is not finite")
         raise RuntimeError
     
-    W = intermediary*S_inv
+    W = np.dot(P_hat_apriori, h.T)*S_inv
     return W, S
 
 
