@@ -78,3 +78,34 @@ def get_data(dataobject, points=200,
 
     
     return X, Y, TestX, truth, msmts
+    
+    
+def simple_unlearnable_sine(nt=2000, delta_t = 0.001, f0 = 10., testpts=50, randomise='y'):
+    
+    print("Fourier resolution at training", 1.0/(nt*delta_t))
+    print("True Frequency is", f0/3.)
+    
+    timeaxis = np.arange(0, nt+testpts, 1.0)
+    truth = np.sin(2.0*np.pi*f0*(1./3)*delta_t*timeaxis)
+    msmts = np.sin(2.0*np.pi*f0*(1./3)*delta_t*timeaxis) # no noise
+    
+    if randomise =='y':
+        x =[]
+        y =[]
+
+        for index in np.random.uniform(low=0, high=nt, size=nt): # n_train == no of random msmts
+            x.append(timeaxis[index])
+            y.append(msmts[index])
+    
+    elif randomise != 'y':
+        x = np.arange(0, nt, 1.0, dtype=np.float32)
+        y = msmts[0:nt]
+
+    testx = np.arange(nt-50, nt+testpts, 1.0, dtype=np.float32)
+
+    X = add_axis(np.asarray(x,dtype=np.float32)[0:nt])
+    Y = add_axis(np.asarray(y,dtype=np.float32)[0:nt])
+    TestX = add_axis(testx)
+
+    
+    return X, Y, TestX, truth, msmts

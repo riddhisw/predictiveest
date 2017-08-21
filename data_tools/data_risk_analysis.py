@@ -72,6 +72,7 @@ def build_risk_dict(LoadExperimentObject):
 
         
     if LoadExperimentObject.GPRP_load == 'Yes':
+        # np.newaxis creates a dummy axis to match (sigma, R) hypermeter choices in axis[0] of all AKF, LKFFB data
         
         RISKDICT['GPRP'][0] = LoadExperimentObject.GPRP_GPR_PER_prediction_errors[np.newaxis, ...]
         RISKDICT['GPRP'][1] = [None] # hyper-parameters optimised by GPy during analysis; or manually set priori to analysis
@@ -81,7 +82,7 @@ def build_risk_dict(LoadExperimentObject):
 
         
     if LoadExperimentObject.LSF_load == 'Yes':
-        
+        # np.newaxis creates a dummy axis to match (sigma, R) hypermeter choices in axis[0] of all AKF, LKFFB data
         n_train = LoadExperimentObject.LSF_n_train
         lsf_f_err = LoadExperimentObject.LSF_macro_predictions[...,0][np.newaxis, ...]
         max_stps = lsf_f_err.shape[2]

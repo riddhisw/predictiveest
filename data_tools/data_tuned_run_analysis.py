@@ -172,7 +172,7 @@ def clip_high_periods(LdExp, ordered_idxp, ordered_periods, n_train_default=2000
         print("clip_high_periods() was unable to clip periods; original periods were returned")
         return ordered_idxp, ordered_periods
 
-    return list(indicies_), list(periods_)
+    return list(idxp_), list(periods_)
 
 
 def choose_GPR_params(LdExp):
