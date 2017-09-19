@@ -1,0 +1,142 @@
+\section{Optimisation for Filter Parameters} \label{sec:ap_opt}
+
+\subsection{Least Squares and Autoregressive Kalman Filter}
+ 
+The Least Squares Filter directly learns the weights $\{\phi_i, i = 1, 2,...q\}$ in Appendix \ref{sec:ap_approxSP}, Def. \ref{sec:ap_ssp_ar} using gradient descent. 
+\\
+\\
+For univariate autoregressive Kalman filtering, the process noise covariance ($\sigma^2$), the measurement noise covariance ($R$), and the weights $\{\phi_i\}$ are all unknown.  One can collect these scalar unknowns into a vector $c \equiv [\phi_1, ..., \phi_q, \sigma^2, R_n]$, leading to a $q+2$ dimensional optimisation problem.
+\\
+\\ 
+One standard technique [CITE: Harvey] is to maximise the log likehood function, $L(y, c)$, for the observation $y_n$ conditional on our model and the information set at the previous time step, $Y_{n-1}$, where $Y_{n-1} \equiv \{y_{n-1}, y_{n-2}, ..., y_{0}\}$ contains correlated past observations $\{y_k: k< n\}$. For Gaussian noise sources ($w_n, v_n$), and Kalman variables $\hat{x}, \hat{P}, H$ defined in Appendix \ref{sec:ap_prediction}:
+\begin{align} 
+\log(L(y;c)) & = \sum_{n=1}^N \log(p(y_n | Y_{n-1})) \\
+& = -\frac{N}{2} \log(2\pi) - \frac{N}{2}\log{ \sigma^2_*} - \frac{1}{2} \sum_{n=1}^N \log(H_n\hat{P}_{n}H_n^T + \sigma^2_*R_n) \\ 
+& - \frac{1}{2} \sum_{n=1}^N \log((y_n - H_n\hat{x_n})^2(H_n\hat{P}_{n}H_n^T + \sigma^2_*R_n)^{-1}) \\
+\ex{w_n^2} & \equiv \sigma^2_*Q \\
+\ex{v_n^2} & \equiv \sigma^2_*R 
+\end{align}
+
+We side step this $q+2$ optimisation problem by using $\{\phi_i\}$ from least squares, leaving only ($\sigma^2, R$) to optimise. We further simplify the optimisation problem by minimising the Bayes Risk during state estimation, rather than maximising the likehood function in the form above.
+\\
+\\
+With these two simplications, the autoregressive Kalman filtering optimisation problem reduces to the same optimisation problem as for the Liska Kalman filter. The procedure for tuning both filters is identical and detailed below.
+
+\subsection{Gaussian Process Regression with Periodic Kernel}
+
+We use the longest and shortest timescales for the system to simplify the optimisation over the hyper parameters of the peroidic kernel ($p, l$) as in \eqref{eqn:sec:main:GPRP_p} and \eqref{eqn:sec:main:GPRP_l}:
+\begin{align}
+p & \equiv n_{train} \\ 
+l & \propto  \Delta t \\
+& \equiv 3 \Delta t
+\end{align}
+The remaining parameters, $\sigma^2$ and $R$ are covariance strengths for our input Gaussian noise, for which an optimisation procedure is necessary. This reduces to the Kalman optimisation problem over 2 hyperparameters, where $R_{GPR} \equiv R_{AKF, LKFFB}$.
+\\
+\\
+We use GPy \cite{gpy2014} to implement GPR with a Periodic Kernel. Having specified well chosen initial conditions for $(p,l)$, a GPy optimisation over $(p, l, \sigma, R)$ yields good results only if the starting conditions for $(\sigma, R)$ are also well chosen. We have not yet implemented an automatic procedure to scan $(\sigma, R)$ (e.g. adaptive Monte Carlo schemes).  Instead, we use the optimal $R^*$ from the Kalman Filtering results to estimate the order of the initial condition and optimisation bounds for $R$ in GPR. The initial condition and optimisation bounds for $\sigma$ is tuned by hand before input into GPy. We choose GPy's L-BFGF-S implementation, which uses the core SciPy L-BFGF-S module. 
+\\
+\\
+In particular, a failed optimisation attempt (particularly vulnerable to the manually chosen initial conditions and bounds on noise variances) is often associated with optimised periodicity, $p^*$, where $p^* >> n_{train}$, or worse, $p* >> N$. The latter case suggests that we are seeing spectral components at a computational resolution that exceeds our equivalent, experimentally determined Fourier domain resolution. In such cases, predictions at test points beyond the region of the measurement record are seen to break down. In fact, any $p^*$ significantly far from $n_{train}$ have been indicative of a failure in the optimisation in our numerical investigations. Some of these artefacts are deliberately created in Fig \ref{fig:sec:main_fig9}.
+
+
+\subsection{Liska Kalman Filter with Fixed Basis}
+
+We define a Bayes Risk function as:
+\begin{align}
+L_{BR}(f, c) & \equiv \sum_{n=N_1}^{N_2}\ex{(f_n - H_n\hat{x_n})^2}_{T,D} \label{eqn:sec:ap_opt_LossBR}
+\end{align}
+
+A single loss refers to the true squared error between true engineered noise, $f_n$, and a measurement action on filter's a posteriori state estimate, $H_n\hat{x_n}$, for time step $n$. The first expectation value is  taken over different realisations of the truth, namely, draws of $\{f_n\}$ from the same power spectral density, denoted by $T$. The second expectation value is taken over different realisations of measurement outcomes, for each truth, denoted by $D$. The summation over time steps $n$ can be defined during state estimation ($N_1 \equiv 0.975 * N_{train}, N_2 \equiv N_{train}$) or forecasting ($N_1 \equiv N_{train}, N_2 \equiv N_{train} + N_{predict}$). These are separate Bayes Risk functions as the Kalman gain is equivalently zero for the latter region. For instrinsic noise applications (as opposed to engineered noise), ${f_n}$  will not be accessible, and these applications are beyond the scope of this manuscript. 
+\\
+\\
+If there exists regions of ($\sigma, R$) where both state estimation Bayes Risk and forecasting Bayes Risk values are low, then the Kalman optimisation problem makes physical sense i.e. tuning the filter during state estimation will yield sensible predictions during forecasting. 
+
+\subsection{Optimising Kalman Filtering via Randomised Initial Conditions}
+
+We find that our application results in objective functions over Kalman filters which have features pathaological for standard library of SciPy optimisers. A detailed diagnostic of SciPy Optimisers is reported in Section \ref{sec:ap_opt_diagnostics}. 
+\\
+\\
+The results of this paper have been generated by using a simple approach of randomising choices of ($\sigma, R$). We run  Kalman filters (AKF, LKFFB) for random choices of ($\sigma, R$) (for random trials = 75). We calculate the Bayes Risk for each trial, and then pick ($\sigma^*, R^*$) the lowest Bayes Risk during state estimation with $N_1 = 0.975 * N_{train}, N_2 = N_{train}$. Our choice of $N_1$ reflects that we use only the last 2.5\% of one-step-ahead state estimates to calculate our Bayes Risk.
+
+\subsection{Diagnostics: Performance of Standard Scipy Optimisers on Simple Shapes [PLACEHOLDER]} \label{sec:ap_opt_diagnostics}
+
+We document the performance of standard optimisation algorithms for a simple shape and for simple surfaces. In particular, we want to benchmark the performance of a `Coordinate Ascent' (CA) based algorithm with respect to standard SciPy techniques. We reference \cite{abbeel2005discriminative} for providing the evidence to develop a modified version of a Coordinate Ascent approach to tune Kalman Filters in a robotics context.
+\\
+\\
+We run our optimisers for randomised initial conditions and we plot a historgram of estimated optimal solutions,  $\hat{x}^* (, \hat{y}^*)$ in each random trails of initial conditions.  We do a total of \textit{max it} runs. The initial conditions are distributed uniformally across a sample space. The size of this sample space is determined by \textit{sample size}. We plot 2D histograms of $\hat{x}^* (, \hat{y}^*)$ over a region which exceeds the sample space of initial conditions. The size of the plot region is determined by \textit{region}.
+\\
+\\
+\begin{table}[h]
+	\centering
+	\begin{tabular}{ll} 
+		\hline
+		\multicolumn{2}{l}{\textbf{Global Parameters}} \\
+		\hline
+		\textit{max it }& 100 \\
+		\textit{space size }& 10 \\
+		\textit{region }& 15  \\
+		\textit{Cost Function Type}& $\min |g(x)|^2$, $g(x)$ as given  \\
+		\textit{Optimisation Type}& \{ Unbounded, Bounded (s.t. all solutions $\hat{x}_i^* \geq 0$)\} \\
+		\textit{Algorithm Type}& (As given)  \\
+		\hline
+		\multicolumn{2}{l}{\textbf{Local Parameter Configuration for 1D}} \\
+		\hline
+		\textit{CA Algorithms} & 1D Ratios (Accept, Reject): \{ $1.1, 0.25$ \} \\
+		\hline
+		\multicolumn{2}{l}{\textbf{Local Parameter Configuration for All 2D Shapes}} \\
+		\hline
+		$\gamma$ & \{ $0.0, 0.01, 0.1, 0.25$ \} \\
+		\textit{CA Algorithms} & 2D Ratios (Accept, Reject): \{ $2.5, 0.15$ \} \\
+		\hline
+		\multicolumn{2}{c}{\textbf{Local Parameter Configuration for 2D Dip in Large Flat Plane}} \\
+		\hline
+		$p_{dip}$ & \{ $0.25, 0.1, 0.05, 0.04, 0.03, 0.02, 0.01$ \} \\
+		\hline
+	\end{tabular}
+	\caption[Optimisation Routines: Summary of Simulation Paramaters for 1D and 2D Shapes]{Simulation parameters for optimisation procedures on simple shapes}
+	\label{tab:optimisation_params_shape}
+\end{table}
+\underline{Performance Metrics}
+\\
+\\
+We count up the frequency of optimal solutions found my algorithms, $(\hat{x}^*, \hat{y}^*)$, lying inside a circle of radius $r$ with origin at the true optimum, $(x_T^*,y_T^*)$. We call this the 'win' radius defined in terms of multiples of $\sigma_G$, the width of the Gaussian embedded in a flat plane:
+\begin{align}
+r & \equiv n \sigma, \quad n = 0,1,... \quad \text{(Gaussian Dip in Flat Plane)} \\
+(\hat{x}^*, \hat{y}^*)_W &\iff (\hat{x}^* - x^*)^2 + (\hat{y}^* - y^*)^2 \leq r \\
+g(x) & = 1 - A\exp^{\frac{-(x - x^*)^2 -(y - y^*)^2}{2\sigma_G^2}} \\ A &= 1 \\ \sigma_G & \in (0,1] \equiv f(p_{dip}) \\
+p_{dip} & = \frac{\textit{Half Width at Tenth Maximum}}{\textit{sample size}} \\
+(x^*, y^*)_{TRUE} &= (2,4) \\
+g_N(x) &= g(x) + \gamma A' \epsilon \\ \gamma &\in [0,1] \\\epsilon & \sim \mathcal{N}(0,1) \\ 
+A &= 1
+\end{align}
+We define a \textit{win} metric as number of points inside the \textit{win} radius ($r$) divided by the total number of points:
+\begin{align}
+win &\equiv \frac{Count[(\hat{x}^*, \hat{y}^*)_W]}{\textit{max it}}
+\end{align}
+We report $\log(win)$ v. $n$ for optimal points predicted by each algorithm. The $\log(win)$ v. $n$ for initial conditions establishes our baseline. All curves start at negative infinity because $win=0$ for $n$=0, and $win > 0 $ for $n>0$, implying $\lim_{win \to 0^+} log(win) = -\infty$. All curves saturate to $10^0 = 1$ for large $n$.
+\\
+\\
+If the algorithm does not learn optimal solutions, then $(\hat{x}^*, \hat{y}^*)$ points will be almost randomly distributed and will reflect the distribution of the initial conditions. Hence, the $\log(win)$ of a failed algorithm will be the same as that of $\log(win)$ of initial conditions. If a $\log(win)$ trajectory for an algorithm is below that of the initial conditions, then we know that the algorithm is failing and/or adding a systematic bias for that particular parameter regime.
+\\
+\\
+In Fig. \ref{fig:final_optimisation_2D_02_dip_test_flat_perf}, we consider a noiseless Gaussian dip but vary the width of Gaussian relative to the (fixed) region of randomised initial conditions. We choose $\sigma_G$ such that the Half Width at Tenth Maximum of our Gaussian dip is a small percentage of our sample space. This percentage is given by $ p_{dip} = 0.25, 0.1, 0.05, \dots, 0.01$.
+\begin{figure}[h!]
+	\centering
+	\caption[Optimisation Routines: Algorithm Search on 2D Flat Surface - Performance Analysis]{We increase the narrowness of dip relative to a constant sampling space, hence testing algorithm performance in traversing flat domains. A perfect algorithm has a log(wins/total pts) value of 1 for all choices of the win radius, and all choices of the shallowness of the Gaussian dip (colored lines).} 
+	\includegraphics[width=0.95\textwidth]{final_optimisation_2D_02_dip_test_flat_perf.png} \label{fig:final_optimisation_2D_02_dip_test_flat_perf}
+\end{figure}
+\FloatBarrier
+We fix $p_{dip}=0.1$ and we test the ability of algorithms to locate this narrow Gaussian dip in the presence of noise. The noise levels are given as a ratio to the height, $A=1$, of the Gaussian dip.
+\begin{figure}[h!]
+	\centering
+	\caption[Optimisation Routines: Algorithm Search on 2D Flat Surface with Noise - Heatmap of Optimisation Results]{ We test abilitiy of algorithms to explore a stochastic flat surface with a nature feature. A true solution exists $(x,y)=(2,4)$ (marked 'x' below). We randomise initial conditions in the positive quadrant for $x,y \in (0, 10)$ and plot for the region $x,y \in (0, 15)$. We increase the noise level on the original surface relative to the height of the Gaussian dip. TNC largely reflects the distribution of initial conditions if noise level is non zero. CA-I bounded is robust, followed by CA-II and COBLYA.} 
+	\includegraphics[width=0.95
+	\textwidth]{final_optimisation_2D_02_dip_test_stochasticity_heatmap_bounded.png} \label{fig:final_optimisation_2D_02_dip_test_stochasticity_heatmap_bounded}
+\end{figure}
+\FloatBarrier
+\begin{figure}[h!]
+	\centering
+	\caption[Optimisation Routines: Algorithm Search on 2D Flat Surface with Noise - Performance Results]{We repeat log(win/total pts) vs. win radius curves for the stochastic case. Here, the shaded region represents the spread of performance of algorithms as we move from a low noise case to a high noise case. Hence, the size of the shaded regions are indicative of an algorithm's suceptibility to stochastic objective surfaces.} 
+	\includegraphics[width=0.8
+	\textwidth]{final_optimisation_2D_02_dip_test_stochasticity_perf.png} \label{fig:final_optimisation_2D_02_dip_test_stochasticity_perf}
+\end{figure}

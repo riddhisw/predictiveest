@@ -1,0 +1,144 @@
+\section{Body}
+
+Objective
+\begin{itemize}
+\item track a slowly drifting stochastic phase of a classical control field interacting with a qubit by learning noise correlations encoded within a sequence of projective measurements 
+\item  predict noise evolution beyond the measurment record
+\item maximise prediction horizon through choice of machine learning algorithm to enable future control strategies, e.g. interleaving periods of measurement with periods of unsupervised control. 
+\end{itemize}
+
+Unique challenge 
+\begin{itemize}
+\item non linear, quantised measurement model
+\item absence of any apriori information about true noise dynamics 
+\item true stochastic process being tracked is non-Markovian
+\end{itemize}
+
+Approach
+\begin{itemize}
+\item develop non linear, quantised measurement model but implement analysis in a simpler regime where measurement model is linear and quantised measurment outcomes are pre-processed
+\item reframe the absence of noise dynamics as a design problem where a deterministic transformation `colors' an initial input of white noise
+\item additionally corrupt experimental data with measurement noise; and seek model robust prediction tools in realistic noise regimes with complex power spectral densities 
+\item test Kalman filtering with a fully nonlinear, quantised measurement model for a true state with simple dynamics
+\end{itemize}
+
+Structure of this document....
+
+\subsection{Measurement Model}
+
+Ramsey Measurement: phase noise jitter in the intitial Ramsey control pulse is assumed to manifest as a constant detuning $ \beta_t \equiv  \dot{\phi}_N\dd |_t$ at time $t$ for short wait time $\tau$. The procedure is repeated to obtain the next measurement, at $t + \Delta t$ for $\Delta t >> \tau$, thereby discretising the continous time process, $\dot{\phi}_N\dd$. 
+\\
+\\
+The probability of obtaining a measurement outcome, $d \in [0,1]$ is:
+
+\begin{align}
+P(d | \beta_t, \tau, t) = \begin{cases} \cos(\frac{\beta_t \tau}{2})^2 \quad \text{for $d=1$} \\   \sin(\frac{\beta_t \tau}{2})^2  \quad \text{for $ d=0$} \end{cases}
+\end{align}
+
+where the state vector is delivered to the equatorial plane of the Bloch sphere evolves freely for short Ramsey wait times, $\tau$, before it is rotated via a second control pulse and a projective measurement is taken with respect to the $\p{z}$ axis.
+
+\subsubsection{Non Linear, Quantised Measurement Model}
+
+Bayesian analysis optimal for non linear measurement models but cannot be adopted 
+\begin{itemize}
+\item $P(d | \beta_t, \tau, t)$ defines the Bayes likelihood for single shot
+\item $P(\beta_t| d, \tau, t)  \propto P(d | \beta_t, \tau, t) P(\beta_t| \tau, t)$ holds for each time step $t$, but cannot assume Markovianity for propagating to $t+1$;  
+\end{itemize}
+
+Consider $P(\beta_t| d, \tau, t)$ an abstract discrete time signal in state space. Then non linear measurement is captured in $ h(\beta_t)$:
+\begin{align}
+\beta_t &= \Phi_{t-1} \beta_{t-1} + \Gamma_{t-1} w_{t-1} \\
+y_t &= h(\beta_t) + v_t 
+\end{align}
+
+Just as sampling holds in discrete time, we quantise the amplitude as:
+
+\begin{align}
+z_t &= \mathcal{Q}(y_t) = \mathcal{Q}(h(\beta_t) + v_t)
+\end{align}
+
+In simulations, the quantiser $\mathcal{Q}$ is drawing from a binomial distribution where the bias of coin flip at $t$ is given by a true (engineered) $P(d | \beta_t, \tau, t)$. In experiment, $\mathcal{Q}$ is a naturally quantised physical sensor, namely, a qubit.
+
+\subsubsection{Approximately Linear Measurement Model}
+Assume that experimental data is pre-processed such that the measurement record is the a set of estimates of $\{ \hat{\beta}_t \}$, not single shot outcomes. Achieved in one of two ways:
+
+\begin{itemize}
+\item Standard technqiue:  average single shots over many parallel runs for different wait times to obtain $\hat{P}(d | \beta_t, \tau, t)$ vs. $\tau$. One may deduce $\beta_t$ from a Fourier transform of $P(d | \beta_t, \tau, t) $ vs. $ \tau$; or condense all pre-processing into Bayesian treatment of single shots as in CITE, with the assumption that $\beta_t$ is constant over $M\tau$ measurements performed, $M\tau << \Delta t$. 
+\item Alternative: $M$ single shots are performed with the same wait time, $\tau$, such that drifts in probability are due to $\beta_t$. This binary signal can be decimation filtered to yield $P(d | \beta_t, \tau, t) $ vs. $t/\tau$, where $ \tau \equiv \Delta t$, and the inversion $\beta_t = \frac{1}{\tau} (1- 2\hat{P}(d | \beta_t, \tau, t))$ holds as long as $\beta_t \tau < \pi $. 
+\end{itemize}
+
+FIG: Single Shot Outcomes to Decimation Filtering under Linear Measurement Models
+
+\subsection{Stochastic Dynamics with Linear Measurement}
+In the absence of a theoretical dynamical model for the evolution of $\beta_t$:
+\begin{itemize} 
+\item impose properties on the phase noise field and its derivative
+\item under these properties, reconstruction of phase noise is enabled in the mean square limit by spectral decomposition using harmonic sums; and by Wold's decomposition, via autoregressive processes of finite order.
+\item purpose of numerical analysis is to test whether our mean square approximate reconstructions enable experimentally sensible state tracking and prediction in the time domain
+\end{itemize}
+
+The approximate representations of covariance stationary processes informs the structure of learning algorithms. Hence, we cover each reconstruction and algorithmic performance in the sections below:
+
+\subsubsection{Least Squares and Autoregressive Kalman Filter}
+
+\begin{itemize}
+\item Autoregressive (AR) processes of finite order: define time domain structure and power spectral density
+\item LS Filter: for one step ahead, this is an AR process and AR coefficients solved via with gradient descent
+\item AKF: recast AR coefficients as Kalman dynamical model to increase measurement noise filtering capabilities 
+\begin{itemize}
+\item List AKF state space dynamical and measurement model 
+\end{itemize}
+\end{itemize}
+
+FIG: Predictive performance with increased measurement noise: LSF vs AKF
+
+\subsubsection{Gaussian Process Regression}
+\begin{itemize}
+\item Periodic kernel represents trignometric polynomial with infinite terms to reconstruct phase noise process
+\item If trigometric polynomial is truncated at finite $J$, then GPR with periodic kernel represents $J$-th order state space model in a classical Kalman filter
+\begin{itemize}
+\item List GPR predictive equations
+\item List GPR Periodic Kernel
+\end{itemize}
+\item Covariance matrix in predictive equations (above) is $N$ periodic for a  measurement record with $N$ terms: pattern reconstruction is enabled by learning Fourier domain amplitudes via a Periodic Kernel, but time domain predictions do not make sense without active tracking of phase information.
+\end{itemize}
+FIG: GPR-P Predictions outside the zone of measurement data repeat the intial measurement record.
+\begin{itemize}
+\item Other kernels: excluded on the basis that their shape in the Fourier domain is narrowband; or difficulty of optimising hyper-parameters for our application 
+\end{itemize}
+\subsubsection{Liska Kalman Filter with Fixed Basis}
+\begin{itemize}
+\item Tracks amplitudes and phases of a fixed collection of resonators used to probe the noise 
+\item Enables full knowledge of phase noise if perfect projection is possible; but predictive power deteriorates rapidly for realistic noise scenarios relative to the Autoregressive Kalman Filter.
+\end{itemize} 
+FIG: Predictive performance of AKF vs LKFFB for realistic noise scenarios
+
+\subsection{Optimisation}
+\begin{itemize}
+\item Bayes Risk calculated during state estimation and prediction relative to true engineered noise
+\item Optimisation problem breaks down for LKFFB as realistic noise scenarios are considered; but remains robust for AKF
+\item Cost function contains pathologies for standard gradient and simplex algorithms - a simple random sampling is used here; but diagnostics suggest coordinate ascent and particle swarm techniques could be promising candidates for future research
+\end{itemize}
+\subsection{Stochastic Dynamics with Non Linear, Quantised Measurements}
+
+We update the Kalman filtering framwork for quantised sensor information, where a one bit classical qunatiser is considered. Inputs into the Kalman filter are 0 or 1  outcomes from a binomial distribution with a stochastically drifitng bias. The interpretation of measurement noise (previously) is now additive white quantisation noise. We track a simple sum of sinusoids with random phases where perfect projection is possible for LKFFB, and compare RMS performance from single shots with equivalent performance from tracking pre-processed data.
+
+\subsubsection{Autoregressive Kalman Filter}
+NOT DONE 
+\subsubsection{Liska Kalman Filter with Fixed Basis}
+NOT DONE
+\\
+\\
+FIG: NOT DONE. However, early demos suggest that errors from non linear measurement model make it sub-optimal to use Kalman filtering directly on single shot outcomes; and that  LKFFB fails more than AKF. 
+\\
+\\
+Particle filtering may work better; but an implementation of particle fitlering for non Markovian stochastic dynamics (and non linear, quantised  measurments) are out of scope of this paper. 
+
+\section{Appendices}
+\subsection{Physical Set Up and Measurement Model}
+\subsection{Stationary Stochastic Processes }
+\subsection{Linear Predictors for Covariance Stationary Processes}
+\subsection{Kernel Selection in Gaussian Process Regression}
+\subsection{Optimisation Procedure for Tuning Filter Parameters}
+
+\section{References}
