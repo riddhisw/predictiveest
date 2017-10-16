@@ -45,7 +45,7 @@ def qif(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
     #print('Apriori x_hat 1', x_hat.shape)
     #print('Apriori P_hat 1', P_hat.shape)
 
-    Q = (oe)*np.eye(order) # This is incorrect but stable. Also should be oe**2 not oe  
+    Q = (oe**2)*np.eye(order) # This is incorrect but stable. We use oe**2 so that our tuning is done on oe (st dev) and rk (variance) as consistent with AKF, LKFFB 
     # This is correct, but likely to be unstable
     # Q = np.zeros((order, order)) ## This is used in AKF 
     # Q[0,0] = oe**2  ## This is used in AKF 

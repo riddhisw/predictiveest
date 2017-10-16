@@ -1,7 +1,6 @@
 # Plot_figstyle_sheet.py creates consistent figure plotting 
 # for all functions defined in plot_helper_funcs.py
 
-import matplotlib as mpl
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.ticker as ticker
@@ -9,32 +8,34 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+def nRGB(x):
+    return x / 255.0
 ##################################################################
 # FONTS AND SIZES
 ##################################################################
 fsize = 8
 Fsize = 10 # changed locally using plot_helper_funcs.set_font_sizes()
-mpl.rcParams['font.size'] = fsize # global
 
-my_dpi = 400
+my_dpi = 800
 
 # Bayes Risk Markers and Lines
 algorithm_lw = 1.
 prediczero_lw = 1.
-algomarkersize= 2.
+algomarkersize= 2.5
 
 # Single Prediction Markers
 msmt_marker = 2
 msmt_marker_s = 'o'
-predmarker = 1. # marker size of forepred_s
+predmarker = 2.5 # marker size of forepred_s
 state_lw = 0.0 # line width of statepred_s
 statepred_s = "None"
-pred_lw = 1.0
+pred_lw = 2.0
 truthline_lw = 1.0
 
 # Spectrum Estimation Amplitude Markers and Lines
 ALPHA_AMPS = 0.5
-MSIZE_AMPS = 3
+MSIZE_AMPS = predmarker
 ampltiude_s = 'o'
 truthline = '-'
 
@@ -67,38 +68,42 @@ color_pallete = np.asarray(color_pallete).reshape(40,4)
 
 
 # Optimal (sigma, R)
-optimal_star=color_pallete[24]
+optimal_star= 'k' #[ nRGB(32) ,nRGB(155) ,nRGB(104) , 1.0] # color_pallete[24]
 
 
 # Single predictions and normed mean styles 
-COLOURDICT = {'LSF'  : color_pallete[28],
-             'AKF'  : color_pallete[14],
-             'LKFFB' : color_pallete[2],
-             'GPRP' : color_pallete[20],
-             'GPRP2' : color_pallete[24],
-             'TRUTH' : color_pallete[36],
-             'DATA' : color_pallete[37]}
+COLOURDICT = {'LSF'  : [ nRGB(32) ,nRGB(155) ,nRGB(104) , 1.0],#color_pallete[28],
+             'AKF'  : [ nRGB(155) ,nRGB(102) ,nRGB(100) , 1.0],#color_pallete[14],
+             'LKFFB' : [ nRGB(57) ,nRGB(108) ,nRGB(153) , 1.0],#color_pallete[2],
+             'GPRP' : [ nRGB(134) ,nRGB(98) ,nRGB(142) , 1.0],#color_pallete[20],
+             'GPRP2' : [ nRGB(151) ,nRGB(19) ,nRGB(14) , 1.0],#color_pallete[24],
+             'TRUTH' : [ nRGB(64) ,nRGB(65) ,nRGB(65) , 1.0],#color_pallete[36],
+             'DATA' : [ nRGB(100) ,nRGB(100) ,nRGB(100) , 1.0],#color_pallete[37], 
+             'QKF' : [ nRGB(134) ,nRGB(98) ,nRGB(142) , 1.0] } #color_pallete[17]}
              
 
-LINE = {'LSF'  : ':',
-             'AKF'  : '-',
-             'LKFFB' : ':',
-             'GPRP' : '--'}
-             
-MARKR = {'LSF'  : '^',
+LINE = {'LSF'  : '',
              'AKF'  : '',
+             'LKFFB' : '',
+             'GPRP' : '-', 
+             'QKF' : '-'}
+             
+MARKR = {'LSF'  : 'o',
+             'AKF'  : '^',
              'LKFFB' : 's',
-             'GPRP' : 'd'}
+             'GPRP' : 'v', 
+             'QKF' : 'o'}
              
 STYLEDICT = {'LSF'  : MARKR['LSF'] + LINE['LSF'],
              'AKF'  : MARKR['AKF'] + LINE['AKF'],
              'LKFFB': MARKR['LKFFB'] + LINE['LKFFB'],
-             'GPRP' : MARKR['GPRP'] + LINE['GPRP']}
+             'GPRP' : MARKR['GPRP'] + LINE['GPRP'], 
+             'QKF' : MARKR['QKF'] + LINE['QKF']}
              
 # Loss Regions
 datamarker_c = COLOURDICT['DATA']
-lossregion_se_c = color_pallete[23]
-lossregion_fe_c = color_pallete[19]
+lossregion_se_c = [ nRGB(133) ,nRGB(97) ,nRGB(141) , 0.4]# color_pallete[23]
+lossregion_fe_c = [ nRGB(151) ,nRGB(19) ,nRGB(14) , 0.4] #[ nRGB(125) ,nRGB(169) ,nRGB(146) , 0.8] # color_pallete[19]
 
 # Computational band edge
 lkffb_bandedg_clr = color_pallete[2] #COLOURDICT['LKFFB'] 
@@ -158,12 +163,12 @@ p_betatau_lne = mlines.Line2D([], [], linestyle='--', lw= truthline_lw, c=color_
 # LEGEND LABELS AND HANDLES -- LISTS --- SPECTRUM ESTIMATION
 
 SPEC_EST_H = (lne_true, lne_lkffb_bandedg)
-SPEC_EST_L =[r'True Band Edge $Jf_0$', r'$f_{MAX} \equiv f_s/r_{Nqyuist}, f_s =1/\Delta t$']
+SPEC_EST_L =[r'True Band Edge $Jf_0$', r'$f_{B} \equiv f_s/r_{Nqy}, f_s =1/\Delta t$']
 
 # LEGEND LABELS AND HANDLES -- LISTS --- SINGLE PREDICTION - ALL ALGORITHMS
 PRED_H = (lne_true, pts_data, lne_predict0)
 for algo_type in ALGOKEYS[0:4]:
-    vars()['lne_'+algo_type] = mlines.Line2D([], [], linestyle=LINE[algo_type], marker=MARKR[algo_type], color=COLOURDICT[algo_type], markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]))
+    vars()['lne_'+algo_type] = mlines.Line2D([], [], linestyle=LINE[algo_type], marker=MARKR[algo_type], color=COLOURDICT[algo_type], markerfacecolor="None", markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [1.0]))
     PRED_H += (vars()['lne_'+algo_type], )
 
 PRED_L = ['Truth', 'Msmts', 'Predict $\mu_{f_n}=0$'] + ALGOKEYS[0:4] 
@@ -173,7 +178,7 @@ PRED_L = ['Truth', 'Msmts', 'Predict $\mu_{f_n}=0$'] + ALGOKEYS[0:4]
 PRED_H2 = (lne_true, pts_data,)
 for algo_type in ALGOKEYS[0:3]:
     vars()['lne_'+algo_type] = mlines.Line2D([], [], linestyle=LINE[algo_type], marker=MARKR[algo_type], markersize=predmarker,
-                                             color=COLOURDICT[algo_type], markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]))
+                                             color=COLOURDICT[algo_type], markerfacecolor="None", markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [1.0]))
     PRED_H2 += (vars()['lne_'+algo_type], )
     
 #PRED_H2 += (lne_predict0,)

@@ -3,17 +3,18 @@ Plot_helper_funcs.py is a list of functions that help produce figures
 reported in analysis. 
 
 '''
-import matplotlib.pyplot as plt, numpy as np, matplotlib
+# Global preamble
+from plot_tools.plot_figstyle_sheet import *
+
+# Specific external packages
 import os
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
-# from data_tools package
+# Local data_tools package
 from data_tools.data_risk_analysis import build_risk_dict, riskmapdata, norm_risk, analyse_kalman_errs
 from data_tools.data_tuned_run_analysis import TUNED_RUNS_DICT
 from data_tools.load_raw_cluster_data import LoadExperiment as le 
-
-# from plot_tools package
-from plot_tools.plot_figstyle_sheet import *
+from data_tools.load_raw_cluster_data import ALGO as MASTER_ALGO 
 
 
 ##################################################################
@@ -24,14 +25,21 @@ from plot_tools.plot_figstyle_sheet import *
 def plot_risk_map_2(figax1, ALGOLIST, test_case, variation, path,
                     figax2=None, 
                     xlim=[-11, 3], ylim = [-11, 3],
-                    fstep=50, sstep=50, lowloss=20):
-    '''Wrapper function for plot_risk_map to make loss maps for different test cases and types (AKF or LKFFB).'''
-
+                    fstep=50, sstep=50, lowloss=20, save_data=0):
+    '''Wrapper function for plot_risk_map to make loss maps for different test cases and types (AKF or LKFFB or QKF).'''
+    
+    for idx_algo in MASTER_ALGO:
+        vars()[idx_algo+'_load'] = 'No'
+        
+    for idx_algo in ALGOLIST:
+        vars()[idx_algo+'_load'] = 'Yes'
+    
     testobj = le(test_case, variation, 
-                 AKF_path=path,
-                 LKFFB_path=path,
-                 LSF_path='', GPRP_path='',
-                 GPRP_load='No', LSF_load='No', AKF_load='Yes', LKFFB_load='Yes')
+                 AKF_path=path, AKF_load=vars()['AKF_load'],
+                 LKFFB_path=path, LKFFB_load=vars()['LKFFB_load'],
+                 LSF_path=path, LSF_load=vars()['LSF_load'],
+                 GPRP_path=path, GPRP_load=vars()['GPRP_load'],
+                 QKF_path=path, QKF_load=vars()['QKF_load'])
                  
     RISKDICT = build_risk_dict(testobj)
     
@@ -41,7 +49,7 @@ def plot_risk_map_2(figax1, ALGOLIST, test_case, variation, path,
         algotype = ALGOLIST[idx_count]
         figaxes_[idx_count] = plot_risk_map(figaxes_[idx_count], algotype, RISKDICT, 
                   fstep=fstep, sstep=sstep, lowloss=lowloss, 
-                  xlim=xlim, ylim=ylim)
+                  xlim=xlim, ylim=ylim, save_data=save_data)
     
     return figaxes_[0], figaxes_[1]
     
@@ -50,10 +58,10 @@ def plot_risk_map_2(figax1, ALGOLIST, test_case, variation, path,
     
 def plot_risk_map(figaxes, algotype, RISKDICT, 
                   fstep=50, sstep=50, lowloss=20, 
-                  xlim=[-11, 3], ylim = [-11, 3]):
+                  xlim=[-11, 3], ylim = [-11, 3], save_data=0):
     
     '''Plots risk map on figaxes.
-    Algotype = 'AKF' or 'LKFFB'
+    Algotype = 'AKF' or 'LKFFB' or 'QKF'
     RISKDICT = Structured data for a testcase, variation 
     fstep = max forecasting steps forward
     sstep = max state estimation steps forward
@@ -76,10 +84,18 @@ def plot_risk_map(figaxes, algotype, RISKDICT,
     # As per algorithm code for AKF, LKFFB, we implemented sigma and R^2. To make both units
     # variances, we need to square all the sigmas. 
     
-    figaxes.plot(s_sigma[0:lowloss]**2, s_R[0:lowloss], lossregion_se_s, c=lossregion_se_c, markersize=lossregion_se, alpha=0.7)
-    figaxes.plot(f_sigma[0:lowloss]**2, f_R[0:lowloss], lossregion_fe_s, c=lossregion_fe_c, markersize=lossregion_fe, alpha=0.7)
+    figaxes.plot(s_sigma[0:lowloss]**2, s_R[0:lowloss], lossregion_se_s, 
+                 markerfacecolor=lossregion_se_c,
+                 markeredgecolor=lossregion_se_c, 
+                 markersize=lossregion_se)
+    
+    figaxes.plot(f_sigma[0:lowloss]**2, f_R[0:lowloss], lossregion_fe_s, 
+                 markerfacecolor=lossregion_fe_c, 
+                 markeredgecolor=lossregion_fe_c,
+                 markersize=lossregion_fe)
+    
     figaxes.plot(s_sigma**2, s_R, pts_hypparams_s, c=COLOURDICT['DATA'], markersize=datamarker, alpha=1.0)
-    figaxes.plot(s_sigma[0]**2, s_R[0], optimal_star_s, color=optimal_star, markersize=opt_marker, mew=2)
+    figaxes.plot(s_sigma[0]**2, s_R[0], optimal_star_s, color=optimal_star, markersize=opt_marker)
     figaxes.tick_params(direction='in', which='both')
     
     figaxes.set(title=algotype, xlabel=r'$\sigma^2 \quad [f_n^2] $', ylabel =r'$R \quad [f_n^2]$')
@@ -87,6 +103,16 @@ def plot_risk_map(figaxes, algotype, RISKDICT,
     figaxes.xaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=3))
     figaxes.yaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=3))
     
+    # Save data
+    if save_data !=0: 
+        np.savez(save_data+'_'+str(algotype), 
+                 s_sigma=s_sigma**2, 
+                 s_R=s_R,
+                 f_sigma=f_sigma**2,
+                 f_R=f_R,
+                 lowloss=lowloss,
+                 opt_params=[s_sigma[0]**2, s_R[0]])
+                 
     return figaxes
 
 
@@ -140,6 +166,8 @@ def plot_risk_trajectories(figaxes, algotype, RISKDICT,
     figaxes.yaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=6))
     figaxes.set(title=algotype, xlabel=r'T. Stps [num]', ylabel=r'log($\langle (f_n -\hat{f_n})^2 \rangle_D$) [log($f_n^2$)]')
     
+    figaxes = set_font_sizes(figaxes, fsize, Fsize)
+    
     return figaxes
 
 
@@ -166,9 +194,9 @@ def calc_undersampling(testobj):
 
 
 def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variation, path,
-                            GPRP_load='Yes', LSF_load='Yes', AKF_load='Yes', LKFFB_load='Yes',
+                            GPRP_load='Yes', LSF_load='Yes', AKF_load='Yes', LKFFB_load='Yes', QKF_load='No',
                             fstep=50, sstep=50, lowloss=20, lgd_loc=4, nt_label=10, 
-                            ylim_amps = [-4.5, 1], yscale='linear', undersampl_scale_on=0, sig_scale_on=1):
+                            ylim_amps = [-4.5, 1], yscale='linear', undersampl_scale_on=0, sig_scale_on=1, save_data=0):
     
     '''Returns single predictions from all algorithms, spectral estimates from AKF/LSF, LKKFB'''
 
@@ -176,7 +204,8 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
                  AKF_path=path, AKF_load=AKF_load,
                  LKFFB_path=path, LKFFB_load=LKFFB_load,
                  LSF_path=path, LSF_load=LSF_load,
-                 GPRP_path=path, GPRP_load=GPRP_load)
+                 GPRP_path=path, GPRP_load=GPRP_load,
+                 QKF_path=path, QKF_load=QKF_load)
     
     # scaling factor for signals if Truth.alpha != 1.0 [asthetic scaling for plotting]
     signal_scaling = 1.0
@@ -220,45 +249,79 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
             pred = pred_*signal_scaling
             ylim_list.append(center_y_axis(pred))
             
+            # Save data
+            if save_data !=0: 
+                np.savez(save_data+'_'+str(algo_type), truth=truth, signal=signal, 
+                         algo_name=algo_type, opt_sigma=opt_sigma, opt_R=opt_R, 
+                         test_case=testobj.test_case, variation=testobj.variation,
+                         faxis=faxis, amp=amp, thirdVar=thirdVar, pred=pred, 
+                         true_undersampl_const=true_undersampl_const, signal_scaling=signal_scaling)
+            
             # Plot predictions (Kalman)
             figaxes.plot(x_axis[ : sstep], pred[ntb - sstep : ntb ], statepred_s, lw=state_lw, color=COLOURDICT[algo_type])
             figaxes.plot(x_axis[ sstep : ], pred[ntb : ntb + fstep], STYLEDICT[algo_type],
-                         color=COLOURDICT[algo_type], markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]), 
+                         color=COLOURDICT[algo_type], 
+                         markerfacecolor="None",
+                         markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.5]), 
                          markersize=predmarker, lw=pred_lw,
                          label=algo_type)
             
             # Plot amplitude estimates
+            # NB: we omit the zeroth term for amplitude spectra using "[1:]" such that a log plot is well behaved.
+             
             if algo_type == 'LKFFB':
                 
+                
                 # LKFFB
-                figaxes_amps.plot(faxis[0], amp[0]*(1.0/true_undersampl_const), ampltiude_s, 
-                                  c=COLOURDICT[algo_type], alpha=ALPHA_AMPS, markersize= MSIZE_AMPS,
-                                  label=' T.Pw: %.1e' %(thirdVar[0]))
+                figaxes_amps.plot(faxis[0][1:], amp[0][1:]*(1.0/true_undersampl_const), ampltiude_s, 
+                                  color=COLOURDICT[algo_type], 
+                                  markerfacecolor="None",
+                                  markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.5]), 
+                                  #c=COLOURDICT[algo_type], alpha=ALPHA_AMPS, 
+                                  markersize= MSIZE_AMPS,
+                                  label=algo_type)#' T.Pw: %.1e' %(thirdVar[0]))
                 # Truth
-                figaxes_amps.plot(faxis[1], amp[1], truthline, c=COLOURDICT['TRUTH'], label='T.Pw: %.1e' %(thirdVar[1]))     
+                figaxes_amps.plot(faxis[1][1:], amp[1][1:], truthline, c=COLOURDICT['TRUTH'], label='Truth')#T.Pw: %.1e' %(thirdVar[1]))     
                 
             else:
-                truncatedata = int(faxis.shape[0]*300.0/ faxis[-1])
-                figaxes_amps.plot(faxis[0: truncatedata], thirdVar[0: truncatedata], ampltiude_s, 
-                                  c=COLOURDICT[algo_type], alpha=ALPHA_AMPS, markersize= MSIZE_AMPS,
-                                  label=' T.Pw: %.1e' %(np.sum(thirdVar)))
+                truncatedata = int(faxis.shape[0])#700.0/ faxis[-1])
+                figaxes_amps.plot(faxis[0: truncatedata][1:], thirdVar[0: truncatedata][1:], ampltiude_s,
+                                  color=COLOURDICT[algo_type], 
+                                  markerfacecolor="None",
+                                  markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.5]), 
+                                  #c=COLOURDICT[algo_type], alpha=ALPHA_AMPS, 
+                                  markersize= MSIZE_AMPS,
+                                  label=algo_type) #' T.Pw: %.1e' %(np.sum(thirdVar)))
         else:
 
-            # Plot predictions (Non Kalman)
+            
             
             pred = TUNED_RUNS_DICT[algo_type](testobj, signal)*signal_scaling
             ylim_list.append(center_y_axis(pred))
             
+            # Save data
+            if save_data !=0: 
+                np.savez(save_data+'_'+str(algo_type), truth=truth, signal=signal, 
+                         algo_name=algo_type, 
+                         test_case=testobj.test_case, variation=testobj.variation,
+                         pred=pred, true_undersampl_const=true_undersampl_const, signal_scaling=signal_scaling)
+            
+            # Plot predictions (Non Kalman)
+            
             if algo_type == 'LSF':
                 figaxes.plot(x_axis[sstep :], pred[: fstep], STYLEDICT[algo_type], markersize= predmarker, lw=pred_lw,
-                             color=COLOURDICT[algo_type], markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]), 
+                             color=COLOURDICT[algo_type], 
+                             markerfacecolor="None",
+                             markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [1.0]),
                              label=algo_type)
             
             elif algo_type == 'GPRP' and testobj.GPRP_load != 'No':
                 figaxes.plot(x_axis[ : sstep], pred[ ntb - sstep : ntb ], statepred_s, lw=state_lw, color=COLOURDICT[algo_type])
                 figaxes.plot(x_axis[ sstep : ], pred[ntb : ntb + fstep ], STYLEDICT[algo_type],
                              markersize=predmarker, lw=pred_lw,
-                             color=COLOURDICT[algo_type], markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]),
+                             color=COLOURDICT[algo_type], 
+                             markerfacecolor="None",
+                             markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [1.0]),
                              label=algo_type)
 
     # Config x-axis for amplitudes with bandwidth assumptions
@@ -290,12 +353,16 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
     figaxes.set_ylim([-final_y_lim, final_y_lim]) # symmetric axis about y=0
     
     # Set labels
-    figaxes_amps.legend(loc=lgd_loc, fontsize=6)
+    figaxes_amps.legend(loc=lgd_loc, fontsize=fsize)
     figaxes_amps.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
     figaxes.set(xlabel='Time Steps [num]', ylabel=r'Predictions [$f_n$]')
     
     # plot truth
     figaxes.plot(x_axis, truth[ntn - sstep : ntn + fstep]*signal_scaling, c=COLOURDICT['TRUTH'], label='Truth', lw=truthline_lw)
+    
+    # Make things arial and same size:
+    figaxes = set_font_sizes(figaxes, fsize, Fsize)
+    figaxes_amps = set_font_sizes(figaxes_amps, fsize, Fsize)
     
     return figaxes, figaxes_amps
 
@@ -318,15 +385,22 @@ def get_n_train(testobj):
     
 
 def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
-                      GPRP_load='Yes', LSF_load='Yes', AKF_load='Yes', LKFFB_load='Yes',
                       fstep=50, sstep=50, lowloss=20, 
-                      ylim = [-11, 3], yscale='log'):
-
+                      ylim = [-11, 3], yscale='log', save_data=0):
+                      
+    for idx_algo in MASTER_ALGO:
+        vars()[idx_algo+'_load'] = 'No'
+        
+    for idx_algo in ALGOLIST:
+        vars()[idx_algo+'_load'] = 'Yes'
+    
     testobj = le(test_case, variation, 
-                 AKF_path=path, AKF_load=AKF_load,
-                 LKFFB_path=path, LKFFB_load=LKFFB_load,
-                 LSF_path=path, LSF_load=LSF_load,
-                 GPRP_path=path, GPRP_load=GPRP_load)
+                 AKF_path=path, AKF_load=vars()['AKF_load'],
+                 LKFFB_path=path, LKFFB_load=vars()['LKFFB_load'],
+                 LSF_path=path, LSF_load=vars()['LSF_load'],
+                 GPRP_path=path, GPRP_load=vars()['GPRP_load'],
+                 QKF_path=path, QKF_load=vars()['QKF_load'])
+                 
     RISKDICT = build_risk_dict(testobj)
     
     n_train = get_n_train(testobj)
@@ -342,7 +416,7 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
 
             opt_idx=0
 
-            if algo_type == 'AKF' or algo_type == 'LKFFB' :
+            if algo_type == 'AKF' or algo_type == 'LKFFB' or algo_type == 'QKF':
 
                 opt_idx = analyse_kalman_errs(p_err, hyp, sstep)[0][0]
 
@@ -351,20 +425,38 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
                                        n_train,
                                        opt_state_err=p_err[opt_idx, ...],
                                        LSF=lsf)
+            
             if lsf == 'No':
+            
                 figaxes.plot(range(-norm_s.shape[0]-1,-1,1), norm_s, STYLEDICT[algo_type], 
-                             lw=algorithm_lw, markersize=algomarkersize, markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]),
+                             lw=algorithm_lw, markersize=algomarkersize, 
+                             markerfacecolor="None",
+                             markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.75]),
                              c=COLOURDICT[algo_type], label=algo_type+' State Est')
-
-            figaxes.plot(range(0,norm_f.shape[0],1), norm_f, STYLEDICT[algo_type], 
-                               lw=algorithm_lw, markersize=algomarkersize, markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]),
+            
+            # NB: we omit the n=0 term for Bayes Forecasting Risk (predictions beyond data)
+            # This is implemented in the plot below using "[1:]" such that a log scale plot is well behaved
+            
+            figaxes.plot(range(0,norm_f.shape[0],1)[1:], norm_f[1:], STYLEDICT[algo_type], 
+                               lw=algorithm_lw, markersize=algomarkersize, 
+                               markerfacecolor="None",
+                               markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.75]),
                                c=COLOURDICT[algo_type], label=algo_type+' Forecast')
 
-            inset.plot(range(0,norm_f.shape[0],1), norm_f, STYLEDICT[algo_type], 
-                             lw=algorithm_lw, markersize=algomarkersize, markerfacecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.6]),
+            inset.plot(range(0,norm_f.shape[0],1)[1:], norm_f[1:], STYLEDICT[algo_type], 
+                             lw=algorithm_lw, markersize=algomarkersize, 
+                             markerfacecolor="None",
+                             markeredgecolor=np.asarray(list(COLOURDICT[algo_type][0:3]) + [0.75]),
                              c=COLOURDICT[algo_type])
-        
-
+            
+            # Save data
+            if save_data !=0: 
+                np.savez(save_data+'_'+str(algo_type), 
+                         y_data=norm_f, 
+                         algo_name=algo_type, 
+                         optimal_idx=opt_idx, 
+                         test_case=testobj.test_case, 
+                         variation=testobj.variation)
     
     # Config x axis for main graph
     figaxes.axvspan(-sstep,0, color='gray', alpha=0.1)
@@ -376,6 +468,7 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
     
     figaxes.set_xticklabels(xtickslabels)
     figaxes.axvspan(-sstep-10, -sstep, color='gray', alpha=0.2)
+    
     
     # Config y axis for main graph
     figaxes.set_yscale(yscale)
@@ -394,12 +487,16 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
     #inset.yaxis.set_major_locator(ticker.LinearLocator(numticks=2))
     
     # Set Predict Zero Line for main graph and inset
-    figaxes.axhline(1.0,  color=COLOURDICT['DATA'], lw=prediczero_lw, alpha=0.3) 
-    inset.axhline(1.0,  color=COLOURDICT['DATA'], lw=prediczero_lw, alpha=0.3)
+    figaxes.axhline(1.0,  color=COLOURDICT['DATA'], lw=prediczero_lw, alpha=1.0) 
+    inset.axhline(1.0,  color=COLOURDICT['DATA'], lw=prediczero_lw, alpha=1.0)
     
     # Set Labels for main graph and inset
     figaxes.set(xlabel=r'Steps Fwd [num]', ylabel=r'N. $\langle (f_n -\hat{f}_n)^2\rangle_D$ [1]')
     inset.set(xlabel=r'Steps Fwd [num]', ylabel=r'N. $\langle (f_n -\hat{f}_n)^2\rangle_D$ [1]')
+    
+    # Make things arial and same size:
+    figaxes = set_font_sizes(figaxes, fsize, Fsize)
+    inset = set_font_sizes(inset, fsize, Fsize)
 
     return figaxes, inset
     
@@ -416,7 +513,9 @@ def get_Kalman_LSF_difference(kalmanX, test_case, variation, path, fstep=50, sst
                  AKF_path=path, AKF_load='Yes',
                  LKFFB_path=path, LKFFB_load='Yes',
                  LSF_path=path, LSF_load='Yes',
-                 GPRP_path=path, GPRP_load='No')
+                 GPRP_path=path, GPRP_load='No',
+                 QKF_path=path, QKF_load='No')
+                 
     RISKDICT = build_risk_dict(testobj)
     
     n_train = get_n_train(testobj)
@@ -454,11 +553,15 @@ def get_Kalman_LSF_difference(kalmanX, test_case, variation, path, fstep=50, sst
 # GENERAL
 ##################################################################
 def set_font_sizes(ax, fsize, Fsize):
+
     '''explicitly sets fontsize'''
-    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+    for item in (ax.get_xticklabels() + ax.get_yticklabels()):
         item.set_fontsize(fsize)
-    for item in ([ax.xaxis.label, ax.yaxis.label]):
+        item.set_fontname('Arial')
+    
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label]):
         item.set_fontsize(Fsize)
+    
     return ax
 
 

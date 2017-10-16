@@ -5,8 +5,23 @@ import numpy.linalg as la
 import scipy.stats as stats
 
 
+############################################### QIF Bayes Risk Helper Funcs ########################################
+
+def qkf_state_err(x_states, truths):
+    '''Returns state estimates from QKF output'''
+    
+    errs = (x_states - truths)**2
+    avg_err_sqr = np.mean(errs, axis=0)
+    
+    return avg_err_sqr
+
+def normalise(x):
+    norm = np.linalg.norm(x)
+    if norm != 0.:
+        return x / norm
 
 ############################################### AR PROCESS DATA ########################################
+
 
 def generate_AR(xinit, num, weights, oe):
     ''' Returns a num-length AR sequence of order q = weights.shape[0] and process noise variance, oe, and initial conditions vector xinit, where xinit.shape[0] == weights.shape[0]'''

@@ -34,3 +34,4 @@ def get_data(dataobject):
     pick_one = int(np.random.uniform(low=0, high = int(macro_truth.shape[0]-1)))
     
     return macro_truth[pick_one, :] + msmt_noise_variance*np.random.randn(number_of_points), pick_one
+    

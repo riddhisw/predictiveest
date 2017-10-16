@@ -130,8 +130,10 @@ def projected_msmt(jitter):
 
 def calc_residuals(h, x_hat_apriori, msmt, quantised='No'):
     jitter = calc_z_proj(h, x_hat_apriori)
-    if jitter > np.pi:
-        print('Total jitter is: ', jitter)
+
+    # if jitter > np.pi:
+    #    print('Total jitter is: ', jitter)
+
     if quantised == 'No':
         return msmt - jitter # Linear measurement
     else:

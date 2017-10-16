@@ -50,7 +50,8 @@ def build_risk_dict(LoadExperimentObject):
     RISKDICT['LKFFB'] = [0, 0, 0, 0, 0]
     RISKDICT['AKF'] = [0, 0, 0, 0, 0]
     RISKDICT['GPRP'] = [0, 0, 0, 0, 0]
-    RISKDICT['LSF']= [0, 0, 0, 0, 0] 
+    RISKDICT['LSF']= [0, 0, 0, 0, 0]
+    RISKDICT['QKF']= [0, 0, 0, 0, 0] 
     
     
     if LoadExperimentObject.LKFFB_load == 'Yes':
@@ -69,6 +70,14 @@ def build_risk_dict(LoadExperimentObject):
         RISKDICT['AKF'][2] = LoadExperimentObject.AKF_akf_macro_forecastng_errors
         RISKDICT['AKF'][3] = LoadExperimentObject.AKF_macro_truth
         RISKDICT['AKF'][4] = 'No'
+        
+    if LoadExperimentObject.QKF_load == 'Yes':
+        
+        RISKDICT['QKF'][0] = LoadExperimentObject.QKF_macro_prediction_errors
+        RISKDICT['QKF'][1] = LoadExperimentObject.QKF_random_hyperparams_list
+        RISKDICT['QKF'][2] = LoadExperimentObject.QKF_macro_forecastng_errors
+        RISKDICT['QKF'][3] = LoadExperimentObject.QKF_macro_truth
+        RISKDICT['QKF'][4] = 'No'
 
         
     if LoadExperimentObject.GPRP_load == 'Yes':
