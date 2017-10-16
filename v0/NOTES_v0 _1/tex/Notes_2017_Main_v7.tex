@@ -1,0 +1,441 @@
+[PLACEHOLDER INTRO]
+\\
+\\
+Slowly drifting environmental decoherence in the laboratory gives rise to stochastic qubit evolution. The probability of measuring a particular qubit state drifts stochastically with time. A sequence of measurements performed on a qubit over timescales comparable to the slow drift is seen to encode information about environmental decoherence. This information consists of completely classical correlations between two measurements separated in time.  It provides a unique opportunity to harness a rich collection of control engineering and machine learning techniques to learn noise information and enable qubit state tracking and state predictions. Classical tools for predictive estimation have found diverse applications in state tracking, pattern recognition, short-range predictive control and autonomous learning [REFS]. We investigate classical techniques to learn noise correlations encoded in qubit measurements to enable robust predictive control and stablisation of qubit dynamics in real time. 
+\\
+\\
+We stabilise qubit dynamics against environmental decoherence in realistic laboratory settings. We learn noise correlations in a measurement record and we predict the qubit state for as long as possible in forward time once data collection has ceased i.e. we maximise the forward prediction horizon.  We analyse a sequence of projective measurements under Bayesian frameworks where each projective measurement resets the qubit state. The objective of algorithm design under these frameworks is to yield model robust predictions which maximise the forward prediction horizon in a variety of realistic operational scenarios. A maximal forward prediction horizon beyond the measurement record enables future control interventions while reducing the need for projective measurements, for example, by interleaving periods of data collection with periods of unsupervised control. The first demonstration of predictive control using `batch' machine learning algorithms operating on a sequence of projective measurements was conducted in \cite{mavadia2017}.
+\\
+\\
+In this manuscript, we seek model robust techniques to track a qubit state evolving under arbitrary environmental dephasing using projective measurements. We assess algorithmic predictive performance for maximising the forward prediction horizon relative to predicting the mean of the environmental dephasing. In adapting classical predictive estimation techniques for our application, our key challenge is that there is no theoretical model for capturing stochastic qubit evolution. Further, single qubit measurements represent a non-linear, quantised measurement action.  Many classical techniques are optimal for linear filtering and significant complexity is introduced in the regime of non-linear filtering with quantised measurement outcomes. 
+\\
+\\
+In what follows, we describe our physical setting in \cref{sec:main:PhysicalSetting}. We provide an overview of predictive methodologies in  \cref{sec:main:OverviewofPredictive Methodologies}, and we specify algorithms under consideration in this paper. In \cref{sec:main:Optimisation}, we present optimisation procedures for tuning algorithms. Predictive performance of algorithms is compared through results from numerical investigations in \cref{sec:main:Performance}. 
+
+\section{Physical Setting \label{sec:main:PhysicalSetting}}  
+\label{sec:main:1} 
+We consider a freely evolving single qubit under environmental dephasing. An arbitrary environmental dephasing process manifests as time-dependent stochastic detuning, $\delta \omega (t)$, between the qubit frequency and the master clock. This detuning is an experimentally measurable quantity in a Ramsey protocol, as in \cref{fig:main:Predive_control_Fig_overview_17_one} (a). A non zero detuning induces a relative stochastic phase accumulation between the two possible $0$ and $1$ states of a qubit, thereby affecting the statistical likelihood of measuring a particular qubit outcome. 
+\\
+\\
+We consider a sequence of $n$ Ramsey measurements spaced $\Delta t$ apart with a fixed Ramsey time, $\tau$, such that the change in the statistics of measured outcomes over this measurement record depends solely on the dephasing  $\delta \omega(t)$.   We assume that the measurement action over $\tau$ timescales is much faster than the slow time dependence of dephasing, and $\Delta t >> \tau$. Our measurement record is a set of binary outcomes,  $\{d_n\}$,  where qubit state dynamics were governed by $n$ true stochastic phases, $\state := \{\state_n\}$. We define the statistical likelihood for observing a single shot, $d_n$, using Born's rule \cite{ferrie2013}:
+
+\begin{align}
+P(d_n | \state_n, \tau, n \Delta t) &= \begin{cases} \cos(\frac{\state(n \Delta t,\tau)}{2})^2 \quad \text{for $d=1$} \\   \sin(\frac{\state(n \Delta t,\tau)}{2})^2  \quad \text{for $ d=0$} \end{cases} \label{eqn:main:likelihood}
+\end{align}
+where  $ \state(n \Delta t,\tau) \equiv \int_{n \Delta t}^{n \Delta t +\tau} \delta \omega(t') dt'$ and we use the shorthand $\state(n \Delta t ,\tau) \equiv \state_n$. The notation $P(d_n | \state_n, \tau, n \Delta t)$ refers to the conditional probability of seeing a measurement $d_n$ given that a stochastic phase, $\state_n$, accumulated over the qubit at $t = n \Delta t$. In the noiseless case, $P(d=1| f, \tau) = 1 \quad \forall n $, such that a qubit can be manipulated perfectly in the absence of net phase accumulation due to environmental dephasing. This procedure discretises $\delta \omega(t)$ into a random process, $f$, governing qubit dynamics. 
+\\
+\begin{figure}[h!]
+    \includegraphics[scale=1]{Predive_control_Fig_overview_17_one} 
+    \caption{ \label{fig:main:Predive_control_Fig_overview_17_one} Physical Setting: In (a), we define the Hamiltonian for stochastic qubit dynamics under arbitrary environmental dephasing using a covariance stationary, non Markovian detuning $\delta \omega(t)$ with an arbitrary power spectral density. A sequence of Ramsey experiments with fixed wait time $\tau$ yield single shot outcomes $\{ d_n \}$, with likelihood $P(d_n|\state_n, \tau,n)$,  conditioned on a mean-square ergodic sequence of true phases, $\{ f_n\}$, with $n \in [-N_T, 0]$ indexing time during data collection. Our objective is to maximise forward time $n \in [0, N_P]$ for which an algorithm uses measurement data to predict a future qubit state and incurs a lower Bayes prediction risk relative to predicting the mean value of the dephasing noise [dark gray shaded]. In (b), single shot outcomes are processed to yield noisy accumulated phase estimates, $\{ y_n\}$, corrupted by measurement noise $\{v_n\}$. The choice of $\{d_n\}$ or $\{y_n\}$ as datasets for predictive estimation corressponds to non-linear or linear measurement records in (b) and (c).}
+\end{figure} 
+
+In the absence of a theoretical model for the qubit state dynamics as governed by $\state$, we impose properties on environmental dephasing that enables us to use classical predictive control methodologies. We assume dephasing (and hence, $\state$) is non Markovian, covariance stationary and mean square ergodic, that is, a single realisation of the process is drawn from a power spectral density of arbitrary but non-Markovian shape. We further assume that $\state$  is a Gaussian process.
+\\
+\\
+Within this physical setting, we consider two different types of measurement records. In \cref{fig:main:Predive_control_Fig_overview_17_one}(b), a record of $\{ d_n\}$  corressponds to a binary sequence of single shot qubit outcomes, as discussed. The measurement model of a predictive control algorithm inherits a non linear measurement specified by \cref{eqn:main:likelihood}. Binary measurements can be pre-processed to yield $\{ y_n\}$ in \cref{fig:main:Predive_control_Fig_overview_17_one}(c). Pre-processing refers to averaging procedures over $\tau$-like timescales much faster than drift of $\delta \omega (t)$ such that $\{ \hat{\state}_n\}$ is a measurement record and a linear measurement model can be considered. Firstly, one may low-pass (or decimation) filtered a sequence of $\{ d_n\}$ binary outcomes to yield $\hat{P}(d_t | \state_t, \tau, t)$ from which accumulated phase corrupted by measurement noise, $\{ y_n\}$, can be obtained from \cref{eqn:main:likelihood}. A numerical demonstration of decimation filtering is included in Supplementary Information. Secondly, one may perform $M$ runs of the experiment over which $\delta \omega (t)$ is approximately constant under the slow drift assumption. For $M\tau << \Delta t$, we obtain an estimate of  $\state_n$ at $t = n \Delta t $ using a Bayesian scheme or Fourier analysis [REFS]. 
+\\
+\\
+The forward prediction horizon is defined using estimation and prediction risk regions shaded in \cref{fig:main:Predive_control_Fig_overview_17_one}. Data collection ceases at $n=0$  and we desire algorithmic predictions over $ n \in [0, N_P]$. The fidelity of our algorithm during state estimation and prediction relative to the true state is expressed by the mathematical quantity known as a Bayes Risk, where a zero risk value corresponds to perfect learning. The Bayes risk is a mean square distance between truth, $\state$ , and prediction, $\hat{\state}$ , for different realisations of truth $\state$ and different noisy datasets $\mathcal{D}$:
+\begin{align}
+L_{BR}(\state) & \equiv \sum_{n=1}^{N}\ex{(\state_n - \hat{\state}_n)^2}_{\state,\mathcal{D}} \label{eqn:sec:ap_opt_LossBR}
+\end{align}
+State estimation risk is Bayes Risk incurred during $n \in [-N_T, 0]$; prediction risk is the Bayes Risk incurred during $n \in [0, N_P]$. The forward prediction horizon is the number of time steps for $ n \in [0, N_P]$ during which a predictive algorithm incurs a lower Bayes prediction risk than predicting the mean value of the dephasing.
+\\
+\\
+In the next section, we detail how predictive estimation is conduced under different prediction methodologies. The objective of any algorithm designed using these methodologies is  to maximise the forward prediction horizon. 
+
+\section{Overview of Predictive Methodologies \label{sec:main:OverviewofPredictive Methodologies}}
+
+We consider our measurement record,  $\{d_n\}$ or $\{y_n\}$, under a Bayesian framework and enable qubit state predictions. Our key challenge is to track stochastic dynamics of the qubit state under arbitrary dephasing. Our choice of frameworks - Gaussian Process Regression and Kalman Filtering - approximate stochastic dynamics by propagating and constraining the underlying probability distributions describing the most likely trajectory for a qubit state conditioned on measurement data. The former approach is a batch learning approach, whereas the latter tracks a qubit state recursively in real time. 
+\\
+\\
+\begin{widetext}
+\begin{figure*}
+    \includegraphics[scale=1]{Predive_control_Fig_overview_17_two} 
+    \caption{ \label{fig:main:Predive_control_Fig_overview_17_two} Predictive Methodologies: (a) In GPR, a prior  distribution over true phase sequences $P(\state), \state \equiv \{ \state_n \}$ is constrained by a linear Bayesian likelihood of observed data, $\{ y_n\}$. The prior encodes dephasing noise correlations by defining covariance relations for the $i, j$-th time points using  $\Sigma_\state^{i, j}$ and optimising over its free parameters during training. The moments of the resulting predictive distribution $P(\state^*|y)$ are interpreted as pointwise predictions and their pointwise uncertainties when evaluated for $n>0$.  (b) In KF, the Kalman state and its variance correspond to moments of a Gaussian distribution propagated in time via $\Phi$, and filtered via the Kalman gain, $\gamma$ at timestep $n$. The design of $\Phi$ deterministically colors a white noise process $\{w_n \}$ and `encodes' an apriori structure for learning dephasing noise correlations. Prediction proceeds by propagating forwards with $\gamma_n=0, n>0$. Additive white Gaussian measurement noise $v_n$ corrupts all measurement records.}
+\end{figure*}
+\end{widetext}
+
+A Gaussian Process Regression (GPR) framework is summarised in \cref{fig:main:Predive_control_Fig_overview_17_two}(a). We define a prior distribution of a family of Gaussian random processes $P(f)$. Sampling $P_\state$ yields random realisations of time domain sequences where the correlations between any two time steps are given by the covariance matrix, $\Sigma_\state$. The non Markovian dynamics of $f$ are not specified explicitly but are encoded in a general way through the choice of a kernel prescribing how $\Sigma_\state^{i,j}$ should be determined. A general design of $\Sigma_f^{i, j}$ allows one to probe arbitrary stochastic dynamics and free parameters in the kernel are discovered via tuning the algorithm using measurement datasets. For a single realisation of dephasing noise, state predictions, $f^*$, are conditioned on measurement data $y$, yielding a predictive probability distribution $P(f^*|y)$. The mean of $P(f^*|y)$ is evaluated over the prediction horizon and the result is interpreted as `state predictions'. 
+\\
+\\
+A Kalman Filtering framework enables us to treat both linear and non linear measurement records and it is summarised in  \cref{fig:main:Predive_control_Fig_overview_17_two}(b). We recast the problem of incorporating non-Markovian dynamics, $\state$, as a filter design problem. In particular, we design a deterministic dynamical model, $\Phi$, to `color' white noise such that the true Kalman state evolution is non-Markovian and  mimics true stochastic qubit dynamics. The mean ($x_n$) and variance ($P(x_{n|n})$) of Gaussian distribution representing the true Kalman state are updated at each time-step accoring to the Kalman gain, $\gamma$. Kalman state estimates are propagated in time according to $\Phi$. Prediction ensues when the true state is propagated in time with zero Kalman gain.  
+\\
+\\
+To follow, we introduce Gaussian Process Regression (GPR) algorithms acting on linear measurement records, and Kalman Filtering (KF) algorithms acting on either linear or non-linear measurement records.
+% \begin{itemize}
+% \item Introduce algoritshsm, what they do, and how they will be used for predictive estimation. Justify why these algorithms can be used. 
+% \item Overview figure on all approaches 
+% \item Define the forward prediction horizon. Explain the key concept of how, using different classes of algorithm, you can do prediction and maximise the prediction horizon.
+% \item provide a narrative for each algorithm and their equations and explain their relationship to experimentally relevant quantities 
+% \end{itemize}
+
+\subsection{Gaussian Process Regression (GPR)}
+
+% We outline how a GPR framework learns dephasing noise correlations and uses learned information for forward prediction of the qubit state. Stochastic qubit dynamics are governed by dephasing noise correlations relations.
+In GPR, dephasing noise correlations in the measurement record can be learned if one projects data on a distribution of Gaussian processes, $P_\state$ with an appropriate encoding of their covariance relations via a kernel, $\Sigma_\state^{i,j}$. In a linear measurement regime, let $\state_n$ be the true random phase belonging to the process $\state$ at time step $n$. Our measurement record is corrupted by additive zero mean white Gaussian noise, $v_n$ with scalar covariance strength $R$, yielding scalar noisy observations $y_n$:
+\begin{align}
+y_n &= \state_n + v_n \\
+v_n & \sim \mathcal{N}(0, R) \quad \forall n
+\end{align}
+Under linear operations, the distribution of measured outcomes, $y$, is also a Gaussian. The  mean and variance of $P_y$ depends on the mean $\mu_\state$ and variance $\Sigma_\state$ of the prior $P_\state$, and the mean $\mu_v \equiv 0$ and variance $R$ of the measurement noise, $v_n$: 
+\begin{align}
+\state & \sim P_\state(\mu_\state,\Sigma_\state ) \\
+y & \sim P_y(\mu_\state,\Sigma_\state + R ) 
+\end{align}
+For covariance stationary $\state$, correlation relationships depend solely on the time lag, $v \equiv \Delta t|n_i - n_j|$ between any two random variables at $t_i, t_j$.  An element of the covariance matrix, $\Sigma_\state^{i,j}$, corresponds to one value of lag, $v$, and the correlation for any given $v$  is specified by the covariance function, $R(v)$:
+\begin{align}
+\Sigma_\state^{i,j} & \equiv R(v_{i,j}) 
+\end{align}
+Any unknown parameters in the encoding of correlation relations via $R(v)$ are learned by solving the optimisation problem in \cref{sec:main:Optimisation}. The optimised GPR model is then applied to new datasets corressponding to new realisations of the dephasing process. Let indices $n,m \in N_T \equiv [-N_T, 0]$ denote training points, and $n^*,m^* \in N^* \equiv [-N_T, N_P]$ denote testing (including prediction) points in machine learning language. We now define the joint distribution $P(y,\state^*)$, where $\state^*$ is our prediction for the true process at test points: 
+\begin{align}
+\begin{bmatrix} \state^* \\y \end{bmatrix} & \sim \mathcal{N} (\begin{bmatrix} \mu_{\state^*} \\ \mu_y
+\end{bmatrix} , \begin{bmatrix}   K(N^*,N^*)&K(N_T,N^*) \\ K(N^*,N_T) & K(N_T,N_T) + R \end{bmatrix} )
+\end{align}
+The additional `kernel' notation $\Sigma_\state  \equiv K(N_T, N_T)$ is ubitiquous in GPR. $K(N_T, N_T)$ depicts an $N_T$ by $N_T$ matrix where the diagonals corresspond to $v=0$ and $i, j$-th off-diagonal element corresspond to $|i-j|$ lag values. The kernel is calculated for each value of $v$ in the matrix.  we include it to help provide visibility of the time domain set of points over which the covariance function is being calculated. Following \cite{rasmussen2006}, the moments of the conditional predictive distribution $P(\state^*|y)$ can be derived from the joint distribution $P(y,\state^*)$ via standard Gaussian identities:
+\begin{align}
+\mu_{\state^*|y} &= \mu_\state + K(N^*,N_T)(K(N_T,N_T) + R )^{-1} (y - \mu_y) \\
+\Sigma_{\state^*|y} &= K(N^*,N^*) \nonumber \\
+& - K(N^*,N_T)(K(N_T, N_T) + R)^{-1}K(N_T,N^*) 
+\end{align}
+The above prediction procedure holds true for any choice kernel, $R(v)$. In any GPR implementation, the dataset, $y$, constrains the prior model yielding an aposteriori predictive distribution. The mean of this predictive distribution, $\mu_{\state^*|y}$, are the state predictions for the qubit under dephasing at test points $\in N^*$.
+\\
+\\
+Our choice of a `Periodic kernel' in this paper encodes a covariance function which is theoretically guaranteed to approximate any zero mean covariance stationary process, $f$, in the mean square limit, namely, by having the same structure as a covariance function for trignometric polynomials with infinite harmonic terms \cite{solin2014, karlin2012}. We follow \cite{solin2014} to show in Supplementary Materials that a sine squared exponential kernel represents an infinite basis of oscillators summarised as:
+\begin{align}
+R(v) &\equiv \sigma^2 \exp (- \frac{2\sin^2(\frac{\omega_0 v}{2})}{l^2}) 
+% R(v) &=  \sigma^2 \exp (- \frac{1}{l^2}) \sum_{n = 0}^{\infty} \frac{1}{n!} \frac{\cos^n(\omega_0 v)}{l^{2n}} \\
+\end{align}
+% In the Supplementary Information, we follow \cite{solin2014} to show that the periodic kernel reduces to the covariance function describing trigonometric polynomials if spectral components are truncated to a finite number, $J$:
+% \begin{align}
+% R(v) &- \sigma^2 p_{0,J}  = \sigma^2 \sum_{j=0}^{J} p_{j,J} \cos(j\omega_0 v)\\
+% p_{0,J} & \equiv \frac{1}{2} \exp (- \frac{1}{l^2}) \sum_{\alpha = 0}^{\alpha = \lfloor\frac{J}{2}\rfloor} \frac{1}{(2l^2)^{(2\alpha)}} \frac{1}{(2\alpha)!} \binom{2\alpha}{\alpha} \label{eqn:p0J}\\
+% p_{j,J} & \equiv \exp (- \frac{1}{l^2}) \sum_{\beta = 0}^{\beta = \lfloor\frac{J-j}{2}\rfloor} \frac{2}{(2l^2)^{(j + 2\beta)}} \frac{1}{(j + 2\beta)!} \binom{j + 2\beta}{\beta} \label{eqn:pjJ} \\
+% \omega_0 &\equiv \frac{\omega_j}{j}, j \in \{0, 1,..., J\} 
+% \end{align}
+We note that the sine-squared kernel is summarised by two key hyper-parameters: the frequency comb spacing for our infinite basis of oscillators, $\omega_0$, and a dimensionaless length scale, $l$. We use physical sampling considerations to approximate their initial conditions prior to an optimisation procedure, namely, that the longest correlation length encoded in the data, $N \Delta t $, sets the frequency resolution of the comb, and the scale at which changes in $f$ are resolved is of order  $\Delta t$:
+\begin{align}
+\frac{\omega_0}{2\pi} & \sim  \frac{1}{\Delta t N} \\
+l & \sim \Delta t
+\end{align}
+We briefly summarise kernel choices excluded from our analysis, including popular choices such as the Gaussian kernel (RBF); a scale mixture of Gaussian kernels (RQ); the Matern family of kernels; and a spectral mixture of Gaussian kernels. These exclusions are based on kernel properties as follows. An arbitrary scale mixture of zero mean Gaussian kernels will probe an arbitrary area around zero in the Fourier domain, as schematically depicted in \cref{fig:main:Predive_control_Fig_overview_17_two}(a). While such kernels capture the continuity assumption ubitiquous in machine learning, they are structurally inappropriate in probing a dephasing noise process of an arbitrary power spectral density (e.g. ohmic noise).  Matern kernels of order $q + 1/2$ correspond to a certain class of random process, known as autoregressive processes of order $q$, which are naturally considered under state space Kalman models in this paper. We do not duplicate our investigations under GPR. A class of GPR methods, namely, spectral mixture kernels and sparse spectrum approximation using GPR have been explored in \cite{wilson2013, quia2010}. These require efficient optimisation procedures to learn a large number of unknown kernel parameters, whereas the sine-squared exponential is parameterised only by two hyper-parameters. A detailed investigation of the application of  spectral mixture methods for forward prediction beyond pattern recognition and with limited computational resources, is beyond the scope of this paper.  
+
+\subsection{ Kalman Filtering (KF)}
+
+A Kalman Filter tracks the stochastic evolution of a hidden true state. An incoming stream of unreliable (noisy) observations are fed to a Kalman Filter, and the objective of the Kalman Filter is to recursively improve its estimate of the true state at any time, $n\Delta t$, given the past $n$ measurements. 
+\\
+\\
+In order for a Kalman Filter to track a stochastically evolving qubit state in our application, the hidden true Kalman state $x_n$ must mimic stochastic dynamics  of a qubit under environmental dephasing. We propagate the hidden state $x_n$ according to a dynamical model $\Phi_n$ corrupted by Gaussian white process  noise, $w_n$.  
+\begin{align}
+x_n & = \Phi_n x_{n-1} + \Gamma_n w_n \label{eqn:KF:dynamics} \\
+w_n & \sim \mathcal{N}(0, \sigma^2) \quad \forall n 
+\end{align}
+Process noise has no physical meaning in our application - $w_n$ is shaped by $\Gamma_n$ and deterministically colored by the dynamical model $\Phi_n$ to yield a non-Markovian $x_n$ representing qubit dynamics under generalised environmental dephasing. 
+\\
+\\
+We measure $x_n$ using an ideal measurement protocol $h(x_n)$ and incur additional Gaussian white measurement noise $v_n$,  yielding our noisy measurement record:
+\begin{align}
+y_n &= z_n + v_n \\
+z_n & \equiv  h(x_n) 
+\end{align}
+% The measurement procedure, $h(x_n)$, can be linear or non-linear, allowing us to explore both regimes in our physical application.
+% \\
+% \\
+Predictive estimation in Kalman filtering proceeds as follows. At time step $n$, the state estimates $x_{n-1}, P_{n-1}$  are propagated into the current time step via $\Phi_n$ and they define moments of a prior Gaussian distribution at $n$. Within each time step, a Bayesian update occurs via the Kalman gain, $\gamma_n$. This yields the aposteriori Gaussian distribution at $n$ with moments, $x_{n}, P_{n}$. 
+\\
+\\
+The design choices of  $\{ x, \Phi, h(x), \Gamma \}$  completely specify the three Kalman algorithms in this paper. We compare the design of $\Phi$ for a linear measurement record by choosing to model stochastic dynamics either via so-called `autoregressive' processes in Autoregressive Kalman filtering (AKF), or via a collection of oscillators, in Liska Kalman filtering (LKKFB). We extend our analysis to the quantised Kalman filter (QKF), where we focus on designing a non-linear, quantised measurement model such that the filter can act directly on binary qubit outcomes. We define our terminology and our filters in the sub-sections below. 
+
+\begin{figure} [h]
+    \includegraphics[scale=1]{Predive_control_Fig_overview_17_three}
+    \caption{\label{Predive_control_Fig_overview_17_three} Apriori Structure for $\Phi$ : All Kalman $\Phi$ variants are mean square approximations to covariance stationary, mean square ergodic $f$. AKF and QKF define $\Phi$ as a weight sum of $q$ past measurements driven by process noise, $w$ [top]. Kalman $\Phi$ for LKFFB represents a collection of $J$ osscilators driven by process noise, $w$, where frequency of oscillators must span dephasing noise bandwidth. The instantaneous amplitude and phase of each basis oscillator can be derived from the Kalman state estimate $x_{j, n}$ at any $n$. Predictions combine learned amplitudes and phases for each basis oscillator and sum contributions over all $J$ [bottom].}
+\end{figure}
+
+\subsubsection{Autoregressive Kalman Filter (AKF)}
+An AKF probes arbitrary, covariance stationary qubit dynamics such that the dynamic model is a weighted sum of $q$ past values driven by white noise i.e. an autoregressive process of $q$ past values. The rationale for defining $\Phi$ in this manner is that any zero mean covariance stationary process has a representation in the mean square limit by an autoregressive process of order $q_m$, AR($q_m$), where convergence to true process falls with $m$. The study of AR($q$) processes falls under the study of a general class of techniques based on autoregressive moving average (ARMA) models in classical control engineering. 
+\\
+\\
+For autoregressive processes of finite order, we summarise the Kalman dynamical model, $\Phi$, in terms of a lag operator, $L$, where each application of the lag operator delays a true state by one time step:
+\begin{align}
+L^r: f_n &\mapsto f_{n-r} \quad \forall r \leq n \\
+\Phi(L) & \equiv  1 - \phi_1 L - \phi_2 L^2 - ... - \phi_q L^q 
+\end{align}
+Here, the set of $q$ coefficients $\{ \phi_q \}$ are the set of autoregressive coefficients which specify the dynamical model. Hence, the true stochastic Kalman state dynamics are:
+\begin{align}
+\Phi(L) \state_n & = w_n \\ 
+\implies \state_n & = \phi_1 L \state_n + \phi_2 L^2 \state_n + ... + \phi_q L^q \state_n + w_n \\
+ \state_n &= \phi_1 \state_{n-1} + \phi_2 \state_{n-2} + ... + \phi_q \state_{n-q} + w_n \label{eqn:main:ARprocess}
+\end{align}
+For small $q < 3$, it is possible to extract simple conditions on the coefficients, $\{ \phi_q \}$, that guarantee properties of $f$, for example, that $f$ is covariance stationary and mean square ergodic. In our application, we freely run arbitrary $q$ models via machine learning in order to improve our approximation of an arbitrary $f$.
+\\
+\\
+Any AR($q$) process can be recast (non-uniquely) into state space form, and we define the AKF by the following substitutions into Kalman equations:
+\begin{align}
+x_n & \equiv  \begin{bmatrix} f_{n} \hdots f_{n-q+1} \end{bmatrix}^T \\
+\Gamma_n w_n & \equiv \begin{bmatrix} w_{n} 0 \hdots 0 \end{bmatrix}^T \\
+\Phi_{AKF} & \equiv 
+\begin{bmatrix}
+\phi_1 & \phi_2 & \hdots & \phi_{q-1} & \phi_q \\ 
+1 & 0 & \hdots & 0 & 0 \\  
+0 & 1 & \ddots & \vdots & \vdots \\ 
+0 & 0 & \ddots & 0 & 0 \\ 
+0 & 0 & \hdots & 1 & 0 
+\end{bmatrix} \quad \forall n \label{eqn:akf_Phi} \\
+H & \equiv \begin{bmatrix} 1 0 \hdots 0 \end{bmatrix} \quad \forall n 
+\end{align}
+The matrix $\Phi_{AKF}$ is the dynamical model used to recursively propagate the unknown state during state estimation in the AKF. In general, the ${\phi_i}$ in $\Phi_{AKF}$ must be learned through an optimisation procedure where the total number of parameters to be optimised are $\{\phi_1, \hdots, \phi_q, \sigma^2, R \}$. This procedure yields the optimal configuration of the autoregressive Kalman filter, but at the computational cost of a $q+2$ dimensional optimisation problem for arbitrarily large $q$.
+\\
+\\
+The Least Squares Filter (LSF) in \cite{mavadia2017} considers a weighted sum of past measurements to predict the $m$-th step ahead measurement outcome. A gradient descent algorithm is used directly to learn the weights, $\{\phi_j\}, j = 1, ... , q $, of the previous $q$ past measurements for each value of $m$ step ahead prediction, $m \in [0, N_P]$. The set of $m$ LSF models, collectively, define the set of predicted qubit states.  
+\\
+\\
+We assert that learned coefficients in LSF effectively implement an AR($q$) process and we test via numerical experiments comparing LSF and AKF. For $m=1$, and for zero mean $w_n$, the LS Filter in \cite{mavadia2017} by definition searches for coefficients for the weighted linear sum of past $q$ measurements. This describes an AR($q$) process for one step ahead prediction in \cref{eqn:main:ARprocess}. We test our assertion by using an LSF to reduce the computational tractability of $q+2$ optimisation problem for an AKF for high order $q \approx 100$. Namely, we use ${\phi_i}$ from LSF to define $\Phi_{AKF}$. Since Kalman noise parameters ($\sigma^2, R$) are subsequently auto-tuned using a Bayes Risk optimisation procedure, we optimise over potentially remaining model errors and measurement noise. Under this assertion, the set of trained parameters, $\{\phi_1, \hdots, \phi_q, \sigma^2\}$ from LSF and AKF allows us to derive experimentally measurable quantities, including the power spectral density of the dephasing process [REFS or DERIVE]:
+\begin{align}
+S(\omega) & = \frac{\sigma^2}{2 \pi }\frac{1}{|\Phi(e^{-i\omega})|^2} \label{eqn:main:ap_ssp_ar_spectden} 
+\end{align}
+Here, we use the same summarised notation, $\Phi(L)$, but  $L$ is no longer the time domain lag operator and has been redefined as $L \equiv e^{-i\omega}$ in the Fourier domain. 
+% While AKF recasts the dynamics of LSF in recursive form, the predictive performance from LSF in \cite{mavadia2017} is expected to be equivalent to AKF in low measurement noise regimes as they share a common dynamical model. In high measurement noise regimes, a Kalman framework should enable additional measurement noise filtering through the regularising effect of $R$. 
+
+\subsubsection{LKFFB}
+In LKFFB, we probe stochastic qubit dynamics using a collection of oscillators.  We project our measurement record on $J$ oscillators with fixed frequency $\{ \omega_0^B j, j = 1, \hdots, J^B\}$ using a Kalman filter developed in \cite{livska2007} (LKF). We track instantaneous amplitudes and phases explicitly for each osscillator. With explicit phase and amplitude tracking, we enable state predictions by combining learned amplitudes and phases and projecting forwards in time. The superscript $ ^B$ indicates Fourier domain information about an algorithmic basis, as opposed to information about the true (unknown) dephasing process, and we drop this superscript for convenience.
+\\
+\\
+For our application, the true hidden Kalman state, $x$, is a collection of sub-states, $x^j$, for each $j^{th}$ oscillator. Each sub-state is labelled by a real and imaginary component:
+\begin{align}
+x_n & \equiv \begin{bmatrix} x^{1}_{n} \hdots x^{j}_{n} \hdots x^{J}_{n} \end{bmatrix} \\
+x^{j,1}_{n} & \equiv \text{estimates real $f$ component for $\omega_j$} \\
+x^{j,2}_{n} & \equiv \text{estimates imaginary $f$ component for $\omega_j$} \\
+x^j_n &\equiv \begin{bmatrix} x^{j,1}_{n} \\ x^{j,2}_{n} \\ \end{bmatrix} \equiv \begin{bmatrix} A^j_{n} \\ B^j_{n}  \end{bmatrix}
+\end{align} 
+We track the real and imaginary parts of the Kalman sub-state  simultaneously in order calculate the instantaneous amplitudes ($\norm{x^j_n}$) and phases ($\theta_{x^j_n}$)  for each Fourier component:
+\begin{align}
+\norm{x^j_n} & \equiv \sqrt{(A^j_{n})^2 + (B^j_{n})^2} \\
+\theta_{x^j_n} & \equiv \tan{\frac{B^j_{n}}{A^j_{n}}}
+\end{align}
+We may probe dephasing noise to an arbitrarily high resolution for tracking qubit dynamics by choosing an arbitrarily high value for the ratio $J/\omega_0$.
+\\
+\\
+The dynamical model for LKFFB is a stacked collection of independent oscillators. The sub-state dynamics match the formalism of a Markovian stochastic process defined on a circle for each basis frequency, $\omega_j$, as in \cite{karlin2012}. We stack $\Phi(j \omega_0 \Delta t) $ for all $\omega_j$ along the diagonal to obtain the full dynamical matrix for $\Phi_n$:
+\begin{align}
+\Phi_{n} & \equiv \begin{bmatrix} 
+\Phi(\omega_0 \Delta t)\hdots 0  \\ 
+ \hdots \Phi(j\omega_0 \Delta t) \hdots \\
+0 \hdots \Phi(J \omega_0 \Delta t)  \end{bmatrix}\\ 
+\Phi(j \omega_0 \Delta t) &\equiv \begin{bmatrix} \cos(j \omega_0 \Delta t) & -\sin(j \omega_0 \Delta t) \\ \sin(j \omega_0 \Delta t) & \cos(j \omega_0 \Delta t) \\ \end{bmatrix} \label{eqn:ap_approxSP:LKFFB_Phi} 
+\end{align}
+% In standard Kalman filters, the recursion for the state $x$ can be decoupled for the recursion required to estimate $P$, where the former depends on measurement observations but the latter can be propagated in the absence of data via the so-called Ricatti equation [REFS]. One advantage of a decoupled state estimation and state variance estimation procedure is that one can precalculate Kalman gains and assess filter performance through the recursion of $P$ alone in the absence of measurement data. The AKF is an example where Kalman gains can be pre-calculated, for example, to aid an FPGA implementation in the laboratory. 
+% \\
+% \\
+As in Supplementary Materials, we observe numerically that instantaneous amplitude and phase information for different basis components are resolved at different timescales while the filter is receiving an incoming stream of measurements. 
+% In simulated Kalman filtering runs, amplitude and phase estimates for long correlation lengths appear non-stationary over most of the run, and display time-stationarity only near the end of the run. [NOT SURE]
+In \cite{livska2007}, a state dependent process noise shaping matrix is introduced to enable potentially non-stationary instantaneous amplitude tracking in LKKFB for each individual oscillator:
+\begin{align}
+\Gamma_{n-1} &\equiv \Phi_{n-1}\frac{x_{n-1}}{\norm{x_{n-1}}}
+\end{align}
+For the scope of this manuscript, we retain the form of $\Gamma_{n}$ in our application even if true qubit dynamics are covariance stationary. We note that $\Gamma_{n}$ depends on state estimates $x$. 
+% This means state variance estimation $P$ cannot be recursively propagated via the Ricatti equation in the absence of measurement data, and hence, Kalman gains cannot be pre-computed in this implementation. 
+\\
+\\
+We obtain a single estimate of the true hidden state by  picking out the real component of $x^j$, and combining real contributions for all $J$ oscillators:
+\begin{align}
+H & \equiv \begin{bmatrix} 1 0 \hdots 1 0 \hdots 1 0 \end{bmatrix}
+\end{align}
+There are two ways to conduct forward prediction for LKFFB and both are numerically equivalent for the choice of basis outlined in Supplementary Information: namely, we set the Kalman gain to zero and recursively propagate using $\Phi$. Alternatively, we define a harmonic sum using the basis frequencies and learned $\{\norm{x^j_n}, \theta_{x^j_n} \}$.  This harmonic sum can be evaluated for all future time to yield forward predictions a single calculation. 
+
+\subsubsection{QKF}
+
+In QKF, we feed our Kalman Filter single shot qubit outcomes depicted in \cref{fig:main:Predive_control_Fig_overview_17_one}(a). Irrespective of our dynamical model, $\Phi$, this means that the measurement action in our filter must be (a) non linear and (b) receive quantised measurement data and compute quantised innovations during filtering.
+\\
+\\
+Since we wish to test the performance of a complex measurement action in QKF, we freeze the dynamical model in QKF to be identical to AKF. With unified notation across AKF and QKF, we define a measurement model $h(x)$ and its Jacobian, $H$ as:
+\begin{align}
+z_n &  \equiv h(f_n) \equiv 0.5\cos(\state_{n}) \\
+& \equiv h(x_n[0]) \\
+\implies H_n &\equiv \frac{d h(\state_n)}{d\state_n} =  -0.5\sin(\state_{n})
+\end{align}
+During filtering, QKF applies $h(x)$ to compute the residuals when updating the true Kalman state, $x$. The Jacobian of $h(x)$, $H_n$, is used to propagate the state variance estimate and to compute the Kalman gain. The linearisation of $h(x)$ by $H_n$ holds if errors during the filtering process, including model errors in dynamical propagation, remain small. 
+\\
+\\
+The entity $z$ is associated with an abstract `signal' - a likelihood function for a single qubit measurement in \cref{eqn:main:likelihood}. We note that the bias of a coin flip, namely, $ P(d_n|f_n, \tau, t) \propto z_n$, cannot be measured directly but only inferred in the frequentist sense for a large number of parallel runs, or in the Bayesian sense, by deconstructing the problem further using Bayes rule. In our application, we track  the correlated phase sequence $f$ as our Kalman hidden state, $x$. Subsequently, we extract an estimate of the true bias, $z$, as an unnatural application of the Kalman measurement model.  
+\\
+\\
+The sequence $z$ is not observable, but can only be inferred over a large number of experimental runs. To complete the measurement action, we implement a biased coin flip within the QKF filter given $y$.   While the qubit is naturally quantised, we require a theoretical model, $\mathcal{Q}$, to generate quantised measurement outcomes with statistics that are consistent with Born's rule. If $z$ was a real signal, one could use \cite{karlsson2005} to encode $z$ into a binary sequence. This is a classical linear transformation where one discretises the amplitude of any signal by discretising the probability distribution of the underlying Gaussian errors generated from quantisation of a continuous amplitude value to its nearest allowed level. We modify the procedure in \cite{karlsson2005} to encode $z$ using biased coin flips. Notationally, we represent a black-box quantiser, $\mathcal{Q}$, that gives only a $0$ or a $1$ outcome based on $y_n$:
+\begin{align}
+d_n &= \mathcal{Q}(y_n)\\
+&=  \mathcal{Q}(h(\state_n) + v_n)
+\end{align}
+\\
+\\ 
+Our model for projective measurements are biased coin flips where the bias of the coin is stochastically drifting due to $\{ y_n\}$:
+\begin{align}
+P(d_n | y_n, \state_{n}, \tau) & \equiv \mathcal{B}(d_n=n=1;p= y_n + 0.5 ) 
+\end{align}
+A binomial distribution parameterised by a random variable $y_n$ means that $\mathcal{Q}$ defines the likelihood of getting a $0$ or a $1$ after marginalising over all possible values of $y_n$.  
+\begin{align}
+\mathcal{Q}: & P(d_n | \state_{n}, \tau), \quad |y_n| \leq b = 0.5\\
+& \equiv  \int (P(y_n | \state_{n}, \tau) * \mathcal{U}(b) ) P(d_n | y_n, \state_{n}, \tau) dy_n \\
+\mathcal{U}(b) & \equiv \mathcal{U}(-b, b)
+\end{align}
+%  The rationale for enabling this quantisation procedure comes from the statistical study for amplitude quantisation of analogue signals using an $m$-bit quantiser, where the continous amplitudes of a analogue signal are discreted into $2^m$ levels. In our application, the continous amplitude trace, while not a real signal, is the likelihood function in \cref{eqn:main:likelihood}. This function is discretised in allowed values of $ [0,1]$. Such a discretisation procedure corressponds to amplitude quantisation using a single bit ($m=1$) quantiser, in classical engineering, but further modified to allowed for biased coin flips described by $\mathcal{Q}$. Details of this  scheme are provided in Supplementary Information. 
+The convolution with a uniform distribution arises from the need to saturate a Gaussian dsitributed  $y_n$ between allowed values $|y_n| \leq b = 0.5$ for our application such that the resulting probability distribution of $y_n$ retains positivity. Further details are relegated to Supplementary Materials. 
+\\
+\\
+The definitions of $\{ \mathcal{Q}, h(x_n), H_n \}$ in this subsection, and $\{x, \Phi, \Gamma\}$ from AKF completely specify the QKF algorithm for single shot measurement record depicted in \cref{fig:main:Predive_control_Fig_overview_17_one} (a).  
+\\
+\\
+\subsection{Bayesian Framework Beyond GPR and KF}
+[PLACEHOLDER]
+In a general Bayesian learning framework, the Bayes update for prior distribution $P(\state_n | \mathcal{D}_{n-1}, \tau)$ based on the the likelihood, $P(d_n | \state_n, \tau)$ for an incoming measurement at $n$: 
+\begin{align}
+P(\state_n| \mathcal{D}_n, \tau)  \propto P(d_n | \state_n, \tau) P(\state_n | \mathcal{D}_{n-1}, \tau)
+\end{align}
+The output (aposteriori) distribution, $P(\state_n| \mathcal{D}_n, \tau)$, is the solution to the general, non linear Bayesian inference problem. It is often numerically estimated and subsequently, the mean and the variance of the aposteriori distribution is interepreted as the state estimate and the state variance estimate at $n$. However, we have not yet propagated the state estimates forward in time from $n$ to $n+1$. If $\state$ was Markovian, then it would be straightforward to write a `dynamical model' to enable resampling according to a transition probability, $P(\state_{n+1} | \state_n)$:
+\begin{align}
+P(\state_{n+1} | \mathcal{D}_{n}, \tau) = \int P(\state_{n+1} | \state_n) P(\state_n | \mathcal{D}_{n}, \tau) d\state_n
+\end{align}
+Particle filtering and sequential Bayesian adaptive learning protocols for Markov $\state$ have been applied to our problem as $ P(\state_{n+1} | \state_n)$ exists, namely, a global likelihood for all time steps is written as a product of likelihoods at each timestep under a Markov model \cite{ferrie2013, wiebe2015}. Relaxing this Markov condition in particle filtering techniques has been the subject of recent research(\cite{wiebe2015bayesian, jacob2016}). An alternative way to track simple non-Markovian time series processes was considered for a switching problem in \cite{rogers2017}. A generalisation of \cite{rogers2017} to arbitrary non Markovian processes would increase the dimensionality of the underlying Bayesian inverse problem and lends this methdology for classification rather than time series regression applications [CHECK]. Developing a theoretical, non-Markovian transition probability distribution for arbitrary dephasing processes in the context of time series tracking in our application is beyond the scope of this paper. 
+
+\section{Algorithmic Optimisation \label{sec:main:Optimisation}}
+
+All algorithms in this paper employ machine learning principles to auto-tune unknown design parameters. The physical intuition associated with optimising our filters is that we are cycling through a large class of general models for environmental dephasing. This allows each filter to track stochastic qubit dynamics under arbitrary covariance stationary, non-Markovian dephasing. In borrowing machine learning principles, we design and solve an optimisation problem to discover unknown filter design parameters using simulated training datasets. 
+\\
+\\
+In GPR, we use physical arguments in \cref{sec:main:OverviewofPredictive Methodologies} to provide initial conditions for optimisation of kernel parameters. Subsequently, the GPy Python Package in \cite{gpy2014} is used to implement a Bayesian likelihood maximisation. In KF, the free noise strength parameters $\{ \sigma, R \}$ are learned using a Bayes Risk optimisation procedure detailed below. For a specific experimental set-up, one may incorporate additional apriori knowledge to enhance filter tuning but this is beyond the scope of this paper. 
+\\
+\\
+For arbitrary power spectral densities of dephasing noise, the optimisation problem posed for Kalman Filters is extremely difficult to solve with standard local optimisers. For arbitrary dephasing, there are no theoretical bounds on the values of ($\sigma, R$) and consequently, large, flat regions are generated by the Bayes Risk function. Further, the recursive structure of the Kalman filter means that no analytical gradients are accessible for optimising a choice of cost function and a large computational burden is incurred for any optimisation procedure. Beyond standard local gradient and simplex optimisers \cite{mathews1993stochastic} , we consider coordinate ascent \cite{abbeel2005} and particle swarm optimisation techniques as promising, nascent candidates and their application remains an open research question. 
+% This generates large, flat regions of Bayes Risk which are difficult for many of the standard local optimisers to traverse. Such a failure can be diagnostically reproduced by engineering narrow dips on large, flat plains and documenting the performance of standard gradient and simplex algorithms in finding these features. An additional issue is that 
+\\
+\\
+For optimisation of KF filters in this paper, an optimal ($\sigma^*, R^*$) minimises the true Bayes state estimation risk. We uniformly distribute 75 ($\sigma, R$) pairs over several orders of magnitudes in two dimensions. Bayes Risk is evaluated by taking an expection over 50 runs of different true realisations and noisy data sets. Time horizons for state estimation ($n \in  [-N_{SE}, 0]$) or prediction ($n \in  [0, N_{PR}]$) are chosen such that the shape of total loss over time steps defines sensible loss shapes over the numerical experiments considered in this paper. As illustrative guidelines, a choice of small $N_{SE}$ values ensures that we assess state estimates only once Kalman Filters are approaching convergence. Large $N_{PR}$ values will flatten the true prediction loss function as long term prediction errors tend to dominate unless algorithmic learning is perfect. Our procedure is similar to model selection schemes where data is used to estimate smoothening parameters for linear estimators \cite{arlot2009data}. 
+\\
+\\
+Prior to accepting an optimal candidate, we compare true low loss regions for state estimation and prediction. We define true low loss regions for state estimation and prediction as being $<10 \%$ of the median Bayes risk incurred during the optimisation procedure. If the low loss region in state estimation has an overlap with low loss regions during prediction in parameter space, and optimal ($\sigma^*, R^*$) candidate falls within this overlap region, then we accept that the KF filter is sensibly tuned. If an overlap of low loss regions for state estimation and prediction does not exist, or if the optimal candidate does not reside in the overlap region, then the optimisation problem is deemed `broken' as training is uncorrelated with prediction performance. 
+ 
+\section{Algorithm Performance Characterisation \label{sec:main:Performance}}
+
+We conduct numerical experiments using simulated realisations of true dephasing noise and simulated noisy qubit measurements $\{ y_n \}$. In a single numerical run, we conduct predictive estimation of qubit dynamics using one realisation of dephasing noise process and a single measurement record. Our optimally tuned algorithms generate state estimates during time steps $n<0$ and state predictions for time steps $n>0$. We repeat the procedure for 50 runs and we calculate the Bayes prediction risk over this ensemble. For each ensemble, the Bayes prediction risk is normalised against Bayes risk from predicting the mean value of the dephasing noise. This metric is reported as the normalised Bayes prediction risk in the results to follow. A desirable forward prediction horizon corresponds to maximal $n \in [0, N_P]$ for which normalised Bayes prediction risk at all time steps $n' \leq n$ is less than unity.
+\\
+\\
+We define the context within which the comparative analysis of algorithms for predictive estimation is meaningful. For non-Markovian processes, the forward prediction horizon for any algorithm can be increased absolutely by oversampling dephasing noise. This means we increase the sampling rate relative to the true noise cut-off frequency. By collecting more information about the dephasing process, the forward prediction horizon can be increased in the absolute sense for any algorithm. In the results to follow, we compare the difference in maximal forward prediction horizons between algorithms for the same numerical experiment. We consider these differences in context of realistic operating scenarios, namely: engineering true dephasing noise that appears `close to continous' relative to an algorithm's computation resolution in the Fourier domain; enabling imperfect projection of data on the algorithmic basis (GPR, LKFFB); reducing the over-sampling ratio; and increasing measurement noise strength.
+% In the non-linear regime, we simulate measurements by applying a biased coin flip to get a single shot outcome from a binomial distribution with $n=k=1$ where the bias of the coin is parameterised using $\{ y_n \}$. For the results presented in the non-linear regime, we use an AR(2) process to define the true qubit state. The change in noise generation from linear to non-linear regimes reflects a desire to isolate true noise dynamics and focus on the non-linear quantised measurement action in the latter case.
+
+\subsection{GPR} 
+
+% Our numerical approach is to 
+% - in the linear regime, we simulate stochastic detunings according to a PSD which is flat top in this paper
+% - in the non linear regime, generate stochastic detunings and apply a biased coin flip to get a 0 or a 1 outcome
+% - we add additive gaussain white noise - define noise strength
+
+% 5 things: (a) no figure to justify oversampling, and (b) the low power of RBF and RQ kernels about zero should help in extracting long time correlations. (c) Low loss regions and noise level as defined in numerics. (d) REDO so inset is a separate figure at [1,0] for prediction risk only. (e) QKF average the gain squared. (f) add labels on LKFFB graphs; remoe purple background in Time domain . (g) font type and size to be standardised. 
+
+In this section, we present predictions from a trained GPR model with a periodic kernel. % carry a limited interpretation for predictions beyond the measurement record.
+\begin{figure}
+    \includegraphics[scale=1.]{fig_data_gpr}. 
+    \caption{\label{fig:main:fig_data_gpr} In (a)-(d), prediction points $\mu_{\state^*|y}$ [purple] are plotted against time steps, $n$. We plot the true phase sequence,  $f$, [black] and  $f$ at the begining of the run [red dotted]. Predictions are generated in a single run by a trained GPR model with a periodic kernel corressponding to a Fourier domain basis comb spacing, $\omega_0^B$. Data collection of $N_T$ measurements [not shown] ceases at $n=0$. For simplicity, the true $f$ is a deterministic sine with frequency, $\omega_0$. (a) Perfection projection is possible $\omega_0 / \omega_0^B \in Z$ natural numbers, $\omega_0 = 3$ Hz. Kernel resolution is exactly the longest time domain correlation in dataset, $2 \pi / \omega_0^B \equiv \Delta t N_T \implies \kappa = 0$.   (b) Imperfect projection, with $\omega_0 / \omega_0^B \notin Z$, $\omega_0 / 2 \pi = 3 \frac{1}{3}$ Hz, $\kappa=0$. (c) We increase kernel resolution to be arbitrarily high, $\kappa >> 0 $, such that $\omega_0 / \omega_0^B >> 0 \notin Z $ for original $ \omega_0 / 2 \pi = 3$ Hz. (d) We test (b) and (c) for $\kappa >>0$, $ \omega_0 / \omega_0^B \notin Z$, $\omega_0 / 2 \pi = 3 \frac{1}{3}$ Hz. For all (a)-(d), $N_T = 2000, N_P = 150$ steps, $\Delta t = 0.001s$ and applied measurement noise level $1\%$.} 
+\end{figure}
+We track a deterministic sine curve with a single Fourier component as our true state instead of a stochastic qubit dynamics described earlier. For this simple example, the Periodic Kernel learns Fourier information in the measurement record enabling interpolation using test-points $n^* \in [-N_T, 0]$ for all cases (a)-(d) in \cref{fig:main:fig_data_gpr}. Time domain predictions $n^* >0$ appear sensible when perfect learning is possible given the theoretical structure of the simulation. When learning is imperfect, GPR predictions for the region  $n^* \in [0, N_P]$ show a pronounced discontinuity at a deterministic quantity, $\kappa$.  We increase the kernel resolution and test whether prediction artefacts can be reduced by using a fine Fourier comb in the Periodic kernel. This is not the case in \cref{fig:main:fig_data_gpr} (c) and (d) and the algorithm sinks to zero for long regions before reviving discontinuously at $\kappa$. For all cases, we compare GPR predictions for $n^*>0$ with the true state dynamics at the start of the training run [red dotted] and we find good agreement. 
+\\
+\\
+Our results indicate that GPR predictions with a periodic kernel are useful for interpolation but have limited meaning for forward predictions  for time steps $n >0$.  We find that a fundamental period is set by the comb spacing in the kernel and we expect that learned Fourier information will repeat in the time domain deterministically at the fundamental period, namely, $\kappa$ in all cases depicted in \cref{fig:main:fig_data_gpr}. When learning is perfect, a repeated pattern can be interpreted as state predictions. When learning is imperfect,  GPR  with Periodic Kernel is able to learn Fourier amplitudes to provide good state estimates for $n<0$ but one cannot interpret state predictions for $n>0$ without a formal procedure for actively tracking and correcting phase information for each individual basis oscillator at $n= \kappa$. Since phase information can be recast as amplitude information for any oscillator, one expects that forward predictions can be improved by reducing the comb spacing for an infinite basis of oscillators in the periodic kernel.  We find that this is not the case - an increase in kernel resolution means that we are probing time domain correlations longer than the physical time spanned by the measurement record. As such, the GPR algorithm predicts zero for $n \in [0, \kappa], \kappa > 0$, before reviving at $\kappa$.  In fact, if prediction test points were not specified beyond $\kappa$, then a flat region in (c) or (d) may be misinterpreted as predicting zero mean noise rather than a numerical artefact.
+
+\subsection{KF (Linear Measurement)}
+
+\begin{figure}
+    \includegraphics[scale=1.0]{fig_data_all}
+    \caption{\label{fig:main:fig_data_all} We plot state predictions against time steps $n > -50$ obtained from trained AKF, LKFFB and LSF algorithms. We plot true $f$ [black] and measurement data [grey dots], where measurements for $n \in [-N_T, -50]$ are omitted [(left)]. A single run contributes to Bayes prediction risk over an ensemble of 50 runs normalised against predicting the mean, $\mu_\state$, of dephasing noise [right]. A normalised risk $<1$ for $n > 0$ defines a desirable forward prediction horizon. A single run phase sequence $f$ is drawn from a flat top spectrum with $J$ true Fourier components spaced $\omega_0$ apart and uniformly randomised phases $\in [0, 2\pi]$. A trained LKFFB is implemented with comb spacing $\omega_0^B / 2\pi = 0.5$ Hz and $J^B =100$ oscillators; while trained AKF / LSF models corresspond to high $q \approx 100$. Relative to LKFFB,  (a) and (b) corresspond to perfect projection $\omega_0 / \omega_0^B  \in Z $ for $J= 40, \omega_0 / 2\pi = 0.5$ Hz. In (c) and (d), we simulate realistic noise with $\omega_0 / \omega_0^B  \notin Z$, $J = 45000$, $\omega_0 / 2\pi = \frac{8}{9} \times 10^{-3}$ Hz such that $>500$ number of true components fall between adjacent LKFFB oscillators. For (a)-(d), $N_T = 2000, N_P = 100$ steps, $\Delta t = 0.001s$ such that we fulfill $r_{Nqy} >> 2$, $N_T / \Delta t < \omega_0/2\pi$. Measurement noise level is $10\%$.}
+\end{figure} 
+
+\begin{figure}
+    \includegraphics[scale=1.0]{fig_data_specrecon}
+    \caption{\label{fig:main:fig_data_specrecon} We compare the true power spectrum for $f$ with derived spectral estimates from LKFFB and AKF. From (a)-(d), we vary true $f$ cutoff relative to an apriori noise bandwidth assumption $f_B$ such that $\omega_0 / 2\pi = 0.5$ Hz, $J = 20, 40, 80, 200$. For LKFFB, we use learned amplitude information from a single run ($\propto ||x^j_n||^2 $) with $\omega_0^B / 2\pi = 0.497$ Hz for $j \in J^B = 100$ oscillators. For AKF, we plot \cref{eqn:main:ap_ssp_ar_spectden} using optimally trained $\{\phi_{q' \leq q}\}$ and $\sigma^2$, with order $q \approx 100$. The zeroth Fourier component and its estimates are omitted to allow for log scaling; and $N_T = 2000, N_P = 50$ steps, $\Delta t = 0.001s, r_{Nqy}=20$ and measurement noise level is $1\%$.} 
+\end{figure} 
+
+We present results from LSF, AKF and LKFFB in the linear regime with $\{ f_n \}$ drawn from a bandlimited flat top spectrum with uniformly randomised phase information.
+\\
+\\
+We test all KF variants on a simple tracking problem and a realistic noise scenario in \cref{fig:main:fig_data_all}. For both scenarios, all algorithms achieve a desirable forward prediction horizon. In (a), we plot single prediction runs for LSF, AKF and LKFFB for the case when perfect projection of the true state on the LKFFB basis is theoretically possible. In (b), we plot normalised Bayes prediction risk calculated over an ensemble of runs in (a).  In (a) and (b), we find that LKFFB learns all information about the dephasing noise, and qubit state dynamics are nearly perfectly predictable. AKF and LSF approximate true state dynamics with nearly identical ensemble averaged performance.  In (c) and (d), we engineer realistic operating scenarios for a qubit under true dephasing where true dephasing cannot be projected on an LKFFB basis and is drawn from a complex power spectral density. A single run is plotted in (c), and the Bayes prediction risk for an ensemble is plotted in (d). We find that autoregressive dynamics of LSF / AKF enable a larger forward prediction horizon than LKFFB.
+\\
+\\
+We note that a basis of oscillator approach yields a competitive forward prediction horizon in the KF framework, rather than in a GPR framework. In LKFFB, we track amplitude and phase information explicitly for a fixed, finite oscillator basis to help construct time domain predictions. Active phase tracking enables us to use learned Fourier domain information for generating qubit state predictions for $n>0$. However, we note that the efficacy of an LKFFB approach depends on a careful choice of the fixed computational basis relative to the dephasing noise power spectrum. For complex power spectral densities typical in realistic laboratory environments, we note that the performance of the LKFFB algorithm reduces dramatically. 
+\\
+\\
+We investigate the loss of performance for LKFFB in realistic learning scenarios in by reconstructing learned Fourier domain information about dephasing noise in \cref{fig:main:fig_data_specrecon}. We focus on the case where true $f$ is drawn from a simple power spectral density, but perfect projection on the LKFFB basis is prohibited. The sampling rate and the LKFFB basis naturally incorporate a bandwidth assumption about true noise, $f^B$, and we reduce the oversampling ratio of true noise relative to our bandwidth assumption from (a) to (d). For each experiment, we plot the learned instantaneous amplitudes from a single LKFFB run [blue dots] against the true dephasing noise power spectral density [black]. Additionally, we use learned parameters in AKF/LSF to calculate the spectrum using \cref{eqn:main:ap_ssp_ar_spectden} [red dots]. In (a)-(c), we find that spectrum reconstruction using LSF/ AKF is inferior to LKFFB, even in regimes where perfect projection  on the LKFFB basis is prohibited. We note that LKFFB discerns the true noise cut off frequency when the computational basis spans beyond the true cut-off frequency.  In (d), the LKFFB basis does not span the true noise bandwidth and learned instantaneous amplitudes do not agree with true dephasing noise spectrum. In all cases, AKF/LSF discerns the true dephasing noise cut-off frequency. 
+\\
+\\
+ We note that for all cases except LKFFB in (d), the Kalman algorithms discern the true noise cut-off frequency. The evidence in (a)-(c) of \cref{eqn:main:ap_ssp_ar_spectden} suggests that LKFFB performs high fidelilty instantaneous amplitude tracking even when perfect projection on the LKFFB basis is not possible. The discrepancy between AKF/LSF spectrum reconstruction and the truth depends on the accuracy of learning $\{\phi_{q' \leq q}\}$ in LSF and on the accuracy of optimally tuning $\sigma$ in AKF.  We conclude that the loss of predictive performance for LKFFB relative to AKF in the time domain must accrue from difficulty in tracking phase information during the filtering process.  This observation suggests that in our application, the difficulty of instantaneous phase estimation will disadvantage time domain predictive performance for any framework that deploys a collection of oscillators relative to autoregressive processes to model stochastic dynamics.
+\\
+\\
+We further test model robustness the two fundamentally different theoretic approaches in LKFFB and AKF for reconstructing stochastic dynamics in realistic operating environments. In \cref{fig:main:figure_lkffb_path}, these experiments corresspond to (a) perfect learning in LKFFB; (b) imperfect projection relative to LKFFB basis; (c) imperfect projection in (b) combined with finite algorithm resolution; and (d), where case (c)  is extended to an ill-specified basis relative to true noise bandwidth. We find that LKFFB performance deteriorates relative to AKF / LSF as pathologies are introduced in \cref{fig:main:figure_lkffb_path} (a)-(d). We expose the underlying optimisation results for LKFFB ((e) - (h)) and for AKF ((i) to (l)) in choosing an optimal $(\sigma^2, R)$. The overlap area of low loss choices between state estimation (blue) and prediction (purple) Bayes Risk shrinks for LKFFB in \cref{fig:main:figure_lkffb_path} (e) to (g), and regions are disjoint in (h), indicating that training has diminishing returns for LKFFB predictive performance as the algorithm breaks. Overlap of low loss Bayes Risk regions do not change for AKF across \cref{fig:main:figure_lkffb_path} (i)-(l).
+
+\begin{widetext}
+    \begin{figure*} 
+    \includegraphics[scale=1.0]{figure_lkffb_path}
+    \caption{\label{fig:main:figure_lkffb_path} 
+    We compare LKFFB and AKF performance when a true phase sequence $f$ is generated from a flat top spectrum in (a)-(d) by varying  $\omega_0 / 2\pi = 0.5, 0.499, \frac{8}{9} \times 10^{-3}, \frac{8}{9} \times 10^{-3}$ Hz and $J = 80, 80, 45000, 80000$ respectively. For (a)-(d), we depict normalised Bayes prediction risk for LKFFB, AKF, and LSF against time steps $n>0$. For LKFFB, these regimes corresspond to perfect learning in (a); imperfect projection on basis in (b); finite computational Fourier resolution in (c); and a relaxed bandwidth assumption ($f_B < \omega_0 / 2\pi$) in (d). In the panels (e)-(l), we depict optimisation of Kalman noise parameters ($\sigma^2, R$) for LKFFB [top row] and AKF [bottom row] for the four regimes in (a)-(d). Low loss regions represent risk values $< 10\%$ of the median risk incurred during Kalman hyperparameter optimisation for 75 trials of of randomised ($\sigma^2, R$) pairs. Optimal ($\sigma^*, R^*$) minimise state estimation risk. For each trial, a risk point is an expectation over 50 runs of true $f$ and noisy datasets during state estimation ($n \in  [-N_{SE}, 0]$) or prediction ($n \in  [0, N_{PR}]$). We choose $ N_{PR}=N_{SE}=50$ such that the shape of total loss over time steps form sensible optimsation problems over the range of numerical experiments in this paper. A scan of $N_{PR}, N_{SE}$ values do not appear to simplify our Kalman optimisation problem. We plot optimisation results for LKFFB in (e)-(h) and AKF in (i)-(l). A KF filter is `tuned' if optimal ($\sigma^*, R^*$) lies in the overlap of low loss regions for state estimation and prediction. This condition is violated in (h). KF algorithms are set up with $q = 100$ for AKF; $J^B = 100, \omega_0^B / 2\pi = 0.5$ Hz for LKFFB, with $N_T = 2000, N_P = 100$ steps, $\Delta t = 0.001s, r_{Nqy}=20$ and applied measurement noise level $1\%$.}
+    \end{figure*} 
+\end{widetext}
+
+The body of work presented in \cref{fig:main:fig_data_all,fig:main:fig_data_specrecon,fig:main:figure_lkffb_path} confirms that an autoregressive processes in a joint LSF / AKF implementation lead to model robust qubit state estimation. For the remainder of the paper, we freeze autoregressive dynamics as our choice of $\Phi$ in Kalman implementations. Since the AKF algorithm recasts an AR($q$) process from LSF into KF form, we test whether the KF framework enables additional measurement noise filtering for qubit dynamics described by the same autoregressive process. AKF dynamics are defined using $\{ \phi_{q' \leq q} \}$ using LSF.  We expect measurement noise filtering is enabled in the Kalman framework through the optimisation procedure for $R$ and secondly, imperfect learning in dynamical model $\Phi$ is futher addressed through optimisation of $\sigma$ relative to $R$. 
+\\
+\\
+In \cref{fig:main:fig_data_akfvlsf} (a), we plot the normalised Bayes prediction risk for AKF and LSF as a ratio such that a value greater than unity implies LSF outperforms AKF. In cases (i)-(iv), we increase the applied measurement noise level to our noisy datasets $\{ y_n \}$. For the low measurement noise case (i), LSF outperforms AKF. In moderate and high measurement noise regimes (ii)-(iv), we find that AKF outperforms LSF in numerical simulations. In \cref{fig:main:fig_data_akfvlsf} (b), we plot the Bayes prediction risk for each measurement noise level (i)-(iv). The plots in (b) confirm that all ratios reported in (a) corresspond to a desirable forward prediction horizon where both AKF and LSF outperform predicting the mean value of dephasing. We conclude that the Kalman framework enables increased measurement noise filtering compared to LSF alone when stochastic dynamics are identically specified. We note that the efficacy of the Kalman procedure for our application is contingent on robust tuning of the measurement noise parameter, $R$. 
+
+\begin{figure}
+    \includegraphics[scale=1.]{fig_data_akfvlsf}
+    \caption{\label{fig:main:fig_data_akfvlsf} (a) We plot the ratio of normalised Bayes prediction risk from AKF to LSF against time steps $n>0$.  AKF and LSF share identical $\{ \phi_q \}$ and  a value below $<1$ indicates AKF outperforms LSF. In (i)-(iv), applied measurement noise level is increased from $0.1 - 25 \%$, where the noise level is defined as standard deviation of additive Gaussian measurement noise relative to the sample standard deviation of random variables one realisation of true $f$. (b) We plot normalised Bayes Risk against time steps $n>0$ for AKF and LKFFB corressponding to cases (i) -(iv) and confirm a desirable forward prediction horizon underpins ratios in (a). True $f$ is drawn from a flat top spectrum with $\omega_0 / 2\pi = \frac{8}{9} \times 10^{-3}$ Hz, $J = 45000$, $N_T = 2000, N_P = 100$ steps, $\Delta t = 0.001s, r_{Nqy}=20$ such that \cref{fig:main:figure_lkffb_path}(c) corressponds to case (ii) in this figure. }
+\end{figure}
+
+\begin{figure}[h!]
+    \includegraphics[scale=1.]{fig_data_qkf}
+    \caption{\label{fig:main:fig_data_qkf2} We plot Bayes prediction risk for QKF against time steps $n>0$. In (a)-(b), we vary true $f$ cutoff relative to an apriori noise bandwidth assumption such that $J f_0 / f_B = 0.2, 0.4, 0.6, 0.8$ for an initially generated true $f$ in \cref{fig:main:fig_data_specrecon} with $\omega_0/ 2\pi = 0.497 $ Hz, $J = 20, 40, 60, 80$. Measurement noise is incurred on $f$ at $1 \%$ level for the linear measurement record and on $z$ at $1\%$ level corressponding to the non linear measurement record. In (a), we obtain $\{\phi_{q' \leq q}\}, q=100$ coefficients from AKF/LSF acting on a linear measurement record generated from true $f$. We re-generate a new truth, $f'$, from an autoregressive process by setting $\{\phi_{q'\leq q}\}, q=100$ as true coefficents and by defining a known, true $\sigma$. We generate quantised measurements from $f'$ and data is corrupted by measurement noise of a true, known strength $R$. Hence, QKF in (a) incorporates true dynamics and noise parameters $\{\{\phi_{q' \leq q} \}, \sigma, R\}$ but acts on single shot qubit measurements. In (b), we use $\{\phi_{q' \leq q} \}, q=100$ coefficients from (a) but we generate quantised measurements from the original, true $f$. We auto-tune QKF noise design parameters in a focused region ($\sigma_{AKF}^* \leq \sigma_{QKF}$, $R_{AKF}^* \leq R_{QKF}$) . For (a)-(b), forward prediction horizons are shown with $N_T = 2000, N_P = 50$ steps, $\Delta t = 0.001s, r_{Nqy}>> 2$.}
+\end{figure}
+
+\subsection{KF (Non Linear, Quantised Measurements)}
+
+We investigate whether a QKF can use single shot qubit outcomes for predictive estimation. The normalised prediction Bayes risk in  \cref{fig:main:fig_data_qkf2} is calculated with respect to the `noiseless measurement' $z$, instead of the stochastic phase sequence $f$, such that we capture the effect of the non linear measurement model. QKF estimates and tracks hidden phase information, $f$, using the proxy $x$, and the associated bias for a coin flip outcome, $\propto z$ is not inferred or measured directly but given deterministically by Born's rule encoded in  $h(x)$. 
+\\
+\\
+We investigate if a normalised Bayes prediction risk less than unity can be obtained for dephasing noise regimes considered previously using high $q$ AR($q$) models. The absolute forward prediction horizon is arbitrary relative to an oversampling ratio and the choice of order of a process, $q$. To establish a comparable link with the linear regime, we generate true dephasing defined in the numerical experiment in \cref{fig:main:fig_data_specrecon} for fixed $q=100$ and we reduce $f_0 J / f^B = 0.2, 0.4, 0.6, 0.8$. The comparison in \cref{fig:main:fig_data_qkf2} is such that we incorporate true dynamical model and Kalman noise parameters in QKF in (a), whereas we implement a full learning procedure in (b). 
+\\
+\\
+In \cref{fig:main:fig_data_qkf2} (a), we make a simple approximation to true dephasing $f$ yielding a true covariance stationary, non Markovian sequence $f'$. In particular, $f'$ is generated from a sequence of $\{ \phi_{q'\leq q}\}$ obtained from the action of LSF on $f$. We generate single shot qubit measurements based on $f'$. This procedure allows QKF to incorporate a true autoregressive dynamical model $\{ \phi_{q'\leq q}\}$ and true noise parameters $(\sigma, R)$.  We find that the measurement model in QKF enables the filter to track qubit dynamics using single shot measurements. A desirable forward prediction horizon is achieved for sufficiently oversampled regime, and the forward prediction horizon shrinks when oversampling is reduced. 
+\\
+\\
+In \cref{fig:main:fig_data_qkf2} (b), we generate single shot qubit measurements based on the true dephasing $f$. QKF incorporates a learned dynamical model from AKF in the linear regime. We run an optimisation procedure for QKF to tune $(\sigma, R)$. We explore $\sigma \geq \sigma_{AKF}^*$ to incorporate model errors as $\{\phi_{q' \leq q}\}$ were not learned in the non-linear regime.  We explore $R \geq R_{AKF}^*$ to incorporate increased measurement noise as QKF deals with raw data that has not been pre-processed or low pass filtered. The underlying optimisation problems are well behaved for all cases in \cref{fig:main:fig_data_qkf2}(b). We find that the forward prediction horizon is slightly better than predicting the mean value for dephasing noise when $f$ is highly oversampled. As oversampling is reduced, the forward prediction horizon disappears rapidly and the normalised Bayes Prediction risk remains greater than unity. 
+\\
+\\
+We find that a QKF is vulnerable to the build of errors such that the linearisation approximation of $h(x)$ breaks down during the filtering for realistic examples when the true dynamical model and Kalman noise parameters are unknown. Since the underlying optimisation problems for QKF cases in \cref{fig:main:fig_data_qkf2}(b) are well behaved, it is possible that the numerical forward prediction horizons in \cref{fig:main:fig_data_qkf2}(b) can be improved by solving the full $q+2$ optimisation problem for $\{\{ \phi_{q' \leq q}\}, \sigma, R\}$. However, the solution to the full optimisation problem is beyond the scope of this paper.    
+
+
+\section{Discussion}
+[PLACEHOLDER]
+In our studies, we have employed Bayesian frameworks to track stochastic qubit dynamics under covariance stationary, non Markovian dephasing and we predict the qubit state beyond the measurement record. By measurement record, we considered a linear regime where observations are sequence of simulated Ramsey phase measurements, $\state$, and we briefly explored a non-linear regime, where observations are single shot binary qubit outcomes. We considered predictive estimation under GPR and KF frameworks, in particular, we compared autoregressive approaches and a collection of oscillators to approximately represent stochastic dynamics in the mean square limit. We tested our tracking mechanisms under a range of realistic, imperfect learning conditions. 
+\\
+\\
+We compared the forward prediction horizon for qubit states under arbitrary dephasing, for algorithms under GPR and KF frameworks. In the absence of active phase tracking and correction, we conclude GPR state predictions  with a periodic kernel have a limited interpretation in forward time $n>0$ but retain their usefulness in data interpolation applications. For LSF and variants of KF algorithms, we find that the absolute forward prediction horizon can be arbitrarily increased by increasing the oversampling ratio.
+We find that model robust predictive performance is best enabled by a joint AKF/LSF framework in our studies. A joint AKF/LSF implementation enables additional measurement noise filtering and model optimisation than a LSF framework alone. These improvements are granted by optimising over model errors and smoothening over measurement noise while tuning Kalman design parameters, $(\sigma, R)$. Our studies indicate that autoregressive representations are model robust in realistic operating environments compared to alternative theoretical representations where a collection of oscillators is used to learn a covariance stationary random process in the mean square limit. 
+\\
+\\
+% In GPR, stochastic dynamics were encoded as correlations specified by a choice of a kernel that maximally probes the Fourier domain by summarising an infinite basis of oscillators. We find that without active phase tracking, learned Fourier amplitudes corresspond to a time domain pattern that is repeated at the fundamental period of the kernel, $\kappa$, in \cref{fig:main:fig_data_gpr}. Such a procedure enables high fidelity interpolation but carries limited meaning for forward prediction outside the zone of the measurement data.
+% \\
+% \\
+% In KF using linear measurement records, we compared the efficacy of autoregressive and oscillator approaches to model stochastic dynamics and yield model robust predictions. We find that autoregressive approaches yield better predictions than probing stochastic dynamics with a basis of osccilators for realistic, imperfect learning scenarios. In particular, a basis of oscillators is a discrete probe relative to a continuous dephasing spectrum. While it is always possible to outperform predicting the mean value of dephasing, an osscillator approach in LKFFB has a shorter forward prediction horizon relative to AKF if the LKFFB osccilator basis is too coarse or if true Fourier components do not match basis frequencies.
+% \\
+% \\
+We extended the Kalman model to act on single shot projective measurements from a qubit, namely, by defining a non-linear, coin-flip measurement action in QKF. State tracking behaviour is seen if dynamics, in principle, could be perfectly specified. In this idealised case, we reduced the oversampling ratio and observed an anticipated gradual reduction in the forward prediction horizon for QKF.  This provides evidence that our non-linear, coin-flip measurement action does not prohibit predictive estimation if the build of errors remain small during filtering, namely, that the linearisation of $h(x)$ by $H$ holds during propagation of Kalman moments $(x, P)$. The linearisation condition is violated in realistic learning scenarios when we introduce a learned dynamical model and imperfectly tuned Kalman noise parameters. In our procedure, predictive estimation becomes prohbitively difficult with QKF. It remains an open research question whether an alternative optimisation procedure could improve QKF predictive performance. 
+
+\section{Conclusion \label{sec:main:Conclusion}}
+[PLACEHOLDER]
+We enable predictive estimation for a single qubit evolving under covariance stationary, non-Markovian environmental dephasing with arbitrary power spectral densities. Our predictive estimation algorithms are examples of classical machine learning approaches. We  design algorithms to learn correlations from a sequence of projective measurements and we maximise the forward prediction horizon under realistic operating environments. The scalability of classical machine learning approaches offer unique opportunities for analysing noise correlation information encoded in complex measurement records. While we have considered univariate time series analysis in this paper, natural extensions of algorithimically enabled correlation analysis exist, for example, in analysing a collection of qubits coupled to a common continous space-time field, or for measurements defined by non-commuting operators. These applications are a subject of ongoing research work.
+
+\section{Version Control \label{sec:main:versioncontrol}}
+Notes: NOTES-v0-1 | Notes-2017-Main-v6
+\\
+\\
+Data: Fig v5
+\\
+\\
+Code: Git Hub Branch quantised-kf last updated 19 Sept 2017
+\\
+\\

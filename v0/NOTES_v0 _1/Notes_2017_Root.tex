@@ -1,8 +1,8 @@
 \documentclass[ aps12pt4-1, twocolumn]{revtex4-1}
 \usepackage{amssymb,amsmath}
 \usepackage{graphicx, import}
-\usepackage{caption}
-\usepackage{subcaption}
+% \usepackage{caption}  # not compatible with Revtek
+% \usepackage{subcaption}  # not compatible with Revtek
 \usepackage{placeins}
 \usepackage{hyperref}
 \usepackage[nameinlink]{cleveref}
@@ -19,7 +19,7 @@
 
 % Define state 
 \newcommand{\state}[0]{f} %mathmode only
-
+ 
 % Define Dirac and Pauli notation
 \newcommand{\ket}[1]{| #1 \rangle} %mathmode only
 \newcommand{\bra}[1]{\langle #1 |} %mathmode only 
@@ -43,12 +43,12 @@
 
 %Define format for defintions
 \newtheorem{defn}{Definition}
-\newtheorem{thm}{Theorem}
+\newtheorem{thm}{Theorem} 
 \newtheorem{azm}{Assumption} 
 
 % Define paragraph spacing and line spacing
 % \setlength{\parindent}{4em}
-\setlength{\parskip}{20em}
+\setlength{\parskip}{20em} 
 % \renewcommand{\baselinestretch}{1.5}
 
 
@@ -57,22 +57,23 @@
 % \listoftables
 % \begin{widetext} 
 % \tableofcontents
-\include{./tex/Notes_2017_Main_v5}
+% \include{./tex/Notes_2017_DataFig_Captions}
+\include{./tex/Notes_2017_Main_v7}
 % \end{widetext}  
 % \include{./tex/Notes_v0_1_Structure}
 % \appendix
 % \begin{widetext}
-% %  \include{./tex/Notes_2017_A_Setup}
-% %  \include{./tex/Notes_2017_A_StationaryStochasticProcesses}
-% %  \include{./tex/Notes_2017_A_ApproxStationaryProcesses}
-% %  \include{./tex/Notes_2017_A_LinearPredictors}
-% %  \include{./tex/Notes_2017_A_Forecasting}
-% %  \include{./tex/Notes_2017_A_Kernels_for_GPR_Learning}
-% %  \include{./tex/Notes_2017_A_Optimisation_v2}
-% %  \include{./tex/Notes_2017_A_NumericalDefs}
+%  \include{./tex/Notes_2017_A_Setup_Full}
+% % %  \include{./tex/Notes_2017_A_StationaryStochasticProcesses}
+% % %  \include{./tex/Notes_2017_A_ApproxStationaryProcesses}
+% % %  \include{./tex/Notes_2017_A_LinearPredictors}
+% % %  \include{./tex/Notes_2017_A_Forecasting}
+% % %  \include{./tex/Notes_2017_A_Kernels_for_GPR_Learning}
+% % %  \include{./tex/Notes_2017_A_Optimisation_v2}
+% % %  \include{./tex/Notes_2017_A_NumericalDefs}
 % \end{widetext}
 \bibliographystyle{apsrev4-1}
-\bibliography{./tex/Biblio_ML}
+\bibliography{./tex/Biblio_ML} 
 \end{document}
 
 
