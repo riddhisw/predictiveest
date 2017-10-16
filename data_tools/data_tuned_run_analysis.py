@@ -31,7 +31,7 @@ import kf.fast_2 as Kalman
 
 
 from kf.common import calc_inst_params
-from kf.armakf import autokf as akf
+from akf.armakf import autokf as akf
 from ls import statePredictions as sp
 from analysis_tools.truth import FUDGE_1, HILBERT_TRANSFORM_
 
@@ -117,31 +117,37 @@ def AKF_run(LdExp, y_signal, **kwargs):
 
         oe=0.0
         rk=0.0
-
-        if len(kwargs) == 2:
-            oe = kwargs['opt_sigma'] # Optimally tuned
-            rk = kwargs['opt_R'] # Optimally tuned
         
-        weights = LdExp.AKF_weights # This is randomly chosen. They are not ensmble averaged weights.
-        order = weights.shape[0]
+    try:
+        quantised = kwargs['quantised']
+        print('Got here')
+    except:
+        quantised = 'No'
 
-        akf_pred = akf('AKF', y_signal, weights, oe, rk, 
-                        n_train=LdExp.Expt.n_train, 
-                        n_testbefore=LdExp.Expt.n_testbefore, 
-                        n_predict=LdExp.Expt.n_predict, 
-                        p0=LdExp.LKFFB_kalman_params[3], # same as LKFFB p0
-                        skip_msmts=1,  
-                        switch_off_save='Yes')
-        
-        akf_x, akf_y = calc_AR_PSD(weights, oe, LdExp.Expt.Delta_S_Sampling, LdExp.Expt.Delta_T_Sampling)
+    if len(kwargs) == 2:
+        oe = kwargs['opt_sigma'] # Optimally tuned
+        rk = kwargs['opt_R'] # Optimally tuned
+    
+    weights = LdExp.AKF_weights # This is randomly chosen. They are not ensmble averaged weights.
+    order = weights.shape[0]
 
-        # Normalisation against Truth
-        LdExp.Truth.beta_z_truePSD() # new line. If beta_z_truePSD() is not called, true_S_norm = None
-        akf_y_norm = akf_y*1.0/LdExp.Truth.true_S_norm 
+    akf_pred = akf('AKF', y_signal, weights, oe, rk, 
+                    n_train=LdExp.Expt.n_train, 
+                    n_testbefore=LdExp.Expt.n_testbefore, 
+                    n_predict=LdExp.Expt.n_predict, 
+                    p0=LdExp.LKFFB_kalman_params[3], # same as LKFFB p0
+                    skip_msmts=1,  
+                    save='No', quantised=quantised)
+    print('Got here too')
+    akf_x, akf_y = calc_AR_PSD(weights, oe, LdExp.Expt.Delta_S_Sampling, LdExp.Expt.Delta_T_Sampling)
 
-        print('Total coeff', np.sum(akf_y), np.sum(akf_y_norm))
+    # Normalisation against Truth
+    LdExp.Truth.beta_z_truePSD() # new line. If beta_z_truePSD() is not called, true_S_norm = None
+    akf_y_norm = akf_y*1.0/LdExp.Truth.true_S_norm 
 
-        return akf_x, akf_y, akf_y_norm, akf_pred 
+    print('Total coeff', np.sum(akf_y), np.sum(akf_y_norm))
+
+    return akf_x, akf_y, akf_y_norm, akf_pred 
 
 
 ################
@@ -172,7 +178,7 @@ def clip_high_periods(LdExp, ordered_idxp, ordered_periods, n_train_default=2000
         print("clip_high_periods() was unable to clip periods; original periods were returned")
         return ordered_idxp, ordered_periods
 
-    return list(indicies_), list(periods_)
+    return list(idxp_), list(periods_)
 
 
 def choose_GPR_params(LdExp):
@@ -313,10 +319,17 @@ def LKFFB_run(LdExp, y_signal, **kwargs):
     oe=0.0
     rk=0.0
     method='ZeroGain'
+    
+    try:
+        quantised = kwargs['quantised']
+    except:
+        quantised = 'No'
 
     if len(kwargs) == 2:
         oe = kwargs['opt_sigma'] # Optimally tuned
         rk = kwargs['opt_R'] # Optimally tuned
+        
+
     
     x0 = LdExp.LKFFB_kalman_params[2]
     p0 = LdExp.LKFFB_kalman_params[3]
@@ -330,7 +343,7 @@ def LKFFB_run(LdExp, y_signal, **kwargs):
                                         LdExp.Expt.Delta_T_Sampling, 
                                         x0, p0, oe, rk, freq_basis_array, 
                                         phase_correction=0 ,prediction_method=method, 
-                                        skip_msmts=1, switch_off_save='Yes')
+                                        skip_msmts=1, switch_off_save='Yes', quantised=quantised)
 
     x_hat_slice = x_hat[:,:, LdExp.Expt.n_train]
     instantA, instantP = calc_inst_params(x_hat_slice)

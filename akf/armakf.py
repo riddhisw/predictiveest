@@ -23,7 +23,7 @@ import numpy as np
 import sys
 sys.path.append('../')
 
-from kf.common import calc_residuals, calc_Kalman_Gain
+from kf.common import calc_residuals, calc_Kalman_Gain, projected_msmt
 
 def get_autoreg_model(order, weights):
     """ Returns the dynamic state space model based 
@@ -62,7 +62,7 @@ def propagate_states_no_gamma(a, x_hat, P_hat, Q):
 
 
 def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50, 
-           n_predict=50, p0=10000, skip_msmts=1,  save='No'):
+           n_predict=50, p0=10000, skip_msmts=1,  save='No', quantised='No'):
 
     '''
     Returns predictions from an autoregressive kalman filtering run. Kalman model 
@@ -131,7 +131,7 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
             k = k+1 
             continue 
         
-        W_, S = calc_Kalman_Gain(h, P_hat_apriori, rk) # W needs to be reshaped
+        W_, S = calc_Kalman_Gain(h, P_hat_apriori, rk, quantised=quantised, x_hat_apriori=x_hat_apriori) # W needs to be reshaped
         W = W_.reshape(order,1)
 
         store_S[:,:, k] = S
@@ -143,7 +143,7 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
         if k % skip_msmts !=0:
             W = np.zeros((order, 1))
             
-        e_z[k] = calc_residuals(h, x_hat_apriori, y_signal[k])
+        e_z[k] = calc_residuals(h, x_hat_apriori, y_signal[k], quantised=quantised)
         #print('Residuals', e_z[k].shape)
         
         #print('Apriori x_hat', x_hat_apriori.shape)
@@ -185,5 +185,8 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
             n_testbefore=n_testbefore,
             skip_msmts=skip_msmts)
     
-    return store_x_hat[0,0, n_train - n_testbefore: ]
+    if quantised =='No':
+        return store_x_hat[0,0, n_train - n_testbefore: ]
+    else:
+        return projected_msmt(store_x_hat[0,0, n_train - n_testbefore: ])
 

@@ -49,7 +49,7 @@ PredictionMethod = {
 
 def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, 
             rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", 
-            skip_msmts=1, descriptor='Fast_KF_Results', switch_off_save='No'):
+            skip_msmts=1, descriptor='Fast_KF_Results', switch_off_save='No', quantised='No'):
     '''    
     Keyword Arguments:
     ------------------
@@ -104,10 +104,10 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
     
     '''    
-    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor, switch_off_save)
+    return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor, switch_off_save, quantised)
 
 
-def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor, switch_off_save):
+def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor, switch_off_save, quantised):
 
     #print(descriptor)
     #print(prediction_method_)
@@ -165,14 +165,14 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
             k = k+1 
             continue 
         
-        W, S = calc_Kalman_Gain(h, P_hat_apriori, rk)    
+        W, S = calc_Kalman_Gain(h, P_hat_apriori, rk, quantised=quantised, x_hat_apriori=x_hat_apriori)    
         store_S[:,:, k] = S
         
         #Skip msmts        
         if k % skip_msmts !=0:
             W = np.zeros((twonumf, 1))
             
-        e_z[k] = calc_residuals(h, x_hat_apriori, z[k])
+        e_z[k] = calc_residuals(h, x_hat_apriori, z[k], quantised=quantised)
         
         x_hat = x_hat_apriori + W*e_z[k]
         store_S_Outer_W[:,:,k] = S*np.outer(W,W.T)
@@ -225,7 +225,7 @@ def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p
         
         k=k+1
         
-    predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:])
+    predictions = calc_pred(store_x_hat[:,:,n_train-n_testbefore:], quantised=quantised)
     
     if switch_off_save == 'Yes':
         return predictions, store_x_hat

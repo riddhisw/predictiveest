@@ -22,11 +22,12 @@ import numpy as np
 from analysis_tools.experiment import Experiment
 from analysis_tools.truth import Truth
 
-ALGO = ['LSF', 'AKF', 'GPRP', 'LKFFB']
+ALGO = ['LSF', 'AKF', 'GPRP', 'LKFFB', 'QKF']
 FILENAME_DICT = {'AKF': '_BR_AKF_MAP_correctQ_.npz',
                  'LSF': '_LS_Ensemble.npz',
                  'LKFFB': 'BR_Map.npz', 
-                 'GPRP': '_GPR_PER_.npz'}
+                 'GPRP': '_GPR_PER_.npz',
+                 'QKF': 'BR_QKF_Map_II.npz'}
 
 
 class LoadExperiment(object):
@@ -48,7 +49,8 @@ class LoadExperiment(object):
                  GPRP_load='Yes', GPRP_path = './LS_Ensemble_Folder/',
                  LKFFB_load = 'Yes', LKFFB_path = './',
                  AKF_load='Yes', AKF_path = './LS_Ensemble_Folder/',
-                 LSF_load = 'Yes', LSF_path = './LS_Ensemble_Folder/'):
+                 LSF_load = 'Yes', LSF_path = './LS_Ensemble_Folder/',
+                 QKF_load = 'No', QKF_path = './'):
 
         self.test_case = test_case
         self.variation = variation
