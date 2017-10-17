@@ -55,14 +55,14 @@ In the case where data is perfectly projected on our basis, this has no impact. 
 \begin{figure}[h!]
 	\centering
 	\caption[Forecasting: Optimal time to extracting Kalman estimates during training]{Learned amplitude trajectories v. time for Perfect and Imperfect learning scenarios. At $ t^* = \Delta t n_C^* \equiv 2.0$, amplitude trajectories (dots) should be non-zero, corressponding to true frequencies in the underlying signal. All other trajectories  (dotted lines) should be zero. Fig. \ref{fig:sinusoid_KF_extraction_perfect} shows that for $n > n_C^*$, learned amplitudes are stable when Perfect Learning is possible. In Fig. \ref{fig:sinusoid_KF_extraction_imperfect}, we illustrate that learned amplitude information is gradually lost in the Imperfect Learning case. The loss of information is severe for realistic contexts (not depicted).}
-	\begin{subfigure}[h!]{0.4\textwidth}
-		\includegraphics[width=\textwidth]{final_sinusoid_KF_extraction_perfect.png}
+%	\begin{subfigure}[h!]{0.4\textwidth}
+		\includegraphics[width=0.4\textwidth]{final_sinusoid_KF_extraction_perfect.png}
 		\caption{Perfect learning} \label{fig:sinusoid_KF_extraction_perfect}
-	\end{subfigure}
-	\begin{subfigure}[h!]{0.4\textwidth}
-		\includegraphics[width=\textwidth]{final_sinusoid_KF_extraction_imperfect.png}
+%	\end{subfigure}
+%	\begin{subfigure}[h!]{0.4\textwidth}
+		\includegraphics[width=0.4\textwidth]{final_sinusoid_KF_extraction_imperfect.png}
 		\caption{Imperfect learning} \label{fig:sinusoid_KF_extraction_imperfect}
-	\end{subfigure}
+%	\end{subfigure}
 \end{figure}
 \FloatBarrier
 At $n_C^* $, we optimally extract amplitude and phase information before the structure of the filter begins to systematicaly erode learned state estimates.

@@ -1,0 +1,1274 @@
+% -------------------------------------------------- PRIMARY REFERENCES --------
+
+@inproceedings{solin2014explicit,
+  title={Explicit link between periodic covariance functions and state space models},
+  author={Solin, Arno and S{\"a}rkk{\"a}, Simo},
+  booktitle={Artificial Intelligence and Statistics},
+  pages={904--912},
+  year={2014}
+}
+
+
+@book{karlin2012,
+  title={A First Course in Stochastic Processes},
+  author={Karlin, S. and Taylor, H.E.},
+  isbn={9780080570419},
+  url={https://books.google.com.au/books?id=dSDxjX9nmmMC},
+  year={2012},
+  publisher={Elsevier Science}
+}
+
+@book{vaseghi2013,
+  title={Advanced signal processing and digital noise reduction},
+  author={Vaseghi, Saeed V},
+  year={2013},
+  publisher={Springer-Verlag}
+}
+
+@article{rasmussen2006,
+  title={Gaussian Processes for Machine Learning},
+  author={Rasmussen, Carl Edward and Williams, Christopher KI},
+  year={2006}
+}
+
+@article{soare2014,
+  title={Experimental bath engineering for quantitative studies of quantum control},
+  author={Soare, A and Ball, H and Hayes, D and Zhen, X and Jarratt, MC and Sastrawan, J and Uys, H and Biercuk, MJ},
+  journal={Physical Review A},
+  volume={89},
+  number={4},
+  pages={042329},
+  year={2014},
+  publisher={APS}
+}
+
+@article{livska2007,
+  title={Time-Frequency Representation of Instantaneous Frequency Using a Kalman Filter},
+  author={Li{\v{s}}ka, Jind{\v{r}}ich and Jane{\v{c}}ek, Eduard},
+  journal={ICINCO 2007},
+  year={2007}
+}
+
+@article{mavadia2017,
+  title={Prediction and real-time compensation of qubit decoherence via machine learning},
+  author={Mavadia, Sandeep and Frey, Virginia and Jarrah Sastrawan, Stephen Dona and Biercuk, Michael J},
+  journal={Nature communications},
+  volume={8},
+  year={2017},
+  publisher={Nature Publishing Group}
+}
+
+@inproceedings{wilson2013,
+  title={Gaussian process kernels for pattern discovery and extrapolation},
+  author={Wilson, Andrew and Adams, Ryan},
+  booktitle={Proceedings of the 30th International Conference on Machine Learning (ICML-13)},
+  pages={1067--1075},
+  year={2013}
+}
+
+@article{quia2010,
+  title={Sparse spectrum Gaussian process regression},
+  author={Qui{\~A}$\pm$onero-Candela, Joaquin and Rasmussen, Carl Edward and Figueiras-Vidal, An{\~A}bal R and others},
+  journal={Journal of Machine Learning Research},
+  volume={11},
+  number={Jun},
+  pages={1865--1881},
+  year={2010}
+}
+
+@Misc{gpy2014,
+  author =   {{GPy}},
+  title =    {{GPy}: A Gaussian process framework in python},
+  howpublished = {\url{http://github.com/SheffieldML/GPy}},
+  year = {since 2012}
+}
+
+@inproceedings{abbeel2005,
+  title={Discriminative Training of Kalman Filters.},
+  author={Abbeel, Pieter and Coates, Adam and Montemerlo, Michael and Ng, Andrew Y and Thrun, Sebastian}
+}
+
+
+@article{degen2017,
+  title={Quantum sensing},
+  author={Degen, CL and Reinhard, F and Cappellaro, P},
+  journal={Reviews of Modern Physics},
+  volume={89},
+  number={3},
+  pages={035002},
+  year={2017},
+  publisher={APS}
+}
+
+
+@article{biercuk2011,
+  title={Dynamical decoupling sequence construction as a filter-design problem},
+  author={Biercuk, MJ and Doherty, AC and Uys, H},
+  journal={Journal of Physics B: Atomic, Molecular and Optical Physics},
+  volume={44},
+  number={15},
+  pages={154002},
+  year={2011},
+  publisher={IOP Publishing}
+}
+
+@article{wiebe2015,
+  title={Efficient Bayesian Phase Estimation},
+  author={Wiebe, Nathan and Granade, Christopher E},
+  journal={arXiv preprint arXiv:1508.00869},
+  year={2015}
+}
+
+@article{matsuzaki2017,
+  title={Magnetic-field sensing with quantum error detection under the effect of energy relaxation},
+  author={Matsuzaki, Yuichiro and Benjamin, Simon},
+  journal={Physical Review A},
+  volume={95},
+  number={3},
+  pages={032303},
+  year={2017},
+  publisher={APS}
+}
+
+@article{lazariev2017,
+  title={Dynamical sensitivity control of a single-spin quantum sensor},
+  author={Lazariev, Andrii and Arroyo-Camejo, Silvia and Rahane, Ganesh and Kavatamane, Vinaya Kumar and Balasubramanian, Gopalakrishnan},
+  journal={Scientific Reports},
+  volume={7},
+  year={2017},
+  publisher={Nature Publishing Group}
+}
+
+@article{ball2016,
+  title={The role of master clock stability in scalable quantum information processing},
+  author={Ball, Harrison and Oliver, William D and Biercuk, Michael J},
+  journal={arXiv preprint arXiv:1602.04551},
+  year={2016}
+}
+
+@article{wiebe2015bayesian,
+  title={Bayesian inference via rejection filtering},
+  author={Wiebe, Nathan and Granade, Christopher and Kapoor, Ashish and Svore, Krysta M},
+  journal={arXiv preprint arXiv:1511.06458},
+  year={2015}
+}
+
+@article{jacob2016,
+  title={Bayesian inference in non-Markovian state-space models with applications to fractional order systems},
+  author={Jacob, Pierre E and Alavi, SM and Mahdi, Adam and Payne, Stephen J and Howey, David A},
+  journal={arXiv preprint arXiv:1601.07622},
+  year={2016}
+}
+
+@article{widrow1996,
+  title={Statistical theory of quantization},
+  author={Widrow, Bernard and Kollar, Istvan and Liu, Ming-Chang},
+  journal={IEEE Transactions on instrumentation and measurement},
+  volume={45},
+  number={2},
+  pages={353--361},
+  year={1996},
+  publisher={IEEE}
+}
+
+@book{karlsson2005,
+  title={Filtering and estimation for quantized sensor information},
+  author={Karlsson, Rickard and Gustafsson, Fredrik},
+  year={2005},
+  publisher={Link{\"o}ping University Electronic Press}
+}
+
+@article{ferrie2013,
+  title={How to best sample a periodic probability distribution or on the accuracy of Hamiltonian finding strategies},
+  author={Ferrie, Christopher and Granade, Christopher E and Cory, David G},
+  journal={Quantum Information Processing},
+  pages={1--13},
+  publisher={Springer}
+}
+
+@unpublished{rogers2017,
+  title={Bayesian inference of switching rates for blinking emitters },
+  author={Rogers, Lachlan},
+  year={2017},
+  note={talk at EQUS Annual Workshop 2018}
+}
+
+
+% ---------------------------------------------------------- NEW REFERENCES ----
+@article{anderson2015batch,
+  title={Batch nonlinear continuous-time trajectory estimation as exactly sparse Gaussian process regression},
+  author={Anderson, Sean and Barfoot, Timothy D and Tong, Chi Hay and S{\"a}rkk{\"a}, Simo},
+  journal={Autonomous Robots},
+  volume={39},
+  number={3},
+  pages={221--238},
+  year={2015},
+  publisher={Springer}
+}
+
+@inproceedings{grigorievskiy2016gaussian,
+  title={Gaussian Process kernels for popular state-space time series models},
+  author={Grigorievskiy, Alexander and Karhunen, Juha},
+  booktitle={Neural Networks (IJCNN), 2016 International Joint Conference on},
+  pages={3354--3363},
+  year={2016},
+  organization={IEEE}
+}
+
+@article{reece2014efficient,
+  title={Efficient state-space inference of periodic latent force models},
+  author={Reece, Steven and Roberts, Stephen and Ghosh, Siddhartha and Rogers, Alex and Jennings, Nicholas R},
+  journal={Journal of Machine Learning Research},
+  volume={15},
+  pages={2337--2397},
+  year={2014}
+}
+
+@inproceedings{aravecchia2014gaussian,
+  title={Gaussian process for rss-based localisation},
+  author={Aravecchia, M and Messelodi, Stefano},
+  booktitle={Wireless and Mobile Computing, Networking and Communications (WiMob), 2014 IEEE 10th International Conference on},
+  pages={654--659},
+  year={2014},
+  organization={IEEE}
+}
+
+@article{shulman2014suppressing,
+  title={Suppressing qubit dephasing using real-time Hamiltonian estimation},
+  author={Shulman, Michael D and Harvey, Shannon P and Nichol, John M and Bartlett, Stephen D and Doherty, Andrew C and Umansky, Vladimir and Yacoby, Amir},
+  journal={Nature communications},
+  volume={5},
+  year={2014},
+  publisher={Nature Publishing Group}
+}
+
+@article{doucet1998sequential,
+  title={On sequential simulation-based methods for Bayesian filtering},
+  author={Doucet, Arnaud},
+  year={1998},
+  publisher={Citeseer}
+}
+
+@article{fox2003bayesian,
+  title={Bayesian filtering for location estimation},
+  author={Fox, V and Hightower, Jeffrey and Liao, Lin and Schulz, Dirk and Borriello, Gaetano},
+  journal={IEEE pervasive computing},
+  volume={2},
+  number={3},
+  pages={24--33},
+  year={2003},
+  publisher={IEEE}
+}
+
+@inproceedings{doucet2000rao,
+  title={Rao-Blackwellised particle filtering for dynamic Bayesian networks},
+  author={Doucet, Arnaud and De Freitas, Nando and Murphy, Kevin and Russell, Stuart},
+  booktitle={Proceedings of the Sixteenth conference on Uncertainty in artificial intelligence},
+  pages={176--183},
+  year={2000},
+  organization={Morgan Kaufmann Publishers Inc.}
+}
+
+@article{arulampalam2002tutorial,
+  title={A tutorial on particle filters for online nonlinear/non-Gaussian Bayesian tracking},
+  author={Arulampalam, M Sanjeev and Maskell, Simon and Gordon, Neil and Clapp, Tim},
+  journal={IEEE Transactions on signal processing},
+  volume={50},
+  number={2},
+  pages={174--188},
+  year={2002},
+  publisher={Ieee}
+}
+
+@article{mathews1990fixed,
+  title={Fixed-point error analysis of stochastic gradient adaptive lattice filters},
+  author={Mathews, V John and Xie, Zhenhua},
+  journal={IEEE Transactions on Acoustics, Speech, and Signal Processing},
+  volume={38},
+  number={1},
+  pages={70--80},
+  year={1990},
+  publisher={IEEE}
+}
+
+@article{blank1994adaptive,
+  title={Adaptive, global, extended Kalman filters for training feedforward neural networks},
+  author={Blank, Thomas B and Brown, Steven D},
+  journal={Journal of chemometrics},
+  volume={8},
+  number={6},
+  pages={391--407},
+  year={1994},
+  publisher={Wiley Online Library}
+}
+
+
+@article{belavkin2005quantum,
+  title={Quantum filtering of Markov signals with white quantum noise},
+  author={Belavkin, VP},
+  journal={arXiv preprint quant-ph/0512091},
+  year={2005}
+}
+
+  	
+@article{koenraad2009quantum,
+  author={Koenraad M R Audenaert and Stefan Scheel},
+  title={Quantum tomographic reconstruction with error bars: a Kalman filter approach},
+  journal={New Journal of Physics},
+  volume={11},
+  number={2},
+  pages={023028},
+  url={http://stacks.iop.org/1367-2630/11/i=2/a=023028},
+  year={2009},
+  }
+	
+  @article{blank1994adaptive,
+  title={Adaptive, global, extended Kalman filters for training feedforward neural networks},
+  author={Blank, Thomas B and Brown, Steven D},
+  journal={Journal of chemometrics},
+  volume={8},
+  number={6},
+  pages={391--407},
+  year={1994},
+  publisher={Wiley Online Library}
+}
+
+@article{lee2000oscillator,
+  title={Oscillator phase noise: A tutorial},
+  author={Lee, Thomas H and Hajimiri, Ali},
+  journal={IEEE journal of solid-state circuits},
+  volume={35},
+  number={3},
+  pages={326--336},
+  year={2000},
+  publisher={IEEE}
+}
+
+@article{van2004sigma,
+  title={Sigma-point Kalman filters for probabilistic inference in dynamic state-space models},
+  author={Van Der Merwe, Rudolph},
+  year={2004},
+  url="http://digitalcommons.ohsu.edu/cgi/viewcontent.cgi?article=1007&context=etd"
+}
+
+@article{flindt2008counting,
+  title={Counting statistics of non-Markovian quantum stochastic processes},
+  author={Flindt, Christian and Novotn{\`y}, Tom{\'a}{\v{s}} and Braggio, Alessandro and Sassetti, Maura and Jauho, Antti-Pekka},
+  journal={Physical review letters},
+  volume={100},
+  number={15},
+  pages={150601},
+  year={2008},
+  publisher={APS}
+}
+
+ 	
+@article{vedral2001classical,
+  author={L Henderson and V Vedral},
+  title={Classical, quantum and total correlations},
+  journal={Journal of Physics A: Mathematical and General},
+  volume={34},
+  number={35},
+  pages={6899},
+  url={http://stacks.iop.org/0305-4470/34/i=35/a=315},
+  year={2001},
+  abstract={We discuss the problem of separating consistently the total correlations in a bipartite quantum state into a quantum and a purely classical part. A measure of classical correlations is proposed and its properties are explored.}
+}
+
+@book{widrow1985adaptive,
+  title={Adaptive signal processing},
+  author={Widrow, Bernard and Stearns, Samuel D},
+  volume={15},
+  year={1985},
+  publisher={Prentice-hall Englewood Cliffs, NJ}
+}
+
+@book{maybeck1982stochastic,
+  title={Stochastic models, estimation, and control},
+  author={Maybeck, Peter S},
+  volume={3},
+  year={1982},
+  publisher={Academic press}
+}
+
+
+%---------------------------------------------------SECOND TIER REFERENCES ----
+
+%-------------------------------------------------------
+% Instantaneous Frequency and Phase  
+%-------------------------------------------------------
+@article{boashash1992estimating1,
+  title={Estimating and interpreting the instantaneous frequency of a signal. I. Fundamentals},
+  author={Boashash, B},
+  journal={Proceedings of the IEEE},
+  volume={80},
+  number={4},
+  pages={520--538},
+  year={1992},
+  publisher={IEEE}
+}
+
+
+@article{boashash1992estimating2,
+  title={Estimating and interpreting the instantaneous frequency of a signal. II. Algorithms and applications},
+  author={Boashash, Boualem},
+  journal={Proceedings of the IEEE},
+  volume={80},
+  number={4},
+  pages={540--568},
+  year={1992},
+  publisher={IEEE}
+}
+
+@inproceedings{huang1998empirical,
+  title={The empirical mode decomposition and the Hilbert spectrum for nonlinear and non-stationary time series analysis},
+  author={Huang, Norden E and Shen, Zheng and Long, Steven R and Wu, Manli C and Shih, Hsing H and Zheng, Quanan and Yen, Nai-Chyuan and Tung, Chi Chao and Liu, Henry H},
+  booktitle={Proceedings of the Royal Society of London A: mathematical, physical and engineering sciences},
+  volume={454},
+  number={1971},
+  pages={903--995},
+  year={1998},
+  organization={The Royal Society}
+}
+
+
+@inproceedings{picinbono1998some,
+  title={Some remarks on instantaneous amplitude and frequency of signals},
+  author={Picinbono, Bernard},
+  booktitle={Time-Frequency and Time-Scale Analysis, 1998. Proceedings of the IEEE-SP International Symposium on},
+  pages={293--300},
+  year={1998},
+  organization={IEEE}
+}
+
+@article{fienup1982phase,
+  title={Phase retrieval algorithms: a comparison},
+  author={Fienup, James R},
+  journal={Applied optics},
+  volume={21},
+  number={15},
+  pages={2758--2769},
+  year={1982},
+  publisher={Optical Society of America}
+}
+
+@article{lance1984phase,
+  title={Phase noise and AM noise measurements in the frequency domain},
+  author={Lance, Algie L and Seal, Wendell D and Labaar, Frederik},
+  journal={Infrared and millimeter waves.},
+  volume={11},
+  pages={239--289},
+  year={1984}
+}
+
+@article{rutman1978characterization,
+  title={Characterization of phase and frequency instabilities in precision frequency sources: Fifteen years of progress},
+  author={Rutman, Jacques},
+  journal={Proceedings of the IEEE},
+  volume={66},
+  number={9},
+  pages={1048--1075},
+  year={1978},
+  publisher={IEEE}
+}
+
+@article{gardner2005instantaneous,
+  title={Instantaneous frequency decomposition: An application to spectrally sparse sounds with fast frequency modulations},
+  author={Gardner, TJ and Magnasco, MO},
+  journal={The Journal of the Acoustical Society of America},
+  volume={117},
+  number={5},
+  pages={2896--2903},
+  year={2005},
+  publisher={ASA}
+}
+
+@article{picinbonoinstantaneous,
+  title={Instantaneous Frequency of a Signal},
+  author={Picinbono, Bernard},
+  journal={Time-Frequency Analysis: Concepts and Methods},
+  pages={37--60},
+  publisher={Wiley Online Library}
+}
+
+@techreport{pulikkoonattu2007oscillator,
+  title={Oscillator phase noise and sampling clock jitter},
+  author={Pulikkoonattu, RETHNAKARAN},
+  year={2007},
+  institution={ST Microelectronics technical report}
+}
+
+@techreport{dick1990local,
+  title={Local oscillator induced degradation of medium-term stability in passive atomic frequency standards},
+  author={Dick, G John and Prestage, John D and Greenhall, Charles A and Maleki, Lute},
+  year={1990},
+  institution={CALIFORNIA INST OF TECHNOLOGY PASADENA JET PROPULSION LAB}
+}
+%-------------------------------------------------------
+% Kernel Learning Algorithms
+%-------------------------------------------------------
+
+@book{rasmussen2006gaussian,
+  title={Gaussian processes for machine learning},
+  author={Rasmussen, Carl Edward and Williams, Christopher KI},
+  volume={1},
+  year={2006},
+  publisher={MIT press Cambridge}
+}
+
+@article{muller2001introduction,
+  title={An introduction to kernel-based learning algorithms},
+  author={Muller, K-R and Mika, Sebastian and Ratsch, Gunnar and Tsuda, Koji and Scholkopf, Bernhard},
+  journal={IEEE transactions on neural networks},
+  volume={12},
+  number={2},
+  pages={181--201},
+  year={2001},
+  publisher={IEEE}
+}
+
+@article{klenske2016gaussian,
+  title={Gaussian process-based predictive control for periodic error correction},
+  author={Klenske, Edgar D and Zeilinger, Melanie N and Sch{\"o}lkopf, Bernhard and Hennig, Philipp},
+  journal={IEEE Transactions on Control Systems Technology},
+  volume={24},
+  number={1},
+  pages={110--121},
+  year={2016},
+  publisher={IEEE}
+}
+
+@inproceedings{arlot2009data,
+  title={Data-driven calibration of linear estimators with minimal penalties},
+  author={Arlot, Sylvain and Bach, Francis R},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={46--54},
+  year={2009}
+}
+
+
+%-------------------------------------------------------
+% General Bayesian Learning
+%-------------------------------------------------------
+
+@article{struchalin2016experimental,
+  title={Experimental adaptive quantum tomography of two-qubit states},
+  author={Struchalin, GI and Pogorelov, IA and Straupe, SS and Kravtsov, KS and Radchenko, IV and Kulik, SP},
+  journal={Physical Review A},
+  volume={93},
+  number={1},
+  pages={012103},
+  year={2016},
+  publisher={APS}
+}
+
+@article{marelli2015asymptotic,
+  title={Asymptotic Optimality of the Maximum-Likelihood Kalman Filter for Bayesian Tracking With Multiple Nonlinear Sensors},
+  author={Marelli, Dami{\'a}n and Fu, Minyue and Ninness, Brett},
+  journal={IEEE transactions on signal processing},
+  volume={63},
+  number={17},
+  pages={4502--4515},
+  year={2015},
+  publisher={IEEE}
+}
+
+@article{granade2012robust,
+  title={Robust online Hamiltonian learning},
+  author={Granade, Christopher E and Ferrie, Christopher and Wiebe, Nathan and Cory, David G},
+  journal={New Journal of Physics},
+  volume={14},
+  number={10},
+  pages={103013},
+  year={2012},
+  publisher={IOP Publishing}
+}
+
+@inproceedings{ferrie2012adaptive,
+  title={Adaptive Hamiltonian estimation using Bayesian experimental design},
+  author={Ferrie, Christopher and Granade, Christopher E and Cory, DG},
+  booktitle={AIP Conference Proceedings 31st},
+  volume={1443},
+  number={1},
+  pages={165--173},
+  year={2012},
+  organization={AIP}
+}
+
+
+@article{shabani2010efficient,
+  title={Efficient estimation of nearly sparse many-body quantum Hamiltonians},
+  author={Shabani, A and Mohseni, M and Lloyd, S and Kosut, RL and Rabitz, H},
+  journal={arXiv preprint arXiv:1002.1330},
+  year={2010}
+}
+
+@article{shen2014reconstructing,
+  title={Reconstructing propagation networks with natural diversity and identifying hidden sources},
+  author={Shen, Zhesi and Wang, Wen-Xu and Fan, Ying and Di, Zengru and Lai, Ying-Cheng},
+  journal={Nature communications},
+  volume={5},
+  year={2014},
+  publisher={Nature Publishing Group}
+}
+
+
+@article{de2016estimation,
+  title={Estimation of a general time-dependent Hamiltonian for a single qubit},
+  author={de Clercq, Ludwig E and Oswald, Robin and Fl{\"u}hmann, Christa and Keitch, B and Kienzler, Daniel and Lo, H-Y and Marinelli, Matteo and Nadlinger, David and Negnevitsky, Vlad and Home, Jonathan P},
+  journal={Nature communications},
+  volume={7},
+  year={2016},
+  publisher={Nature Publishing Group}
+}
+
+@inproceedings{hall2011reinforcement,
+  title={Reinforcement learning with reference tracking control in continuous state spaces},
+  author={Hall, Joseph and Rasmussen, Carl Edward and Maciejowski, Jan},
+  booktitle={Decision and Control and European Control Conference (CDC-ECC), 2011 50th IEEE Conference on},
+  pages={6019--6024},
+  year={2011},
+  organization={IEEE}
+}
+
+@inproceedings{garcia2016optimal,
+  title={An optimal polarization tracking algorithm for Lithium-Niobate-based polarization controllers},
+  author={Garcia, Joaquim D and Amaral, Gustavo C},
+  booktitle={Sensor Array and Multichannel Signal Processing Workshop (SAM), 2016 IEEE},
+  pages={1--5},
+  year={2016},
+  organization={IEEE}
+}
+
+@article{jankovic2009new,
+  title={A new probabilistic approach to on-line learning in artificial neural networks},
+  author={Jankovic, M and Rubens, Neil},
+  journal={ASMCSS},
+  volume={9},
+  pages={226--231},
+  year={2009}
+}
+
+@article{tan2015prediction,
+  title={Prediction and retrodiction for a continuously monitored superconducting qubit},
+  author={Tan, Dian and Weber, SJ and Siddiqi, Irfan and Moelmer, Klaus and Murch, KW},
+  journal={Physical review letters},
+  volume={114},
+  number={9},
+  pages={090403},
+  year={2015},
+  publisher={APS}
+}
+
+@inproceedings{schirmer2010quantum,
+  title={Quantum system identification: Hamiltonian estimation using spectral and Bayesian analysis},
+  author={Schirmer, Sophie G and Langbein, Frank C},
+  booktitle={Communications, Control and Signal Processing (ISCCSP), 2010 4th International Symposium on},
+  pages={1--5},
+  year={2010},
+  organization={IEEE}
+}
+
+
+@article{stenberg2016characterization,
+  title={Characterization of decohering quantum systems: Machine learning approach},
+  author={Stenberg, Markku PV and K{\"o}hn, Oliver and Wilhelm, Frank K},
+  journal={Physical Review A},
+  volume={93},
+  number={1},
+  pages={012122},
+  year={2016},
+  publisher={APS}
+}
+
+@article{sergeevich2011characterization,
+  title={Characterization of a qubit Hamiltonian using adaptive measurements in a fixed basis},
+  author={Sergeevich, Alexandr and Chandran, Anushya and Combes, Joshua and Bartlett, Stephen D and Wiseman, Howard M},
+  journal={Physical Review A},
+  volume={84},
+  number={5},
+  pages={052315},
+  year={2011},
+  publisher={APS}
+}
+
+
+@article{wiebe2016efficient,
+  title={Efficient Bayesian phase estimation},
+  author={Wiebe, Nathan and Granade, Chris},
+  journal={Physical review letters},
+  volume={117},
+  number={1},
+  pages={010503},
+  year={2016},
+  publisher={APS}
+}
+
+@article{bach2004learning,
+  title={Learning graphical models for stationary time series},
+  author={Bach, Francis R and Jordan, Michael I},
+  journal={IEEE transactions on signal processing},
+  volume={52},
+  number={8},
+  pages={2189--2199},
+  year={2004},
+  publisher={IEEE}
+}
+
+@article{buhlmann2007boosting,
+  title={Boosting algorithms: Regularization, prediction and model fitting},
+  author={B{\"u}hlmann, Peter and Hothorn, Torsten},
+  journal={Statistical Science},
+  pages={477--505},
+  year={2007},
+  publisher={JSTOR}
+}
+
+@article{mathews1993stochastic,
+  title={A stochastic gradient adaptive filter with gradient adaptive step size},
+  author={Mathews, V John and Xie, Zhenhua},
+  journal={IEEE Transactions on Signal Processing},
+  volume={41},
+  number={6},
+  pages={2075--2087},
+  year={1993},
+  publisher={IEEE}
+}
+
+@Inbook{reynolds2015gmm,
+author="Reynolds, Douglas",
+editor="Li, Stan Z.
+and Jain, Anil K.",
+title="Gaussian Mixture Models",
+bookTitle="Encyclopedia of Biometrics",
+year="2015",
+publisher="Springer US",
+address="Boston, MA",
+pages="827--832",
+isbn="978-1-4899-7488-4",
+doi="10.1007/978-1-4899-7488-4_196",
+url="https://doi.org/10.1007/978-1-4899-7488-4_196"
+}
+
+@article{chen2003bayesian,
+  title={Bayesian filtering: From Kalman filters to particle filters, and beyond},
+  author={Chen, Zhe and others},
+  journal={Statistics},
+  volume={182},
+  number={1},
+  pages={1--69},
+  year={2003}
+  url="https://www.researchgate.net/profile/Zhe_Chen21/publication/238689222_Bayesian_Filtering_From_Kalman_Filters_to_Particle_Filters_and_Beyond/links/53f633fe0cf22be01c40ff3f/Bayesian-Filtering-From-Kalman-Filters-to-Particle-Filters-and-Beyond.pdf"
+}
+
+@article{vu2015understanding,
+  title={Understanding kernel ridge regression: Common behaviors from simple functions to density functionals},
+  author={Vu, Kevin and Snyder, John C and Li, Li and Rupp, Matthias and Chen, Brandon F and Khelif, Tarek and M{\"u}ller, Klaus-Robert and Burke, Kieron},
+  journal={International Journal of Quantum Chemistry},
+  volume={115},
+  number={16},
+  pages={1115--1128},
+  year={2015},
+  publisher={Wiley Online Library},
+  url="https://arxiv.org/pdf/1501.03854.pdf"
+}
+
+@article{murphy2007conjugate,
+  title={Conjugate Bayesian analysis of the Gaussian distribution},
+  author={Murphy, Kevin P},
+  journal={def},
+  volume={1},
+  number={2$\sigma$2},
+  pages={16},
+  year={2007},
+  url="http://www.cs.ubc.ca/~murphyk/Papers/bayesGauss.pdf"
+}
+
+@article{moon2006real,
+  title={Real-time implementation of adaptive feedback and feedforward generalized predictive control algorithm},
+  author={Moon, Suk-Min and Cole, Daniel G and Clark, Robert L},
+  journal={Journal of sound and vibration},
+  volume={294},
+  number={1},
+  pages={82--96},
+  year={2006},
+  publisher={Elsevier}
+}
+
+@incollection{bottou2010large,
+  title={Large-scale machine learning with stochastic gradient descent},
+  author={Bottou, L{\'e}on},
+  booktitle={Proceedings of COMPSTAT'2010},
+  pages={177--186},
+  year={2010},
+  publisher={Springer}
+}
+
+@article{amini2015generalization,
+  title={On the generalization of linear least mean squares estimation to quantum systems with non-commutative outputs},
+  author={Amini, Nina H and Miao, Zibo and Pan, Yu and James, Matthew R and Mabuchi, Hideo},
+  journal={EPJ Quantum Technology},
+  volume={2},
+  number={1},
+  pages={14},
+  year={2015},
+  publisher={Springer Berlin Heidelberg}
+}
+
+@inproceedings{ji2016gradient,
+  title={On gradient descent algorithm for generalized phase retrieval problem},
+  author={Ji, Li and Tie, Zhou},
+  booktitle={Signal Processing (ICSP), 2016 IEEE 13th International Conference on},
+  pages={320--325},
+  year={2016},
+  organization={IEEE}
+}
+
+%-------------------------------------------------------
+% Compressive Sampling 
+%-------------------------------------------------------
+
+@article{candes2008introduction,
+  title={An introduction to compressive sampling},
+  author={Cand{\`e}s, Emmanuel J and Wakin, Michael B},
+  journal={IEEE signal processing magazine},
+  volume={25},
+  number={2},
+  pages={21--30},
+  year={2008},
+  publisher={IEEE}
+}
+
+@article{shabani2011efficient,
+  title={Efficient measurement of quantum dynamics via compressive sensing},
+  author={Shabani, A and Kosut, RL and Mohseni, M and Rabitz, H and Broome, MA and Almeida, MP and Fedrizzi, A and White, AG},
+  journal={Physical review letters},
+  volume={106},
+  number={10},
+  pages={100401},
+  year={2011},
+  publisher={APS}
+}
+
+@article{gross2010quantum,
+  title={Quantum state tomography via compressed sensing},
+  author={Gross, David and Liu, Yi-Kai and Flammia, Steven T and Becker, Stephen and Eisert, Jens},
+  journal={Physical review letters},
+  volume={105},
+  number={15},
+  pages={150401},
+  year={2010},
+  publisher={APS}
+}
+
+%-------------------------------------------------------
+% General Signal Processing and Noise Generation Theory
+%-------------------------------------------------------
+
+@book{stengel1986stochastic,
+  title={Stochastic optimal control},
+  author={Stengel, Robert F},
+  year={1986},
+  publisher={John Wiley and Sons New York}
+}
+
+@book{landau2011adaptive,
+  title={Adaptive control: algorithms, analysis and applications},
+  author={Landau, Ioan Dor{\'e} and Lozano, Rogelio and M'Saad, Mohammed and Karimi, Alireza},
+  year={2011},
+  publisher={Springer Science \& Business Media}
+}
+
+@book{candy2016bayesian,
+  title={Bayesian signal processing: classical, modern, and particle filtering methods},
+  author={Candy, James V},
+  volume={54},
+  year={2016},
+  publisher={John Wiley \& Sons}
+}
+
+@book{candy2005model,
+  title={Model-based signal processing},
+  author={Candy, James V},
+  volume={36},
+  year={2005},
+  publisher={John Wiley \& Sons}
+}
+
+
+@book{brockwell2016introduction,
+  title={Introduction to time series and forecasting},
+  author={Brockwell, Peter J and Davis, Richard A},
+  year={2016},
+  publisher={springer}
+}
+
+@book{kailath1980linear,
+  title={Linear systems},
+  author={Kailath, Thomas},
+  volume={156},
+  year={1980},
+  publisher={Prentice-Hall Englewood Cliffs, NJ}
+}
+
+
+@book{phillips1995signals,
+  title={Signals, systems, and transforms},
+  author={Phillips, Charles L and Parr, John M and Riskin, Eve A},
+  year={1995},
+  publisher={Prentice Hall}
+}
+
+
+@book{vaseghi2008advanced,
+  title={Advanced digital signal processing and noise reduction},
+  author={Vaseghi, Saeed V},
+  year={1996},
+  publisher={John Wiley \& Sons}
+}
+
+@article{papoulis1991probability,
+  title={Probability, random variables, and stochastic processes},
+  author={Papoulis, Athanasios},
+  year={1991},
+  publisher={McGraw-Hill}
+} % third edition
+
+@book{goodwin2014adaptive,
+  title={Adaptive filtering prediction and control},
+  author={Goodwin, Graham C and Sin, Kwai Sang},
+  year={1984}, 
+  publisher={Courier Corporation}
+} % changed year from 2014 to 1984
+
+
+@book{oppenheim2015signals,
+  title={Signals, systems and inference},
+  author={Oppenheim, Alan V and Verghese, George C},
+  year={2015},
+  publisher={Pearson}
+}
+
+@inproceedings{hsu2009multi,
+  title={Multi-label prediction via compressed sensing},
+  author={Hsu, Daniel J and Kakade, Sham M and Langford, John and Zhang, Tong},
+  booktitle={Advances in neural information processing systems},
+  pages={772--780},
+  year={2009}
+}
+
+@article{kasdin1995discrete,
+  title={Discrete simulation of colored noise and stochastic processes and 1/f/sup/spl alpha//power law noise generation},
+  author={Kasdin, N Jeremy},
+  journal={Proceedings of the IEEE},
+  volume={83},
+  number={5},
+  pages={802--827},
+  year={1995},
+  publisher={IEEE}
+}
+
+@article{broersen2003generating,
+  title={Generating data with prescribed power spectral density},
+  author={Broersen, Piet MT and De Waele, Stijn},
+  journal={IEEE Transactions on Instrumentation and Measurement},
+  volume={52},
+  number={4},
+  pages={1061--1067},
+  year={2003},
+  publisher={IEEE}
+}
+
+@article{bates1982fourier,
+  title={Fourier phase problems are uniquely solvable in mute than one dimension. I: Underlying theory},
+  author={Bates, R},
+  journal={Optik (Stuttgart)},
+  volume={61},
+  pages={247--262},
+  year={1982}
+}
+
+@book{gelb1974applied,
+  title={Applied optimal estimation},
+  author={Gelb, Arthur},
+  year={1974},
+  publisher={MIT press}
+}
+
+@inproceedings{salzmann1991detection,
+  title={Detection and Modelling of Coloured Noise for Kalman Filter Applications},
+  author={Salzmann, Martin and Teunissen, Peter and Sideris, Michael},
+  booktitle={Kinematic Systems in Geodesy, Surveying, and Remote Sensing: Symposium, No. 107, Banff, Alberta, Canada, September 10-13, 1990},
+  volume={107},
+  pages={251},
+  year={1991},
+  organization={Springer Verlag}
+}
+
+@article{alpay2015wiener,
+  title={Wiener chaos approach to optimal prediction},
+  author={Alpay, Daniel and Kipnis, Alon},
+  journal={Numerical Functional Analysis and Optimization},
+  volume={36},
+  number={10},
+  pages={1286--1306},
+  year={2015},
+  publisher={Taylor \& Francis}
+}
+
+
+%-------------------------------------------------------
+% Kalman Filtering Theory 
+%-------------------------------------------------------
+
+
+@article{goldenstein2004gentle,
+  title={A gentle introduction to predictive filters},
+  author={Goldenstein, Siome Klein},
+  journal={Revista de Informatica Te{\'o}rica e Aplicada},
+  volume={11},
+  number={1},
+  pages={63--92}
+}
+
+@book{bar2004estimation,
+  title={Estimation with applications to tracking and navigation: theory algorithms and software},
+  author={Bar-Shalom, Yaakov and Li, X Rong and Kirubarajan, Thiagalingam},
+  year={2004},
+  publisher={John Wiley \& Sons}
+}
+
+@inproceedings{msechu2008distributed,
+  title={Distributed Kalman filtering based on quantized innovations},
+  author={Msechu, Eric J and Ribeiro, Alejandro and Roumeliotis, Stergios I and Giannakis, Georgios B},
+  booktitle={Acoustics, Speech and Signal Processing, 2008. ICASSP 2008. IEEE International Conference on},
+  pages={3293--3296},
+  year={2008},
+  organization={IEEE}
+}
+
+@article{grewal2001theory,
+  title={Theory and practice using Matlab},
+  author={Grewal, Mohinder S and Andrews, Angus P and Filtering, A Kalman},
+  journal={Wieley-Interscience, Canada},
+  year={2001}
+}
+
+@inproceedings{rosenberg1997general,
+  title={A general filter for measurements with any probability distribution},
+  author={Rosenberg, Yoav and Werman, Michael},
+  booktitle={Computer Vision and Pattern Recognition, 1997. Proceedings., 1997 IEEE Computer Society Conference on},
+  pages={654--659},
+  year={1997},
+  organization={IEEE}
+}
+
+@book{harvey1990forecasting,
+  title={Forecasting, structural time series models and the Kalman filter},
+  author={Harvey, Andrew C},
+  year={1990},
+  publisher={Cambridge university press}
+}
+
+@article{hamilton2016ensemble,
+  title={Ensemble Kalman filtering without a model},
+  author={Hamilton, Franz and Berry, Tyrus and Sauer, Timothy},
+  journal={Physical Review X},
+  volume={6},
+  number={1},
+  pages={011021},
+  year={2016},
+  publisher={APS}
+}
+
+@article{wilson1988autoregressive,
+  title={Autoregressive growth curves and Kalman filtering},
+  author={Wilson, P David},
+  journal={Statistics in medicine},
+  volume={7},
+  number={1-2},
+  pages={73--86},
+  year={1988},
+  publisher={Wiley Online Library}
+}
+
+@article{sorenson1970least,
+  title={Least-squares estimation: from Gauss to Kalman},
+  author={Sorenson, Harold W},
+  journal={IEEE spectrum},
+  volume={7},
+  number={7},
+  pages={63--68},
+  year={1970},
+  publisher={IEEE}
+}
+
+%-------------------------------------------------------
+% Quantum Correlations and Filtering Theory
+%-------------------------------------------------------
+@article{brierley2015nonclassicality,
+  title={Nonclassicality of temporal correlations},
+  author={Brierley, Stephen and Kosowski, Adrian and Markiewicz, Marcin and Paterek, Tomasz and Przysi{\k{e}}{\.z}na, Anna},
+  journal={Physical review letters},
+  volume={115},
+  number={12},
+  pages={120404},
+  year={2015},
+  publisher={APS}
+}
+
+@article{dorner2013correlations,
+  title={Correlations in quantum physics},
+  author={Dorner, Ross and Vedral, Vlatko},
+  journal={International Journal of Modern Physics B},
+  volume={27},
+  number={01n03},
+  pages={1345017},
+  year={2013},
+  publisher={World Scientific}
+}
+
+
+@article{vedral2003classical,
+  title={Classical correlations and entanglement in quantum measurements},
+  author={Vedral, V},
+  journal={Physical review letters},
+  volume={90},
+  number={5},
+  pages={050401},
+  year={2003},
+  publisher={APS}
+}
+
+
+@article{markiewicz2014genuinely,
+  title={Genuinely multipoint temporal quantum correlations and universal measurement-based quantum computing},
+  author={Markiewicz, Marcin and Przysi{\k{e}}{\.z}na, Anna and Brierley, Stephen and Paterek, Tomasz},
+  journal={Physical Review A},
+  volume={89},
+  number={6},
+  pages={062319},
+  year={2014},
+  publisher={APS}
+}
+
+@article{accardi1982quantum,
+  title={Quantum stochastic processes},
+  author={Accardi, Luigi and Frigerio, Alberto and Lewis, John T},
+  journal={Publications of the Research Institute for Mathematical Sciences},
+  volume={18},
+  number={1},
+  pages={97--133},
+  year={1982},
+  publisher={Research Institute forMathematical Sciences}
+}
+
+@article{bouten2007introduction,
+  title={An introduction to quantum filtering},
+  author={Bouten, Luc and Van Handel, Ramon and James, Matthew R},
+  journal={SIAM Journal on Control and Optimization},
+  volume={46},
+  number={6},
+  pages={2199--2241},
+  year={2007},
+  publisher={SIAM}
+}
+
+
+@article{bouten2007introduction,
+  title={An introduction to quantum filtering},
+  author={Bouten, Luc and Van Handel, Ramon and James, Matthew R},
+  journal={SIAM Journal on Control and Optimization},
+  volume={46},
+  number={6},
+  pages={2199--2241},
+  year={2007},
+  publisher={SIAM}
+}
+
+
+@article{belavkin2004towards,
+  title={Towards the theory of control in observable quantum systems},
+  author={Belavkin, VP},
+  journal={arXiv preprint quant-ph/0408003},
+  year={2004}
+}
+
+@article{edwards2005optimal,
+  title={Optimal quantum filtering and quantum feedback control},
+  author={Edwards, Simon C and Belavkin, Viacheslav P},
+  journal={arXiv preprint quant-ph/0506018},
+  year={2005}
+}
+
+@book{lidar2013quantum,
+  title={Quantum error correction},
+  author={Lidar, Daniel A and Brun, Todd A},
+  year={2013},
+  publisher={Cambridge University Press}
+} % chapter 1
+
+@article{kofman2001universal,
+  title={Universal dynamical control of quantum mechanical decay: modulation of the coupling to the continuum},
+  author={Kofman, AG and Kurizki, G},
+  journal={Physical review letters},
+  volume={87},
+  number={27},
+  pages={270405},
+  year={2001},
+  publisher={APS}
+}
+
+@article{kofman2004unified,
+  title={Unified theory of dynamically suppressed qubit decoherence in thermal baths},
+  author={Kofman, AG and Kurizki, G},
+  journal={Physical review letters},
+  volume={93},
+  number={13},
+  pages={130406},
+  year={2004},
+  publisher={APS}
+}
+
+@article{doherty2000quantum,
+  title={Quantum feedback control and classical control theory},
+  author={Doherty, Andrew C and Habib, Salman and Jacobs, Kurt and Mabuchi, Hideo and Tan, Sze M},
+  journal={Physical Review A},
+  volume={62},
+  number={1},
+  pages={012105},
+  year={2000},
+  publisher={APS}
+}
+
+@article{toner2003communication,
+  title={Communication cost of simulating Bell correlations},
+  author={Toner, Ben F and Bacon, Dave},
+  journal={Physical Review Letters},
+  volume={91},
+  number={18},
+  pages={187904},
+  year={2003},
+  publisher={APS}
+}
+@article{glaser2015training,
+  title={Training Schr{\"o}dinger’s cat: quantum optimal control},
+  author={Glaser, Steffen J and Boscain, Ugo and Calarco, Tommaso and Koch, Christiane P and K{\"o}ckenberger, Walter and Kosloff, Ronnie and Kuprov, Ilya and Luy, Burkhard and Schirmer, Sophie and Schulte-Herbr{\"u}ggen, Thomas and others},
+  journal={The European Physical Journal D},
+  volume={69},
+  number={12},
+  pages={279},
+  year={2015},
+  publisher={Springer}
+}
+
+@article{caves2002quantum,
+  title={Quantum probabilities as Bayesian probabilities},
+  author={Caves, Carlton M and Fuchs, Christopher A and Schack, R{\"u}diger},
+  journal={Physical review A},
+  volume={65},
+  number={2},
+  pages={022305},
+  year={2002},
+  publisher={APS}
+}

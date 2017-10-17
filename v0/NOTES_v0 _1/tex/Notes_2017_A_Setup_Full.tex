@@ -23,14 +23,14 @@ We define a two level system interacting with a magnetic field in Fig. \ref{fig:
 \end{align}
 \\
 \\
-\begin{figure}[h]
-	\centering
-	%\includegraphics[width=0.5\textwidth]{two_level_system.png}
-	\caption[Setup: Diagram of Two Level System]{Diagram of Two Level System}
-	\label{fig:set_up}
-\end{figure}
-\\
-\\
+% \begin{figure}[h]
+% 	\centering
+% 	%\includegraphics[width=0.5\textwidth]{two_level_system.png}
+% 	\caption[Setup: Diagram of Two Level System]{Diagram of Two Level System}
+% 	\label{fig:set_up}
+% \end{figure}
+% \\
+% \\
 \subsection{Classical Field with Noise}
 
 We define our magnetic field with noise identically to \cite{soare}, as:
@@ -68,11 +68,24 @@ In the Heisenberg picture, the Heisenberg equations of motion for $\p{\pm}(t)_H 
  e^{-i( \omega_\mu t + \phi\dd}\p{+} + \frac{\Omega\dd}{2} \kappa e^{i( \omega_\mu t + \phi\dd)}\p{-} \quad \text{(S-picture)}
 \end{align}
 
+\subsection{Environmental Dephasing}
+
+Define $\op{H}_E$ for a stochastic detuning, $\delta \omega (t)$ that models an arbirary dephasing process:
+\begin{align}
+\op{H}_{E}(t) & = -\frac{\hbar}{2}\delta \omega (t) \p{z}
+\end{align}
+Note that the Hamiltonian commutes with itself at different times and this enables a simple form for the time evolution operator.
+\\
+\\
+% We will further approximate a slow drift, namely, that the timescales for free evolution considered subsequently, $t << t'$,  such that $\delta \omega (t') \equiv \delta \omega_{t'}$, a constant stochastic random variable, and $\op{H}_{E}(t) \equiv \op{H}_{E}$ wtih respect to the longer timescale $t'$.
+
+
+\subsection{Probability Amplitudes}
 Then equations of motion for probability amplitudes of our two state system, given arbitrary $\ket{\psi} = c_1 \ket{1} + c_2\ket{2} $ become:
 \begin{align}
-\dr{\pjs{1}{\psi}} &\equiv \dot{c_1} = \frac{-i}{\hbar}\bra{1} \op{H}_0 + \op{H}_{AF}^{RWA}
-  \ket{\psi} = \frac{i\omega_A }{2}c_1 - \frac{i}{\hbar}Z_0\dd e^{i\omega_\mu t}c_2\\
-\dr{\pjs{2}{\psi}} &\equiv \dot{c_2} = \frac{-i}{\hbar}\bra{2} \op{H}_0 + \op{H}_{AF}^{RWA}  \ket{\psi} = -\frac{i\omega_A }{2}c_2 - \frac{i}{\hbar}Z_0^*\dd e^{-i\omega_\mu t}c_1\\
+\dr{\pjs{1}{\psi}} &\equiv \dot{c_1} = \frac{-i}{\hbar}\bra{1} \op{H}_0 + \op{H}_{E} + \op{H}_{AF}^{RWA}
+  \ket{\psi} = \frac{i(\omega_A - \delta\omega(t)) }{2}c_1 - \frac{i}{\hbar}Z_0\dd e^{i\omega_\mu t}c_2\\
+\dr{\pjs{2}{\psi}} &\equiv \dot{c_2} = \frac{-i}{\hbar}\bra{2} \op{H}_0 + \op{H}_{E} + \op{H}_{AF}^{RWA}  \ket{\psi} = -\frac{i(\omega_A - \delta\omega(t)) }{2}c_2 - \frac{i}{\hbar}Z_0^*\dd e^{-i\omega_\mu t}c_1\\
 \text{with} \quad Z_0\dd &\equiv \frac{\Omega\dd\kappa}{2}e^{i\phi\dd}.
 \end{align}
 \\
@@ -87,17 +100,17 @@ Define transformation as:
 The equations of motion transform as follows:
 \begin{align}
 \dot{\tilde{c}}_1 & = \dot{c}_1 e^{i \lambda t} + i \lambda \dot{\tilde{c}}_1 \\
-& =  i(\frac{\omega_A}{2} + \lambda)\tilde{c}_1 - \frac{i}{\hbar}Z_0\dd e^{i(\omega_\mu +2\lambda)t}\tilde{c}_2\\
+& =  i(\frac{\omega_A - \delta\omega(t)}{2} + \lambda)\tilde{c}_1 - \frac{i}{\hbar}Z_0\dd e^{i(\omega_\mu +2\lambda)t}\tilde{c}_2\\
 & \nonumber \\
 \dot{\tilde{c}}_2 & = \dot{c}_2 e^{-i \lambda t} - i \lambda \dot{\tilde{c}}_2 \\
-& =  -i(\frac{\omega_A}{2} + \lambda)\tilde{c}_2- \frac{i}{\hbar}Z_0^*\dd e^{-i(\omega_\mu +2\lambda)t}\tilde{c}_1
+& =  -i(\frac{\omega_A - \delta\omega(t)}{2} + \lambda)\tilde{c}_2- \frac{i}{\hbar}Z_0^*\dd e^{-i(\omega_\mu +2\lambda)t}\tilde{c}_1
 \end{align}
-We set $2\lambda \equiv -\omega_\mu$ and $\Delta \omega \equiv \omega_A -\omega_\mu$ to remove the time dependence due to the carrier, resulting in:
+We set $2\lambda \equiv -\omega_\mu$ and $\Delta \omega(t) \equiv \omega_A - \delta\omega(t) -\omega_\mu$ to remove the time dependence due to the carrier, resulting in:
 \begin{align}
-\dot{\tilde{c}}_1 & =  \frac{i\Delta\omega}{2}\tilde{c}_1 - \frac{i}{\hbar}Z_0\dd \tilde{c}_2\\
+\dot{\tilde{c}}_1 & =  \frac{i\Delta \omega(t)}{2}\tilde{c}_1 - \frac{i}{\hbar}Z_0\dd \tilde{c}_2\\
 & \nonumber \\
-\dot{\tilde{c}}_2 & =  -\frac{i\Delta \omega }{2}\tilde{c}_2- \frac{i}{\hbar}Z_0^*\dd \tilde{c}_1\\
- \Rightarrow \op{H}_{\omega_\mu}^{I} &\equiv \frac{\hbar \Delta\omega}{2}\p{z} + Z_0\dd\p{-} + Z_0^*\dd\p{+}.
+\dot{\tilde{c}}_2 & =  -\frac{i\Delta \omega(t) }{2}\tilde{c}_2- \frac{i}{\hbar}Z_0^*\dd \tilde{c}_1\\
+ \Rightarrow \op{H}_{\omega_\mu}^{I} &\equiv \frac{\hbar \Delta \omega(t)}{2}\p{z} + Z_0\dd\p{-} + Z_0^*\dd\p{+}.
 \end{align}
 In the last line, $\op{H}_{\omega_\mu}^{I}$ is the effective interaction picture Hamiltonian acting on the transformed state $\ket{\psi} = \tilde{c}_1\ket{1} + \tilde{c}_2\ket{2}$ with transformed field amplitudes $Z_0\dd$.
 \\
@@ -112,54 +125,53 @@ Define transformation as:
 The equations of motion transform as follows:
 \begin{align}
 \dot{\alpha}_1 & = \dot{\tilde{c}}_1 e^{i \lambda\dd} + i \dot{\lambda}\dd \alpha_1 \\
-& =  i(\frac{\Delta \omega}{2} + \dot{\lambda}\dd)\alpha_1 - \frac{i}{\hbar}Z_0\dd e^{i2\lambda\dd}\alpha_2\\
+& =  i(\frac{\Delta \omega(t)}{2} + \dot{\lambda}\dd)\alpha_1 - \frac{i}{\hbar}Z_0\dd e^{i2\lambda\dd}\alpha_2\\
 & \nonumber \\
 \dot{\alpha}_2 & = \dot{\tilde{c}}_2 e^{-i \lambda\dd} - i \dot{\lambda}\dd\dot{\alpha}_2 \\
-& =  -i(\frac{\Delta \omega}{2} + \dot{\lambda}\dd)\alpha_2- \frac{i}{\hbar}Z_0^*\dd e^{-i2\lambda\dd}\alpha_1
+& =  -i(\frac{\Delta \omega(t)}{2} + \dot{\lambda}\dd)\alpha_2- \frac{i}{\hbar}Z_0^*\dd e^{-i2\lambda\dd}\alpha_1
 \end{align}
 We substitute $Z_0\dd$ and set $2\lambda\dd \equiv -\phi_N\dd$  as in \cite{soare}, resulting in:
 \begin{align}
-\dot{\alpha}_1 & =  i\frac{\Delta \omega - \dot{\phi}\dd}{2}\alpha_1 - \frac{i}{2\hbar}(\Omega\dd \kappa e^{i\phi_C\dd}) \alpha_2\\
+\dot{\alpha}_1 & =  i\frac{\Delta \omega(t) - \dot{\phi}\dd}{2}\alpha_1 - \frac{i}{2\hbar}(\Omega\dd \kappa e^{i\phi_C\dd}) \alpha_2\\
 & \nonumber \\
-\dot{\alpha}_2 & =  -i\frac{\Delta \omega - \dot{\phi}\dd}{2}\alpha_2- \frac{i}{2\hbar}(\Omega\dd \kappa^* e^{-i\phi_C\dd})\alpha_1\\
+\dot{\alpha}_2 & =  -i\frac{\Delta \omega(t) - \dot{\phi}\dd}{2}\alpha_2- \frac{i}{2\hbar}(\Omega\dd \kappa^* e^{-i\phi_C\dd})\alpha_1\\
 &\nonumber \\
-\Rightarrow \op{H}^{I}_{\omega_\mu,\phi_N\dd} &\equiv \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (\kappa e^{i\phi_C\dd}\p{-} + \kappa^* e^{-i\phi_C\dd}\p{+}) \label{eqn:Hi}
+\Rightarrow \op{H}^{I}_{\omega_\mu,\phi_N\dd} &\equiv \frac{\hbar}{2}(\Delta \omega(t)- \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (\kappa e^{i\phi_C\dd}\p{-} + \kappa^* e^{-i\phi_C\dd}\p{+}) \label{eqn:Hi}
 \end{align}
 In the last line, $\op{H}^{I}_{\omega_\mu,\phi_N\dd}$ is the effective interaction picture Hamiltonian acting on the transformed state $\ket{\psi} = \alpha_1\ket{1} + \alpha_2\ket{2}$. For the case where we set $\kappa^* = \kappa \equiv 1$ (real coupling constant), we recover the effective interaction picture Hamiltonian in \cite{soare}:
 
 \begin{align}
-\op{H}^{I}_{\omega_\mu,\phi_N\dd} & = \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (e^{i\phi_C\dd}\frac{\p{x} - i\p{y}}{2} + e^{-i\phi_C\dd}\frac{\p{x} + i\p{y}}{2})\\
-& = \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{4} (\p{x} (e^{i\phi_C\dd}\ +  e^{-i\phi_C\dd})- i\p{y} ( e^{i\phi_C\dd} - e^{-i\phi_C\dd} ))\\
-& = \frac{\hbar}{2}(\Delta\omega - \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (\p{x} \cos(\phi_C\dd) + \p{y} \sin(\phi_C\dd)) \label{eqn:Hi_kappareal}
+\op{H}^{I}_{\omega_\mu,\phi_N\dd} & = \frac{\hbar}{2}(\Delta \omega(t)- \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (e^{i\phi_C\dd}\frac{\p{x} - i\p{y}}{2} + e^{-i\phi_C\dd}\frac{\p{x} + i\p{y}}{2})\\
+& = \frac{\hbar}{2}(\Delta \omega(t)- \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{4} (\p{x} (e^{i\phi_C\dd}\ +  e^{-i\phi_C\dd})- i\p{y} ( e^{i\phi_C\dd} - e^{-i\phi_C\dd} ))\\
+& = \frac{\hbar}{2}(\Delta \omega(t)- \dot{\phi}_N\dd)\p{z} + \frac{\Omega\dd}{2} (\p{x} \cos(\phi_C\dd) + \p{y} \sin(\phi_C\dd)) \label{eqn:Hi_kappareal}
 \end{align}
 \\
 \\
-Without any changes to the approach above, we may also expand $\Delta \omega \equiv \omega_A -\omega_\mu -\delta_N$, where $\delta_N$, is a perfectly correlated but unknown experimental error in our detuning for any single run. Although it is impossible to transform to this interaction picture (phase noise is unknown), both \ref{eqn:Hi} or \ref{eqn:Hi_kappareal} confirm that our Ramsey measurements encode the derivatives of the phase noise field, and that measurements can also encode perfectly correlated but unknown detuning errors.
+Without any changes to the approach above, we may also expand $\Delta \omega(t) \equiv \omega_A - \delta \omega(t)-\omega_\mu -\delta_N$, where $\delta_N$, is a perfectly correlated but unknown experimental error in our detuning for any single run. Although it is impossible to transform to this interaction picture (phase noise is unknown), both \ref{eqn:Hi} or \ref{eqn:Hi_kappareal} confirm that our Ramsey measurements encode the derivatives of the phase noise field, and that measurements can also encode perfectly correlated but unknown detuning errors.
 \\
 \\
-In Appendix \ref{sec:ap_randomprocess}, we justify we can learn noise correlations for an appropriate class of stochastic processes ($\phi_N\dd$); however, resolving unknown but perfectly correlated detuning errors ($\delta_N$) will be beyond the scope of our techniques. To this end, we set $\Delta \omega \equiv 0$.
+In Appendix \ref{sec:ap_randomprocess}, we justify we can learn noise correlations for an appropriate class of stochastic processes ($\phi_N\dd$); however, resolving unknown but perfectly correlated detuning errors ($\delta_N$) will be beyond the scope of our techniques. To this end, we set $\omega_A - \omega_\mu - \delta_N = 0$.
 \\
 \\
-\subsection{Ramsey Measurement Protocol} \label{sec:ap_setup:subsec:RamseyMeasurement}
+\subsection{Experimental Verification of Dephasing Processes} \label{sec:ap_setup:subsec:RamseyMeasurement}
 
-Consider the state on the equator of the Bloch sphere evolving under $\op{H}^{I}_{\omega_\mu,\phi_N\dd}$ during a Ramsey experiment for duration $\tau$. Here, the initial control pulse with noisy phase has now been turned off ($ \Omega \dd = 0)$, but phase noise jitter appears as a constant detuning $ \beta_t \equiv  \dot{\phi}_N\dd |_t$ over short Ramsey wait times, $\tau$. (Qn: or does the noisy field stay on?)
+Consider the state on the equator of the Bloch sphere evolving under $\op{H}^{I}_{\omega_\mu,\phi_N\dd}$ during a Ramsey experiment for duration $\tau$. 
 
 \begin{align}
-\op{H}^{I}_{\omega_\mu,\phi_N\dd} & = -\frac{\hbar}{2}\beta_t\p{z}
+\op{H}^{I}_{\omega_\mu,\phi_N\dd} & = -\frac{\hbar}{2}\delta\omega(t)\p{z}
 \end{align}
 
 In the semiclassical approximation, this Hamiltonian commutes with itself at different $t$, and hence we can write the time evolution operator during the Ramsey wait time as:
 
 \begin{align}
-U(t_0, t_0 + \tau) & = \exp^{\frac{-i}{\hbar} \int_{t_0}^{t_0 + \tau} \op{H}^{I}_{\omega_\mu,\phi_N\dd} dt} \\
-& = \exp^{\frac{i}{2} \beta_t \tau \p{z}}
+U(t, t + \tau) & = \exp^{\frac{-i}{\hbar} \int_{t'}^{t' + \tau} \op{H}^{I}_{\omega_\mu,\phi_N\dd} dt} \\
 \end{align}
-We impose a condition that $\beta_t \tau < \pi$ such that accumulated phase over $\tau$ can be inferred from a projective measurement on the $\p{z}$ axis. 
+We impose a condition that $\beta_{t', \tau} \equiv \int_{t'}^{t' + \tau} \op{H}^{I}_{\omega_\mu,\phi_N\dd} dt < \pi$ such that accumulated phase over $\tau$ can be inferred from a projective measurement on the $\p{z}$ axis. 
 \\
 \\
-Consider that the initial $\pi/2$ control pulse perfectly delivers the state vector to the equatorial plane of the Bloch sphere, for example, the  $\ket{\p{x} +}$ state and is allowed to evolve under $U(t_0, t_0 + \tau)$. Then, the probability of measuring in $\ket{\p{x} \pm}$ is:
+Consider that the initial $\pi/2$ control pulse perfectly delivers the state vector to the equatorial plane of the Bloch sphere, for example, the  $\ket{\p{x} +}$ state and is allowed to evolve under $U(t', t' + \tau)$. Then, the probability of measuring in $\ket{\p{x} \pm}$ is:
 \begin{align}
-|\bra{\p{x} \pm} U(t_0, t_0 + \tau) \ket{\p{x} +}|^2= \begin{cases} \cos(\frac{\beta_t \tau}{2})^2 \quad \text{for $ \ket{\p{x} +}$} \\   \sin(\frac{\beta_t \tau}{2})^2  \quad \text{for $ \ket{\p{x} -}$} \end{cases}
+|\bra{\p{x} \pm} U(t', t' + \tau) \ket{\p{x} +}|^2= \begin{cases} \cos(\frac{\beta_{t', \tau}}{2})^2 \quad \text{for $ \ket{\p{x} +}$} \\   \sin(\frac{\beta_{t', \tau}}{2})^2  \quad \text{for $ \ket{\p{x} -}$} \end{cases}
 \end{align}
 The second $\pi/2$ control pulse rotates the state vector such that a measurement in $\p{z}$ basis is possible, and the probabilities corresspond to $\ket{\p{z} \pm}$
-respectively. This describes the non linear measurement action on phase noise jitter, $\beta_t$, which discretises the continous time process $\dot{\phi}_N\dd$, at time $t$, for a number of $n= 0, 1, ..., N$ equally spaced measurements with $t = n \Delta t, \Delta t >> \tau$.  The properties of phase noise as a random process are outlined in \cref{sec:ap_randomprocess}.
+respectively. This describes the non linear measurement action on phase noise jitter, $\beta_{t', \tau}$, which discretises the continous time process $\dot{\phi}_N(t')$, at time $t'$, for a number of $n= 0, 1, ..., N$ equally spaced measurements with $t' = n \Delta t', \Delta t >> \tau$.  The properties of phase noise as a random process are outlined in \cref{sec:ap_randomprocess}.

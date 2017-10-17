@@ -129,8 +129,7 @@ f(n) & = \sum_j^J x(\psi_j, n) \\
 & 0, j \neq j'
 \end{cases}
 \end{align}
-\\
-\\
+
 Hence, $f(n)$ is a covariance stationary erogdic process. Additionally, one can say that the probability density function of a sum of random variables, $f(n)$, is a convolution of the individual probability density functions,   $x(\psi_j, n)$. Here, the central limit theorum grants that $f(n)$ appears Gaussian distributed for large $J$, irrespective of the underlying properties of $x(\psi_j, n)$, or the distribution of the phases $\psi$. 
 
 For a simple example of a signal with 10 tones and random phases, numerical analysis shows that $J$ greater than 15 - 20 results in $f(n)$ appearing as Gaussian distributed. 
@@ -138,18 +137,18 @@ For a simple example of a signal with 10 tones and random phases, numerical anal
 \begin{figure}[h!]
 	\centering
 	\caption[Assumptions for Stochastic Processes: Gaussian engineered noise processes]{Histogram of engineered $\beta$ increments for 4000 time steps, 500 realisations, uniformly distributed phases, $\psi$. We note that $J>15$ large shows evidence of Gaussianity of noise process. }
-	\begin{subfigure}[h!]{0.3\textwidth}
-		\includegraphics[width=\textwidth]{gaussianity_noise_J_2.png}
+%	\begin{subfigure}[h!]{0.3\textwidth}
+		\includegraphics[width=0.3\textwidth]{gaussianity_noise_J_2.png}
 		\caption{ Distribution of random increments $\beta_{t,k}$, at time $t$ in $k^{th}$ realisation, for $J=2$, uniformly distributed $\psi$ } \label{fig:gaussianity_noise_J_2}
-	\end{subfigure}
-	\begin{subfigure}[h!]{0.3\textwidth}
-		\includegraphics[width=\textwidth]{gaussianity_noise_J_5.png}
+%	\end{subfigure}
+%	\begin{subfigure}[h!]{0.3\textwidth}
+		\includegraphics[width=0.3\textwidth]{gaussianity_noise_J_5.png}
 		\caption{ Random increments $\beta_{t,k}$, at time $t$ in $k^{th}$ realisation, for $J=4$, uniformly distributed $\psi$ } \label{fig:gaussianity_noise_J_5}
-	\end{subfigure}
-	\begin{subfigure}[h!]{0.3\textwidth}
-		\includegraphics[width=\textwidth]{gaussianity_noise_J_15.png}
+%	\end{subfigure}
+%	\begin{subfigure}[h!]{0.3\textwidth}
+		\includegraphics[width=0.3\textwidth]{gaussianity_noise_J_15.png}
 		\caption{ Distribution of random increments $\beta_{t,k}$, at time $t$ in $k^{th}$ realisation, for $J=15$, uniformly distributed $\psi$ } \label{fig:gaussianity_noise_J_15}
-	\end{subfigure}
+%	\end{subfigure}
 \end{figure}
 
 Our numerical analysis tests the performance of filtering algorithms as the ratio $\frac{f_0 J}{2 \pi f_s}$ is varied. This satisfies Assumption 3 ($J$ cannot be infinite) and tests performance when Assumption 4 is relaxed.
