@@ -1,0 +1,90 @@
+\subsection{Liska Kalman Predictor: Choosing a Fixed Basis} \label{sec:ap_liska_fixedbasis}
+
+The efficacy of the Liska Kalman Filter in our application assumes an appropriate choice of the `Kalman Basis'. We will define our computational basis in the Kalman Filter as:
+\begin{align}
+\Delta \omega_B  &\equiv \text{Kalman computational basis spacing} \\
+\omega_k^B &\equiv \text{$k$-th Kalman basis frequency} \\
+&= 2 \pi k f_0^B, \quad k = 0, 1, ..., k_{max};  \quad \omega_B^{MAX} = k_{max} f_0^B < B \\
+B  &\equiv \text{Bandwidth assumption, $B$,  in Appendix \ref{azm:PSDbandlimit} } \\
+f_0^B &=  \frac{\Delta \omega_B}{2 \pi}
+\end{align}
+
+\subsubsection{Types of Fixed Basis}
+We define Basis A - C as below. The  difference between Basis A and Basis B is designed to test whether we should be allowed to project on anything smaller than the Fourier resolution in discrete time. Basis C is identical to Basis B but allows a projection to zero frequency. The truncation at $\omega_B^{MAX}$ is not exact, and may truncate earlier depending on the stepsize multiples.
+\begin{align}
+\text{Basis A: } &\equiv \{\omega_B\} \equiv \{0, \Delta \omega_B, 2\Delta \omega_B \dots  \omega_B^{MAX}\} \\
+\text{Basis B: } &\equiv \{\omega_B\} \equiv \{ \Delta s, \Delta s + \Delta \omega_B \dots  \omega_B^{MAX}\} \\
+\text{Basis C: } &\equiv \{\omega_B\} \equiv \{ 0, \Delta s, \Delta s + \Delta \omega_B \dots  \omega_B^{MAX}\} 
+\end{align}
+Of these, it is seen numerically that Basis A allows better predictions that B or C.
+
+\subsubsection{Alternative Prediction Method}
+
+For $N_{predict} \neq 0$, there are two ways to conduct Kalman predictions after data collection has stopped. The standard procedure is to set the Kalman gain $\gamma \equiv 0$ for all iterations into future time-steps. 
+\\
+\\
+Alternatively, we may extract instantaneous amplitudes and instantaneous phase information from states, and reconstruct the signal for all future time values. This means we can create Kalman predictions outside the zone of measurement data in a single computation for all prediction steps without having to propagate the filter recursively.
+\\
+\\
+We detail the second of these methods. At any point, $n_C$, we can extract instantaneous amplitudes and instantaneous phase information for the $k^{th}$ basis frequency, as follows:
+\begin{align}
+\hat{a}_{n_C}^k & \equiv \sqrt{\hat{x}_{n_C}^k[0]^2 + \hat{x}_{n_C}^k[1]^2} \label{eqn:sec:ap_liska_fixedbasis_KF_instantA} \\
+\hat{\phi}_{n_C}^k & \equiv \arctan \frac{ \hat{x}_{n_C}^k[1]}{ \hat{x}_{n_C}^k[0]} \label{eqn:sec:ap_liska_fixedbasis_KF_instantP}
+\end{align}
+The predicted signal, $\hat{s}_n$, requires an additional (but time-constant) phase correction term $\psi_C$ that arises as a byproduct of the computational basis (i.e. Basis A, B or C):
+\begin{align}
+\hat{s}_n &= \sum_j \hat{a}_{n_C}^k \cos(n^*\Delta t \omega_j + \hat{\phi}_{n_C}^k + \psi_C), \quad  N_{train} < n^* < N\\
+\psi_C & \equiv \begin{cases}
+0,  \quad \text{(Basis A)} \\
+\equiv 2\pi \frac{\Delta \omega_B - \Delta s}{\Delta \omega_B }, \quad \text{(Basis B or C)} \\
+\end{cases}
+\end{align}
+The procedure above yields identical predictions to setting the Kalman gain equal to zero, and propagaing forwards. The phase correction term corrects for a gradual mis-alignment between Fourier and computational grids which occurs if one specifies a non-regular spacing inherent in Basis B or C. 
+
+\subsubsection{Optimal Training Time}
+The optimal training time to begin predictions depends on (a) the choice of experimental sampling rates and (b) the computational basis for the Liska Kalman filter. Below we justify an analytical ratio to define the optimal training time, $n_c^*$. 
+\begin{align}
+n_C  &\equiv \text{Time steps at which instantaneous $\hat{a}^k, \hat{\phi}^k$ are extracted; or the Kalman gain is set to zero} \\
+n_C^* &\equiv \frac{1}{\Delta t \Delta \omega_B} = \frac{f_s}{\Delta \omega_B} \label{eqn:sec:ap_liska_fixedbasis_nC}
+\end{align}
+Consider $n_C^* = \frac{f_s}{\Delta \omega_B}$.  For $f_s$ fixed, our choice of $n_C > n_C^* $ means we are achieving a Fourier resolution which exceeds the resolution of the Kalman basis. Now consider $n_C < n_C^*$. This means that we've extracted information prematurely, and we have not waited long enough to project on the smallest basis frequency, namely, $\Delta \omega_B = 2 \pi f_0^B$. 
+\\
+\\
+In the case where data is perfectly projected on our basis, this has no impact. For imperfect learning, we see that instantaneous amplitude and phase information slowly degrades for $n_C > n_C^*$, and trajectories for the smallest basis frequency have not stablised for $n_C < n_C^*$.
+
+\begin{figure}[h!]
+	\centering
+	\caption[Forecasting: Optimal time to extracting Kalman estimates during training]{Learned amplitude trajectories v. time for Perfect and Imperfect learning scenarios. At $ t^* = \Delta t n_C^* \equiv 2.0$, amplitude trajectories (dots) should be non-zero, corressponding to true frequencies in the underlying signal. All other trajectories  (dotted lines) should be zero. Fig. \ref{fig:sinusoid_KF_extraction_perfect} shows that for $n > n_C^*$, learned amplitudes are stable when Perfect Learning is possible. In Fig. \ref{fig:sinusoid_KF_extraction_imperfect}, we illustrate that learned amplitude information is gradually lost in the Imperfect Learning case. The loss of information is severe for realistic contexts (not depicted).}
+%	\begin{subfigure}[h!]{0.4\textwidth}
+		\includegraphics[width=0.4\textwidth]{final_sinusoid_KF_extraction_perfect.png}
+		\caption{Perfect learning} \label{fig:sinusoid_KF_extraction_perfect}
+%	\end{subfigure}
+%	\begin{subfigure}[h!]{0.4\textwidth}
+		\includegraphics[width=0.4\textwidth]{final_sinusoid_KF_extraction_imperfect.png}
+		\caption{Imperfect learning} \label{fig:sinusoid_KF_extraction_imperfect}
+%	\end{subfigure}
+\end{figure}
+\FloatBarrier
+At $n_C^* $, we optimally extract amplitude and phase information before the structure of the filter begins to systematicaly erode learned state estimates.
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\

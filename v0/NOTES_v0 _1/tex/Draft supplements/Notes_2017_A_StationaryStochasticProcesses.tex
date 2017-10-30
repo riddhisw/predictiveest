@@ -1,0 +1,154 @@
+\section{Stationary Stochastic Processes} \label{sec:ap_randomprocess}
+
+Let $\beta_z \dd$ be a true stochastic process that we wish to track during state estimation. Now let $f(n)$ discretise $\beta_z \dd$, for a total of $N$ number of points  spaced $\Delta t$  apart:
+\begin{align}
+N & \equiv N_{train} + N_{predict} \\ 
+N_{train}   &\equiv \text{Number of timesteps for training} \\
+N_{predict}  &\equiv \text{Number of timesteps for prediction} \\
+\frac{\Delta s}{2\pi} & \equiv \frac{1}{\Delta t N} =  \frac{f_s}{N}
+\end{align}
+\subsection{Global Assumptions for True Stochastic State}
+
+For a discrete random process, our assumptions are: 
+
+\begin{azm}\label{azm:truef}
+	 A stochastic process $\{f(n_k): n\in N, k \in K \}$ indexed by a set of values $\{n_k\}$ is covariance stationary:
+	\begin{align}
+	\ex{f(n_k)} &= \mu \quad \text{(constant mean)} \\
+	\ex{f(n_k)^2} & < \infty \text{(finite second moments)} \\
+	\ex{(f(n_k) - \mu)(f(n_j) - \mu)} &= R(|n_k - n_j|), \forall k,j \in K  \label{azm:corrfunc}
+	\end{align}
+\end{azm}
+
+\begin{defn} \label{dfn:ms} $\{f(n_k): n\in N, k \in K \} \rightarrow \{g\}$ in mean square (M.S) if:
+	\begin{align}
+	\ex{f(n_k)^2} & < \infty \text{(finite second moments)} \\
+	\lim_{k \rightarrow \infty}\ex{(f(n_k) - g)^2} &= 0
+	\end{align}
+\end{defn}
+
+\begin{thm} \label{thm:erogodic}
+	[Stated without proof.] Let $\bar{f_k} = \frac{1}{K} \sum_k f(n_k)$ be an observed sample mean of the true process $\{f(n_k)\}$ given in Assumption \ref{azm:truef}. The true process $\{f(n_k)\}$ is ergodic in M.S. if:
+	\begin{align}
+	&\lim_{K \to \infty} \frac{1}{K} \sum_{v=0}^{K-1} R(v) = 0, \quad v = |n_k - n_j|, \forall k,j \in K \\
+	\iff &\lim_{K \to \infty} \ex{(\bar{f}_k - \mu)^2} = 0.\quad \text{(sufficiently large $K$)}.
+	\end{align}
+\end{thm}
+
+\begin{azm} \label{azm:Rbandlimit}
+	$\{f(n_k)\}$ is M.S. ergodic. Equivalently, $R(|n_k - n_j|)$ is bandlimited for sufficiently large (but unknown) $K$, where $k,j \in K$. If this were not the case, then no convergence of sample moments to true moments is guaranteed as correlations never `die out'. Hence, our predictors for one realisation will fail for a different realisation of the same true process. 
+\end{azm}
+
+\begin{azm}\label{azm:PSDbandlimit}
+	The dual of $R(|n_k - n_j|)$ is bandlimited. If this were not the case, then delta-correlations exist in the time domain and no prediction is possible. 
+\end{azm}
+
+\begin{azm}\label{azm:fastmsmtaction}
+	If the dual of $R(|n_k - n_j|)$ is bandlimited at $B$ by Assumption \ref{azm:PSDbandlimit}, then the (Ramsey) measurement action is sufficiently fast such that the experimental sampling rate $f_s = rB >> B, \quad r >> 2$, where $r$ is the Nyquist multipler.
+\end{azm}
+
+\subsection{Stochastic Properties of (True) Engineered Noise}
+
+As outlined in \cite{soare}, in an appropriate interaction picture Hamiltonian, this dephasing noise field manifests as small frequency detunings experimentally measured during a Ramsey measurement procedure. These frequency instabilities, $\beta_z(t)$,  are linked to the change in instantaneous phase noise by $\beta_z(t) = \frac{d \phi_N(t)}{dt}$. We model $\phi_N(t)$ and $\beta_z(t)$ (using Equation 3.2, 3.5, and 3.8 of \cite{soare}), repeated here for convenience:
+\begin{align}
+\phi_N(t) &= \alpha \sum_{j=1}^{J} F(j)\sin(\omega_j t + \psi_j) \quad \text{Eqn. (3.2) in \cite{soare}} \\
+\beta_z(t) &= \alpha \omega_0 \sum_{j=1}^{J} j F(j)\cos(\omega_j t + \psi_j) \quad \text{Eqn. (3.5) in \cite{soare}} \\
+F(j) & = j^{\frac{p}{2}-1} \quad \text{Eqn. (3.8) in \cite{soare}}  
+\end{align}
+\\
+Using the notation of \cite{soare}, $\alpha$ is a scaling factor, $\omega_0$ is the fundamental spacing between true adjacent discrete frequencies, such that $\omega_j = 2 \pi f_0 j =\omega_0 j, j = 1, 2, ...J$. For each frequency component, there exists a uniformly distributed random phase, $\psi_j$. Lastly, $p$ allows one to specify an arbitrary shape of the true PSD of $\beta_z(t)$. In particular, the free parameters $\alpha, J, \omega_0, p$ are true noise parameters which any prediction algorithm cannot know beforehand. 
+\\
+\\
+Then define discretised process as, $f(n)$, as below:
+\begin{align}
+f(n) \equiv \alpha \sum_{j=1}^{J} F(j)\sin(\omega_j \Delta t n + \psi_j), n = 0, 1, ...N  \label{eqn:SS_1}
+\end{align}
+\\
+\\
+\underline{\textbf{Proof: $f(n)$ is covariance stationary and ergodic}}
+\\
+\\
+Consider one term in the harmonic sum \ref{eqn:SS_1} and drop the $j$ index to ease notation such that $A \equiv \alpha \omega_0 j F(j), \omega \equiv \omega_j, \psi \equiv \psi_j$. Note that $\{ \psi \}$ are randomly uniformly distributed over one cycle, and $x(\psi, n)$ is a function of random variable $\psi$ defining a random process over the time index, $n$. 
+
+\begin{align}
+x(\psi, n) & \equiv A \cos(\omega \Delta t n + \psi ) 
+\end{align}
+
+An expectation over an ensemble of $x(\psi, n)$ yields the covariance function (and the autocorrelation function for a zero mean process):
+\begin{align}
+R_{xx}(n_1, n_2) &\equiv \ex{(x(\psi_1, n_1) - \mu )(x(\psi_2, n_2) - \mu )} \\
+& = \ex{x(\psi_1, n_1) x(\psi_2, n_2)}, \mu = 0 \\
+& = \int  d\psi_1  \int  d\psi_1  \quad x(\psi_1, n_1) x(\psi_2, n_2) g_2(\psi_1, n_1; \psi_2, n_2) \\
+g_2(\psi_1, n_1; \psi_2, n_2) & \equiv \frac{\delta^2 Pr(\psi(n_1) \leq \psi_1, \psi(n_2) \leq \psi_2 )}{\delta \psi_1 \delta \psi_2} \\
+& = \frac{1}{2\pi}, \psi \in [0, 2\pi] \label{eqn:SS_ensble_prob_density} \\
+\Rightarrow R_{xx}(n_1, n_2) & = \int_0^{2\pi} d \psi \frac{1}{2\pi} \quad x(\psi, n_1) x(\psi, n_2) \\
+& = \frac{A^2}{4\pi} \int_0^{2\pi} d \psi \quad 2\cos(\omega \Delta t n_1 + \psi) \cos(\omega \Delta t n_2 + \psi) \\
+& = \frac{A^2}{4\pi} \int_0^{2\pi} d \psi \quad \cos(\omega \Delta t (n_1 -n_2))  + \cos(\omega \Delta t (n_1 + n_2) + 2\psi) \\
+& = \frac{A^2}{2} \cos(\omega \Delta t (n_1 -n_2))  + \frac{A^2}{4 \pi}\int_0^{2\pi} d \psi  \cos(\omega \Delta t (n_1 + n_2) + 2\psi) \\
+& = \frac{A^2}{2} \cos(\omega \Delta t v), v = |n_1 -n_2|
+\end{align}
+
+A long time average taken over one $x(\psi, n)$ yields:
+\begin{align}
+R_{xx}(n, n + v) & \equiv \lim_{N \to \infty} \frac{1}{2 \Delta t N} \int_{-\Delta t N}^{\Delta t N} dn \quad  x(\psi, n) x(\psi, n + v)  \\
+& = \lim_{N \to \infty} \frac{A^2}{4 \Delta t N} \int_{-\Delta t N}^{\Delta t N} dn \quad 2 \cos(\omega \Delta t n + \psi) \cos(\omega \Delta t n + \omega \Delta t v + \psi) \\
+& = \lim_{N \to \infty} \frac{A^2}{4 \Delta t N} [ 2\Delta t N\cos(-\omega \Delta t v)  + \int_{-\Delta t N}^{\Delta t N} dn \quad \cos(2\omega \Delta t n + \omega \Delta t v + 2\psi) ]\\
+& =  \frac{A^2}{2} \cos(\omega \Delta t v), v = |n_1 -n_2| \\
+\end{align}
+
+Typically, $x(\psi, n)$ so defined is only ergodic for uniformly distributed phases. 
+\\
+\\
+We reintroduce the sum over $j = 1, 2, ... , J$:
+\begin{align}
+f(n) & = \sum_j^J x(\psi_j, n) \\
+\ex{f(n)} &= \sum_j^J \ex{x(\psi_j, n)} = 0 \\
+\ex{f(n)f(m)} &=  \ex{\sum_j^J x(\psi_j, n) \sum_{j'}^{J} x(\psi_{j'}, m)}  \\
+ & = \ex{\sum_j^J x(\psi_j, n) x(\psi_{j}, m)} + \ex{\sum_{j'}\sum_{j\neq j'}^J x(\psi_j, n) x(\psi_{j'}, m)} \\
+  & = \sum_j^J \ex{x(\psi_j, n) x(\psi_{j}, m)} + \sum_{j'}\sum_{j\neq j'}^J \ex{x(\psi_j, n) x(\psi_{j'}, m)}  \text{since $j$ is deterministic.}\\
+ & = \sum_j^J \frac{A_j^2}{2} \cos(\omega_j \Delta t v) + \sum_{j'}\sum_{j\neq j'}^J \ex{x(\psi_j, n) x(\psi_{j'}, m)}, v = |n - m |  \label{eqn:SS_fn_crossterm}\\
+ & = \sum_j^J \frac{A_j^2}{2} \cos(\omega_j \Delta t v), v = |n - m |, j = j'
+\end{align}
+ 
+ I argue that the second term in \ref{eqn:SS_fn_crossterm} is zero because $\psi_j, \psi_{j'}$ are uniformly distributed phases for cycles with different angular frequencies.
+ I suggest that the joint probability density function of $ g_2(\psi_j, n; \psi_{j'}, m) = g(\psi_j, n) g(\psi_{j'}, m), j \neq j'$:
+
+\begin{align}
+\sum_{j'}\sum_{j\neq j'}^J \ex{x(\psi_j, n) x(\psi_{j'}, m)} & = A_j A_{j'} \int d \psi_j \quad g(\psi_j, n) \cos(\omega_j \Delta t n + \psi_j) \int d \psi_{j'} \quad g(\psi_{j'}, n) \cos(\omega_{j'} \Delta t m + \psi_{j'}) \\
+& = A_j A_{j'} \int_0^{2\pi} d \psi_j \quad \frac{1}{2\pi} \cos(\omega_j \Delta t n + \psi_j) \int_0^{2\pi} d \psi_{j'} \quad \frac{1}{2\pi}  \cos(\omega_{j'} \Delta t m + \psi_{j'}) \\
+& = 0 
+\end{align}
+ \\
+ \\
+  A long term time average yields:
+\begin{align}
+\ex{f(n)f(n + v)} & \equiv \lim_{N \to \infty} \frac{1}{2 \Delta t N} \int_{-\Delta t N}^{\Delta t N} dn \quad  \sum_j^J x(\psi_j, n) \sum_{j'}^{J} x(\psi_{j'}, n + v) \\
+&= \sum_j^J  \sum_{j'}^{J} \lim_{N \to \infty} \frac{1}{2 \Delta t N} \int_{-\Delta t N}^{\Delta t N} dn \quad   A_j A_{j'} \cos (\Delta t n(\omega_j - \omega_{j'}) - \Delta t \omega_{j'} v)  \cos (\Delta t n(\omega_j + \omega_{j'}) + \Delta t \omega_{j'} v + 2\psi)\\
+&= \begin{cases}
+& \sum_j^J \frac{A_j^2}{2} \cos(\omega_j \Delta t v), v = |n - m |, j = j' \\
+& 0, j \neq j'
+\end{cases}
+\end{align}
+
+Hence, $f(n)$ is a covariance stationary erogdic process. Additionally, one can say that the probability density function of a sum of random variables, $f(n)$, is a convolution of the individual probability density functions,   $x(\psi_j, n)$. Here, the central limit theorum grants that $f(n)$ appears Gaussian distributed for large $J$, irrespective of the underlying properties of $x(\psi_j, n)$, or the distribution of the phases $\psi$. 
+
+For a simple example of a signal with 10 tones and random phases, numerical analysis shows that $J$ greater than 15 - 20 results in $f(n)$ appearing as Gaussian distributed. 
+
+\begin{figure}[h!]
+	\centering
+	\caption[Assumptions for Stochastic Processes: Gaussian engineered noise processes]{Histogram of engineered $\beta$ increments for 4000 time steps, 500 realisations, uniformly distributed phases, $\psi$. We note that $J>15$ large shows evidence of Gaussianity of noise process. }
+%	\begin{subfigure}[h!]{0.3\textwidth}
+		\includegraphics[width=0.3\textwidth]{gaussianity_noise_J_2.png}
+		\caption{ Distribution of random increments $\beta_{t,k}$, at time $t$ in $k^{th}$ realisation, for $J=2$, uniformly distributed $\psi$ } \label{fig:gaussianity_noise_J_2}
+%	\end{subfigure}
+%	\begin{subfigure}[h!]{0.3\textwidth}
+		\includegraphics[width=0.3\textwidth]{gaussianity_noise_J_5.png}
+		\caption{ Random increments $\beta_{t,k}$, at time $t$ in $k^{th}$ realisation, for $J=4$, uniformly distributed $\psi$ } \label{fig:gaussianity_noise_J_5}
+%	\end{subfigure}
+%	\begin{subfigure}[h!]{0.3\textwidth}
+		\includegraphics[width=0.3\textwidth]{gaussianity_noise_J_15.png}
+		\caption{ Distribution of random increments $\beta_{t,k}$, at time $t$ in $k^{th}$ realisation, for $J=15$, uniformly distributed $\psi$ } \label{fig:gaussianity_noise_J_15}
+%	\end{subfigure}
+\end{figure}
+
+Our numerical analysis tests the performance of filtering algorithms as the ratio $\frac{f_0 J}{2 \pi f_s}$ is varied. This satisfies Assumption 3 ($J$ cannot be infinite) and tests performance when Assumption 4 is relaxed.

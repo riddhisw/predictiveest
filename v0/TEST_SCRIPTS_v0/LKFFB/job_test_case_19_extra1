@@ -1,0 +1,26 @@
+#PBS -P QCL_KF
+#PBS -N job_3_test_case_19
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=80GB
+#PBS -l walltime=200:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd $PBS_O_WORKDIR/
+
+# Test_case 19 == takes variant 1 from test_case_10 and increases msmt noise
+
+test_case=19
+variation=9
+var_n_train_=2000
+var_n_predict_=100
+var_multiplier_=20
+var_f0_=0.000888888889
+var_J_=45000
+var_alpha_=1000.0
+var_noiselvl_=0.001
+
+module load python
+
+python ./test_script_generator_whitenoise.py ${test_case} ${variation]} ${var_f0_} ${var_J_} ${var_multiplier_} ${var_n_train_} ${var_n_predict_} ${var_alpha_} ${var_noiselvl_} /scratch/RDS-FSC-QCL_KF-RW/Kalman/test_case_${test_case}
