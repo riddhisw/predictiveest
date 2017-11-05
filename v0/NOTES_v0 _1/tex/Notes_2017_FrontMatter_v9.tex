@@ -1,0 +1,53 @@
+
+\title{Machine learning tools for predictive estimation of a single qubit under dephasing noise}
+
+\author{Riddhi Swaroop Gupta} 
+\email{riddhi.sw@gmail.com}
+\affiliation{ARC Centre of Excellence for Engineered Quantum Systems, School of Physics, The University of Sydney, New South Wales 2006, Australia}
+
+\author{Michael J. Biercuk}
+\affiliation{ARC Centre of Excellence for Engineered Quantum Systems, School of Physics, The University of Sydney, New South Wales 2006, Australia}
+
+\begin{abstract}
+Decoherence remains a major challenge in quantum computing hardware and a variety of physical-layer controls provide opportunities to mitigate the impact of this phenomenon. In particular, laboratory-based systems typically suffer from the presence of non-Markovian noise processes and this opens an opportunity for using feedback and feedforward correction strategies exploiting underlying noise correlations. In this work, we use a numerical record of projective qubit measurements to investigate the performance of various machine learning algorithms in performing state estimation (retrodiction) and forward prediction of future qubit state evolution. Our approaches involve the construction of a dynamical model capturing qubit dynamics via autoregressive or Fourier-type protocols. A comparison of achievable prediction horizons, model robustness, and noise filtering capabilities for Kalman Filters (KF) and a Gaussian Process Regression (GPR) algorithm is provided. We demonstrate superior performance from the autoregressive KF relative to Fourier-based KF approaches. Further, a GPR algorithm with an infinite basis of oscillators permits only retrodiction based on the data but not forward prediction. 
+\end{abstract}
+
+\maketitle
+
+
+% #############################################################################
+% Previous abstracts
+% #############################################################################
+
+
+% \begin{abstract}
+% Quantum computing hardware must preserve coherence of quantum systems over long operating procedures. Even if a quantum system is reset repeatedly during a procedure, the presence of non-Markovian environmental noise can correlate observations which would otherwise be independent. 
+% In this work, machine learning (ML) procedures extract correlations from measurements performed on a qubit subject to non-Markovian dephasing noise. We numerically investigate the performance of various ML algorithms in predicting qubit state evolution beyond the data. 
+% A comparison of achievable prediction horizons, model robustness, and noise filtering capabilities for Kalman Filters (KF) and a Gaussian Process Regression (GPR) algorithm is provided. 
+% In the absence of an analytical model describing qubit evolution, stochastic qubit dynamics are represented via autoregressive processes or state-space resonators.
+% We find an autoregressive KF is model-robust in contrast to resonator-based KF, and we extend the former to use only binary data. Contrarily, a GPR algorithm using an infinite basis of oscillators enables interpolation but not forward prediction. These results apply to predictive estimation schemes for any two-level system under arbitrary non-Markovian dephasing.
+% \end{abstract}
+
+
+% Machine learning (ML) approaches demonstrate utility in ch dynamical quantum systems and we apply ML algorithms to track and predict a stochastically evolving qubit subject to non Markovian dephasing noise. 
+% % Structure for an abstract
+% - The abstract needs to open by stating your problem
+% - Next you need to highlight what you do in this paper
+% - Then details of what you compare
+% - A bit more background
+% - Then a bit more on detailed findings
+% - Then a summary statement.
+
+% Extrinsic interference is routinely faced in systems engineering, and a common solution is to rely on a broad class of filtering techniques to afford stability to intrinsically unstable systems or isolate particular signals from a noisy background. Experimentalists leading the development of a new generation of quantum-enabled technologies similarly encounter time-varying noise in realistic laboratory settings. They face substantial challenges in either suppressing such noise for high-fidelity quantum operations1 or controllably exploiting it in quantum-enhanced sensing2,3,4 or system identification tasks 5,6, due to a lack of efficient, validated approaches to understanding and predicting quantum dynamics in the presence of realistic time-varying noise. In this work we use the theory of quantum control engineering7,8 and experiments with trapped 171Yb+ ions to study the dynamics of controlled quantum systems. Our results provide the first experimental validation of generalized filter-transfer functions casting arbitrary quantum control operations on qubits as noise spectral filters9,10. We demonstrate the utility of these constructs for directly predicting the evolution of a quantum state in a realistic noisy environment as well as for developing novel robust control and sensing protocols. These experiments provide a significant advance in our understanding of the physics underlying controlled quantum dynamics, and unlock new capabilities for the emerging field of quantum systems engineering.
+
+% The wide-ranging adoption of quantum technologies requires practical, high-performance advances in our ability to maintain quantum coherence while facing the challenge of state collapse under measurement. Here we use techniques from control theory and machine learning to predict the future evolution of a qubit’s state; we deploy this information to suppress stochastic, semiclassical decoherence, even when access to measurements is limited. First, we implement a time-division multiplexed approach, interleaving measurement periods with periods of unsupervised but stabilised operation during which qubits are available, for example, in quantum information experiments. Second, we employ predictive feedback during sequential but time delayed measurements to reduce the Dick effect as encountered in passive frequency standards. Both experiments demonstrate significant improvements in qubit-phase stability over ‘traditional’ measurement-based feedback approaches by exploiting time domain correlations in the noise processes. This technique requires no additional hardware and is applicable to all two-level quantum systems where projective measurements are possible.
+
+% Look at the opening - the first line you read is about the data set you're analyzing - is that the KEY message for your readers?  The opening needs to set up your objective and key findings to gain readers attention and quickly communicate essential facts.
+
+% \begin{abstract}
+% We consider machine learning (ML) algorithms for predictive control of qubits. Our task is to use a past measurement record to predict future evolution of the qubit state in the absence of an apriori dynamical model for qubit dynamics. We compare predictive performance of ML approaches for qubits subject to non-Markovian dephasing noise. Our numerical investigations quantify the achievable prediction horizon, model robustness, and noise filtering capabilities for two Kalman Filter (KF) variants and a Gaussian Process Regression (GPR) algorithm. We track stochastic qubit dynamics using autoregressive processes and harmonic oscillators. Our study reveals that an autoregressive KF is model-robust compared to an oscillator-based KF for realistic scenarios. We modify an autoregressive KF to use only single shot (0 or 1) qubit data and we achieve a prediction horizon if errors during filtering remain small. Meanwhile, we find a GPR algorithm representing an infinite basis of oscillators enables interpolation but not forward prediction of qubit evolution. Our work numerically characterises real-time predictive estimation for qubits under non-Markovian dephasing for future experimental applications.
+% \end{abstract}
+
+% \begin{abstract}
+% We apply machine learning (ML) algorithms to track and predict a stochastically evolving qubit state in real-time. In the absence of a dynamical model describing qubit evolution under non-Markovian dephasing noise, we use a past record of time-stamped qubit measurements to predict qubit evolution beyond the data.  In this manuscript, we design and numerically investigate the predictive performance of various ML algorithms. These algorithms proxy stochastic qubit dynamics by using autoregressive processes or a large collection of harmonic oscillators. We compare the achievable prediction horizon, model robustness, and noise filtering capabilities for Kalman Filters (KF) and a Gaussian Process Regression (GPR) algorithm. For KF algorithms, we find an autoregressive KF is model-robust compared to an oscillator-based KF in realistic operating conditions and we modify the former algorithm to enable qubit state predictions using only quantised (0 or 1) data. Meanwhile, a GPR algorithm learns qubit dynamics using an infinite basis of oscillators enabling interpolation but not forward prediction. These numerical investigations advance our understanding of algorithmic design decisions for deploying real-time predictive control strategies in physical experiments.
+% \end{abstract}

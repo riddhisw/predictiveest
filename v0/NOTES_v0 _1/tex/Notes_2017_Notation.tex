@@ -2,7 +2,6 @@
 \mbox{}
 
 % \section{Time Series Random Processes, Noise \& Probability Distributions}
-
 \nomenclature{$\delta \omega(t)$}{Environmental dephasing} 
 \nomenclature{$\state$}{True state i.e. a true sequence of stochastic phases governing qubit dynamics under environmental dephasing noise}
 \nomenclature{$\state'$}{An approximation to the true covariance stationary $\state$ using autoregressive methods (rather than a periodic random signal) to generate realisations of stochastic phases under dephasing}
@@ -18,13 +17,18 @@
 \nomenclature{$n_{\mathcal{B}}$}{Binomial distribution parameter for number of tosses in a coin toss experiment}
 \nomenclature{$\mathcal{U}$}{Uniform distribution}
 \nomenclature{$b$}{Saturation for probability distributions associated with quantised measurements }
+\nomenclature{$\mu$}{Generic mean of a Gaussian distribution}
+\nomenclature{$\Sigma$}{Generic covariance matrix of a Gaussian distribution}
+\nomenclature{$(+)$}{A posteriori statistical quantity (output of a Bayesian estimator)}
+\nomenclature{$(-)$}{A priori statistical quantity (input of a Bayesian estimator)}
 
 % \section{Classical and Quantum Operators}
-
+\nomenclature{$\hat{\cdot}$}{Quantum mechanical operator; or denotes estimators based on finite sample data for classical random variables (evident from context)}
 \nomenclature{$\mathcal{L}$}{Lag operator for an autoregressive process}
 \nomenclature{$\mathcal{Q}$}{Quantiser defined for a Kalman state space framework such that the output is either $0$ or $1$. This corresponds to a statistical description of outcomes given by a likelihood $Pr(d_n | \state_{n}, \tau)$}
 \nomenclature{$\op{U}$}{Unitary time evolution quantum operator}
 \nomenclature{$\p{x}, \p{y}, \p{z}$ $(\op{x}, \op{y}, \op{x})$}{Pauli operator (Pauli basis)}
+
 
 % \section{Experimental Sampling and Data Collection}
 \nomenclature{$t$}{Wall time}
@@ -36,117 +40,83 @@
 \nomenclature{$r_{Nqy}$}{Nyquist multiplier}
 \nomenclature{$f_{(B)}$}{Bandwidth assumption such that $f_{(S)} \equiv r_{Nqy} f_{(B)}$}
 \nomenclature{$f_{(S)}$}{Experimentally controlled sampling rate $f_{(S)} \equiv 1/\Delta t$}
-\nomenclature{$S(\omega)$ $\hat{S}(\omega)$}{True (estimated) power spectral density for true $\state$}
-
-
+\nomenclature{$S(\omega)$ ($\hat{S}(\omega)$)}{True (estimated) power spectral density for true $\state$}
 
 
 % \section{Algorithm Design}
-
+\nomenclature{$f_0^{(B)}$}{Computational basis  frequency comb spacing (Hz) in LKFFB or GPR (Periodic Kernel)}
+\nomenclature{$\omega_0^{(B)}$}{Computational basis  frequency comb spacing (rad) in LKFFB or GPR (Periodic Kernel)}
+\nomenclature{$J^{(B)}$}{Computational basis - total number of basis oscillators in LKFFB}
 \nomenclature{$h(\cdot)$}{A non linear state space measurement model }
 \nomenclature{$H_n$}{Linear state space measurement model or Jacobian of a non-linear measurement model}
-
 \nomenclature{$x$}{State space unobserved true state in Kalman Framework}
 \nomenclature{$P$}{True uncertainty of the true Kalman state in the Kalman Framework}
-\nomenclature{$\Gamma_{n}$}{Kalman gain}
+\nomenclature{$\gamma_{n}$}{Kalman gain}
+\nomenclature{$\Gamma_{n}$}{Kalman process noise features}
 \nomenclature{$\Phi$}{State space dynamical model for the true state in the Kalman Framework}
-
 \nomenclature{$\state^{(\star)}$}{State estimation and/or predictions from GPR about a true state $\state$, for test points collected in a length $N^{(\star)}$ vector.}
-
 \nomenclature{$K({}\cdot{}, {}\cdot \cdot{})$}{A Gram Schmidt ($\cdot$) by ($\cdot \cdot$) matrix whose elements are specified by $R(\nu)$  in GPR}
-
-\nomenclature{$\nu$}{The value of the separation distance between any two instances in time}
-
+\nomenclature{$\nu$}{The separation distance between any two time steps, $n_1, n_2$. }
 \nomenclature{$l$}{Length scale for the periodic kernel}
+\nomenclature{$\kappa$}{A deterministic time-step at which discontinuities in GPR can be predicted.}
+\nomenclature{$n^*_C$}{[Appendix only] LKFFB: optimal  number of points for training before commencing predictions}
 
-
-
+\nomenclature{$A^j_{n} $}{LKFFB - real part of true Kalman sub-state $x^j_n$ }
+\nomenclature{$B^j_{n}$}{LKFFB - imag part of true Kalman sub-state $x^j_n$ }
+\nomenclature{$ \norm{x^j_n}$}{LKFFB - norm of true Kalman sub-state $x^j_n$}
+\nomenclature{$\theta^{j}_{n} $}{LKFFB - phase of true Kalman sub-state $x^j_n$}
+ 
 % \section{Bayes Risk and Performance Analysis}
-
 \nomenclature{$n^*$}{Time step denoting the maximal forward prediction horizon $n^* \in [0, N_P]$ for which an algorithm predicts better relative to predicting the mean behaviour of the qubit under dephasing}
-
 \nomenclature{$I$}{A set of model design parameters (known a priori or optimised during algorithmic tuning)}
-
 \nomenclature{$L_{BR}(n | I)$}{Bayes Risk value at $n$ defined as an expectation value of datasets $\mathcal{D}$ and conditioned on a set of model parameters $I$}
-
-\nomenclature{$\normpr $}{Normalised Bayes Risk at $n$, where the normalising factor is predicting qubit behaviour under mean dephasing noise}
-
+\nomenclature{$\normpr $}{Normalised Bayes Risk at $n$: Risk calculated over datasets $\mathcal{D}$ and normalised against qubit behaviour under mean dephasing}
 \nomenclature{$L(I_k)$}{Loss value defined as the sum of Bayes Risk $L_{BR}(n | I_k)$ over a fixed number of time steps ($N'$) during state estimation ($N' \equiv N_{SE}$) or prediction ($N' \equiv N_{PR}$) for $k$-th choice of a set of model parameters, $I_k$.}
-
-\nomenclature{$N'$}{Loss function parameter for algorithmic tuning, namely, either $N' \in \{ N_{SE}, N_{PR}\}$) or prediction ($N' \equiv $) the number of time steps which contributes to the total prediction risk value, for a given choice of model parameters, $I$.}
-
+\nomenclature{$N'$}{Loss function parameter for algorithmic tuning, namely, $N' \in \{ N_{SE}, N_{PR}\}$). This defines the number of time steps which contributes to the total prediction risk value, for a given choice of model parameters, $I$.}
 \nomenclature{$N_{PR}$}{Loss function parameter for algorithmic tuning, namely, the number of time steps after $n=0$ which contributes to the total prediction risk value, for a given choice of model parameters, $I$.}
-
 \nomenclature{$N_{SE}$}{Loss function parameter for algorithmic tuning, namely, the number of time steps before $n=0$ which contributes to the total state estimation risk value, for a given choice of model parameters, $I$.}
-
 \nomenclature{$L_0$}{Loss threshold below which a `low loss region' $L(I_k)$ is defined in the space spanned by model parameters in $I$, using an ensemble of experiments with data $\mathcal{D}$}
 
 
-% \section{Measurement Records}
-
+% \section{Measurement Records} 
 \nomenclature{$\{ y_n\}$}{Observations of a true state corrupted by measurement noise (not quantised) }
-
 \nomenclature{$\{ d_n\}$}{Quantised zero or one measurement records}
-
 \nomenclature{$z_n$}{A noiseless (ideal) non linear measurement of the true Kalman state, $h(x)$}
-
 \nomenclature{$\mathcal{D}$}{A collection of noisy datasets corressponding to $M$ total runs of an experiment under different realisations of $\state$}
 
 
 % \section{Indicies}
-
-\nomenclature{$\{n: -N_T, \hdots, N_P \}$}{Time index for wall time}
-\nomenclature{$\{n^{(\star)}: 1, 2, \hdots, N^{(\star)} \}$}{Index of test points in GPR, namely, a label for points in time where a GPR state estimate or forward prediction is desired}
-\nomenclature{$N^{(\star)}$}{A length $N^{(\star)}$ vector defining test points in GPR}
-
+\nomenclature{$X$}{[Nomenclature only] Dummy index variable to define sets of \emph{index variables}}
+\nomenclature{$\{n: -N_T, \hdots, N_P \}$}{Index representing the number of discrete time steps for wall time $t_n = n\Delta t$}
+\nomenclature{$\{n^{(\star)}_X: X = 1, 2, \hdots, N^{(\star)} \}$}{Index of test points in GPR, namely, a label for points in time where a GPR state estimate or forward prediction is desired}
+\nomenclature{$N^{(\star)}$}{The length of a vector containing test points in GPR}
 \nomenclature{$\{m: 1, 2, \hdots M\}$}{Index representing the number of trials of the same experiment }
 \nomenclature{$\{k: 1, 2, \hdots K\}$}{Index representing the number of trials of a choice of model (hyper-parameters) for a given ensemble of experiments }
 \nomenclature{$\{j: 1, 2, \hdots J \text{ or } J^{(B)}\}$}{Index representing the number of Fourier components in true dephasing noise ($J$) or in a computational Fourier protocol ($J^{(B)}$)}
 \nomenclature{$\{i: 1, 2, \hdots N_P\}$}{Index representing the $i$-th step ahead prediction from $n=0$, where $i=1$ is the step ahead prediction in the Kalman filter}
-\nomenclature{$\{q': 1, 2, \hdots q\}$}{Index representing the $q'$ autoregressive term in an autoregressive model of order $q$}
-
+\nomenclature{$\{q': 1, 2, \hdots q\}$}{Index representing the $q'$-th autoregressive term in an autoregressive model of order $q$}
 \nomenclature{$\iota_X$}{A set of quantities generated for the purpose of randomly sampling parameter space associated with Kalman design parameters $(\sigma, R)$, for $\{ X: 0, 1, min, max\}$}
+\nomenclature{$\phi_{q'}$}{Autoregressive coefficient for the $q'$ term in an AR($q$) process, $q' \leq q$}
+\nomenclature{$\mathcal{Z}$}{The set of natural numbers}
 
- \nomenclature{$\phi_{q'}$}{Autoregressive coefficient for the $q'$ term in an AR($q$) process, $q' \leq q$}
 
+% Physical Setting
+\nomenclature{$\eta$}{[Appendix only] Complex scalar representing system-field coupling strength for an atom-field Hamiltonian in the rotating wave approximation}
 \nomenclature{$f_0$}{True noise frequency comb spacing (Hz)}
-
 \nomenclature{$\omega_0$}{True noise frequency comb spacing (rad)}
-
 \nomenclature{$J$}{True noise - total number of Fourier components}
+\nomenclature{$p$}{[Appendix only] true $\state$ -  power spectral density shape, such that $F(j) = j^{\frac{p}{2}-1} $ }
+\nomenclature{$F(j)$}{[Appendix only] true $\state$ -  Fourier amplitude for the $j$-th oscillator }
+\nomenclature{$\psi_j$}{[Appendix only] true $\state$ - uniformly distributed random phases }
+\nomenclature{$\alpha$}{[Appendix only] true $\state$ - arbitrary real, constant, scaling factor}
 
-\nomenclature{$f_0^{(B)}$}{Computational basis  frequency comb spacing (Hz) in LKFFB or GPR (Periodic Kernel)}
 
-\nomenclature{$\omega_0^{(B)}$}{Computational basis  frequency comb spacing (rad) in LKFFB or GPR (Periodic Kernel)}
-
-\nomenclature{$J^{(B)}$}{Computational basis - total number of basis oscillators in LKFFB}
-
-\nomenclature{$\eta$}{Appendix: Complex scalar representing system-field coupling strength for an atom-field Hamiltonian in the rotating wave approximation}
-
-\nomenclature{$\kappa$}{A deterministic time-step at which discontinuities in GPR can be predicted.}
-
-\nomenclature{$p$}{Appendix: true $\state$ -  power spectral density shape, such that $F(j) = j^{\frac{p}{2}-1} $ }
-
-\nomenclature{$F(j)$}{Appendix: true $\state$ -  Fourier amplitude for the $j$-th oscillator }
-
-\nomenclature{$\psi_j$}{Appendix: true $\state$ - uniformly distributed random phases }
-
-\nomenclature{$\alpha$}{Appendix: true $\state$ - arbitrary real, constant, scaling factor}
-
-\nomenclature{$n^*_C$}{Appendix: LKFFB: optimal  number of points for training before commencing predictions}
-
-\nomenclature{$\hat{\cdot}$}{Denotes a quantum mechanical operator; or denotes estimators based on finite sample data for classical random variables (evident from context)}
-
-\nomenclature{$\mu$}{Generic mean of a Gaussian distribution}
-
-\nomenclature{$\Sigma$}{Generic covariance matrix of a Gaussian distribution}
-% \nomenclature{sym}{def}
 
 % \nomenclature{sym}{def}
-
+% \nomenclature{sym}{def}
 % \nomenclature{sym}{def}
 
-\printnomenclature
+\printnomenclature 
  
 
 
