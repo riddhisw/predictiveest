@@ -1,9 +1,9 @@
 % ##############################################################################
 \section{Stochastic Qubit Dynamics under Environmental Dephasing \label{sec:app:setup}}
 % ##############################################################################
-Environmental dephasing manifests as a time dependent stochastic detuning which couples to a $\p{z}$ term in the Hamiltonian, $\op{H}_{N} (t)$, governing qubit dynamics. Consider the state on the equator of the Bloch sphere evolving under $\op{H}_{N} (t)$ during a Ramsey experiment for duration $\tau$. 
+Environmental dephasing manifests as a time dependent stochastic detuning which couples to a $\p{z}$ term in the Hamiltonian, $\op{H}_{N} (t)$, governing qubit dynamics. Consider the state on the equator of the Bloch sphere evolving under $\op{H}_{N} (t)$ during a Ramsey experiment for duration $\tau$. CHECK SIGN AND UP AND DOWN STATEMENTS
 \begin{align} 
-\op{H}_{N}(t) & \equiv -\frac{\hbar}{2}\delta\omega(t)\p{z}
+\op{H}_{N}(t) & \equiv \frac{\hbar}{2}\delta\omega(t)\p{z}
 \end{align}
 Initially, the qubit state is prepared on the equator of the Bloch sphere. The qubit evolves freely for $\tau$ time and subsequently, the qubit state is rotated before a projective measurement is performed with respect to the $\p{z}$ axis. In the semiclassical approximation, this Hamiltonian commutes with itself at different $t$, and hence we can write the time evolution operator during the Ramsey wait time as:
 \begin{align}
@@ -22,7 +22,7 @@ We impose a condition that $\state(t, t + \tau) < \pi$ (OR 2PI) such that accumu
 % ##############################################################################
  In this section, we consider a sequence of Ramsey measurements. At time $t$, \cref{sec:app:setup} describes the qubit measurement likelihood at one instant under dephasing noise. We assume that the dephasing noise is slowly drifting with respect to a fast measurement action on timescales of order $\tau$. In this regime, \cref{eqn:app:phases} discretises the continuous time process $\delta\omega(t)$, at time $t$, for a number of $n= 0, 1, ..., N$ equally spaced measurements with $t = n \Delta t$. Performing the integral for $\tau \ll \Delta t$ and slowly drifting noise such that, $\delta\bar{\omega}_n \equiv \delta\omega(t')|_{t'=n \Delta t }$ in \cref{eqn:app:phases}:
 \begin{align}
-\state(n\Delta t, n\Delta t + \tau) & = -\frac{\hbar}{2}\p{z}\delta\bar{\omega}_n \tau \label{eqn:app:phases_constantdetuning}
+\state(n\Delta t, n\Delta t + \tau) & = \frac{\hbar}{2}\p{z}\delta\bar{\omega}_n \tau \label{eqn:app:phases_constantdetuning}
 \end{align}
 In this notation, $\delta\bar{\omega}_n $ is a random variable realised at time, $t = n \Delta t$, and it remains constant over short duration of the measurement action, $\tau$.  We use the shorthand $\state_n \equiv \state(n\Delta t, n\Delta t + \tau)$ to label a sequence of stochastic, temporally correlated qubit phases $ \state \equiv \{\state_n \}$. 
  \\
@@ -80,9 +80,123 @@ We briefly comment that $\state$ is Gaussian by the central limit theorum in the
 
 
 % ##############################################################################
-\section{Linear Predictors for Covariance Stationary Processes $\state$ \label{sec:app:predictors}}
+\section{Theoretic Representation of Covariance Stationary Processes $\state$ \label{sec:app:predictors}}
 % ##############################################################################
+We consider two theoretic frameworks to represent any covariance stationary processes. The first is motivated by Wold's decomposition and gives rise to autogressive high order $p$ approaches in this paper. The second is given by the spectral decomposition theorum, and motivates the use of oscillator approaches in this paper. 
 
+\subsection{Autoregressive (AR($q$)) and Moving Averages (MA($p$)) Processes}
+We justify that any covariance stationary $\state$ can be approximated by a high order autoregressive process.  
+
+
+First, we expand on the properties of the lag operator $\mathcal{L}$. This operator defines a map between time series sequences and enables a compact description of ARMA processes. Consider an infinite time series $\{ f_n \}_{n = -\infty}^{\infty}$ and a constant scalar, $c$, such that the lag operator, $\mathcal{L}$ is defined by the following properties:
+\begin{align}
+\mathcal{L} f_n & = f_{n-1} \\
+\mathcal{L}^q f_n & = f_{n-q} \\
+\mathcal{L}(cf_n) & = c\mathcal{L}f_n = cf_{n-1}  \\
+\mathcal{L}f_n & = c, \quad \forall n, \implies \mathcal{L}^q f_n  = c
+\end{align}
+
+Next, we define a Gaussian white noise sequence, $\xi$, under the strong condition that \cref{eqn:app:ARMA:xi_indep} that $\xi_n, \xi_m$ are independent $\forall n, m $:
+\begin{align}
+\ex{\xi} \equiv 0  \\
+\ex{\xi_n \xi_m} \equiv \sigma^2 \delta(n-m)\label{eqn:app:ARMA:xi_indep}   
+\end{align}
+
+With these definitions, we can define an autoregressive process and a moving average process of unity order.  \cref{eqn:app:ARMA:AR_1} defines an AR($q=1$) process and dynamics of $\state_n$ are given as lagged values of the variable $\state$. The second definition in \cref{eqn:app:ARMA:MA_1} depicts a MA($p = 1$) process where dynamics are given by lagged values of Gaussian white noise $\xi$. 
+\begin{align}
+(1 - \phi_1 \mathcal{L}) f_n  & = c + \xi_n  \label{eqn:app:ARMA:AR_1} \\
+f_n & = c' + (\Psi_1 \mathcal{L} + 1)\xi_n  \label{eqn:app:ARMA:MA_1} 
+\end{align}
+Here, $\Psi_1, \phi_1$ are known scalars defining dynamics of $\state_n$; $w_n$ is a white noise Gaussian process, and $c, c'$ are fixed scalars. 
+
+It is well known that an MA($\infty$) representation is equivalently an AR($1$) process, and the reverse relationship also applies. For example, we can re-write \cref{eqn:app:ARMA:AR_1} as:
+\begin{align}
+f_n & = c + \xi_n + \phi_1 f_{n-1} \\
+& = w_n + \phi_1 f_{n-1} \\
+& = w_n + \phi_1 (w_{n-1}+ \phi_1 f_{n-2} ) \\
+& \vdots \\
+& = \phi_1^{n+1} F_0 + \phi_1^{n} w_{0} + \phi_1^{n-1} w_{1} + \hdots w_n \\
+& = \phi_1^{n+1} F_0 + \phi_1^{n} (c + \xi_{0}) + \hdots + (c + \xi_{n}) \\
+& = \phi_1^{n+1} F_0 +  c (\phi_1^{n} + \phi_1^{n-1} + \hdots + 1) + \sum_{m=0}^{n} \phi_1^m \xi_{n-m} \\
+w_n & \equiv c + \xi_n \\
+F_0 & \equiv f_{n=-1} 
+\end{align} We restrict $|\phi_1| < 1$ such that $\state$ is covariance stationary \cite{hamilton1994time}. % An MA process of any order is covariance stationary for any choice of coefficients - instead, the restrictions on the MA representation arise in the form of invertibility of an MA process \cite{hamilton1994time}.
+Under these conditions, we take the limit of $f$ capturing an infinite past, or namely, as $n$ indexes an infinite number of terms. The initial state $F_0$ is eventually forgotten, $\phi_1^{n+1} F_0 \approx 0$ if $n$ is large and $|\phi_1| < 1$. Similarly, the terms $c (\phi_1^{n} + \phi_1^{n-1} + \hdots + 1)$  can be summarised as a geometric series in $\phi_1$. The remaining terms satisfy the definition of an MA($\infty$) process:
+\begin{align}
+f_n &= c \frac{1}{1 - |\phi_1|}  +  \sum_{m=0}^{\infty} \phi_1^m \xi_{n-m}, \quad |\phi_1| < 1
+% & = c' + \sum_{m=0}^{\infty} \Psi_m \xi_{n-m}\\
+% \Psi_m  & \equiv \Phi^m, \quad \sum_{m=0}^{\infty}  |\Psi_m| = \sum_{m=0}^{\infty}  |\phi|^m < \infty 
+\end{align}
+It is straightforward to show that the reverse is true, namely, an MR($1$) is equivalent to an AR($\infty$) representation \cite{hamilton1994time}.
+
+The consideration of an MA($\infty$) process leads us directly to Wold's decomposition for arbitrary covariance stationary processes, namely, that any covariance stationary $\state$ can be represented as:
+\begin{align}
+\state_n & \equiv  \tilde{f}_n + \sum_{k=0}^{\infty} \Psi_k \xi_{n-k}   \\
+& =  \tilde{f}_n + \sum_{k=0}^{\infty} \Psi_k \mathcal{L}^k \xi_{n}  \label{eqn:app:ARMA:MAinf}\\
+\tilde{f}_n & \equiv \ex{\state_n | \state_{n-1}, \state_{n-2}, \hdots} \\
+% \xi_n & \equiv   \state_n - \ex{\state_n | \state_{n-1}, \state_{n-2}, \hdots} \\
+\Psi_0 & \equiv 1 \\
+\sum_{k=0}^{\infty} \Psi_k^2 & < \infty
+% & = \sum_{k=0}^{\infty} \Psi_k \xi_{n-k} 
+\end{align}
+\cref{eqn:app:ARMA:MAinf} defines an MA($\infty$) process derived previously as an AR($1$) process. This process is ergodic for Gaussian $\xi$. However, such a representation of $\state$ requires fitting data to an infinite number of parameters $\{\Psi_1, \Psi_2, \hdots \}$  and approximations must be made. 
+
+% A standard approximation is to leverage the dual behaviour of MA($p$) and AR($q$) process and consider finite order polynomials in an ARMA($q,p$) model with MA coefficients given by $\theta_{p \leq p'}$ and AR coefficients given by $\phi_{p \leq p'}$:
+% \begin{align}
+% \sum_{k=0}^{\infty} \Psi_k \xi_{n-k} & \to \frac{ 1 + \theta_{1}\mathcal{L}^{1} + \hdots + \theta_{p}\mathcal{L}^{p}}{1 - \phi_{1}\mathcal{L}^{1} - \hdots - \phi_{1}\mathcal{L}^{q}}\\
+% & \quad |\phi_i|  < 1, i = 1, \hdots, q
+% \end{align}
+% Instead of using an infinite past or an ARMA approximation,
+
+We approximate an arbitrary covariance stationary $\state$ using finite but high order AR($q$) processes. Below we show that any finite order AR($q$) process has an MA($\infty$) representation satisfying Wold's theorum.
+
+We define an arbitrary AR($q$) process as:
+\begin{align}
+\xi_n & \equiv (1 - \phi_1 \mathcal{L}  - \phi_2 \mathcal{L} ^2 - \hdots -\phi_q \mathcal{L} ^q) (\state_n - c)\\
+& = (1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L}) (\state_n - c) \label{eqn:app:ARMA:ar_p_1}
+% \state_n - c & \equiv \frac{1}{(1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L})}
+\end{align}
+In particular, we use the following result from \cite{hamilton1994time} to define $\lambda_i, i = 1, \hdots, q$ as eiqenvalues of the dynamical model, $\Phi$:
+\begin{align}
+\Phi &\equiv \begin{bmatrix} \phi_1 & \phi_2 & \phi_3 & \hdots & \phi_{q-1}  &\phi_q \\
+1 & 0 & 0 & \hdots & 0 & 0 \\
+0 & 1 & 0 & \hdots & 0 & 0 \\
+0 & 0 & 1 & \hdots & 0 & 0 \\
+\vdots & \vdots & \vdots & \hdots & \vdots & \vdots \\
+0 & 0 & 0 & \hdots & 1 & 0 \\
+ \end{bmatrix} \\
+\bf{\lambda} & \equiv \begin{bmatrix} \lambda_1 \dots \lambda_q \end{bmatrix} \quad \text{s.t.} |\Phi - \bf{\lambda}\mathcal{I}_q|  = 0 \\
+\implies 1 & - \phi_1 z  - \phi_2 z^2 - \hdots -\phi_q z^q \\
+&\equiv (1 - \lambda_1z) \hdots (1 - \lambda_q z) 
+\end{align}
+
+In order to solve the inverse problem above, we consider an arbitrary $q$-th eigenvalue term in  process and we multiply by the operator $\Lambda_q(\mathcal{L}) $ defined below:
+
+\begin{align}
+\Lambda_q(\mathcal{L}) & \equiv \lim_{k\to \infty} (1 + \lambda_q \mathcal{L} + \hdots + \lambda_q^k\mathcal{L})\\
+\Lambda_q(\mathcal{L}) \xi_n & = \Lambda_q(L) (1 - \lambda_q \mathcal{L}) (\state_n - c) \\
+ & = \lim_{k\to \infty}(1 + \lambda_q^{k+1}\mathcal{L}^{k+1})(\state_n - c)
+\end{align}
+The residual term $\lambda_q^{k+1}\mathcal{L}^{k+1}\state_n \to 0 $ if $|\lambda_q| < 1$  for large $k$, and this case $\Lambda_q(\mathcal{L})$ defines the inverse $(1 - \lambda_q \mathcal{L})^{-1}$. This procedure is repeated for all $q$ eigenvalues to invert \cref{eqn:app:ARMA:ar_p_1} and subsequently perform a partial fraction expansion as follows:
+\begin{align}
+\state_n - c & = \frac{1}{(1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L})} \xi_n\\
+& = \sum_{q'=1}^{q}\frac{a_{q'}}{1- \lambda_{q'} \mathcal{L}} \xi_n \\
+a_{q'} & \equiv \frac{\lambda_{q'}^{q-1}}{\prod_{q''=1, q''\neq q'}^{q} (\lambda_{q'} - \lambda_{q''})}
+\end{align} The coefficients are $a_{q'}$ as obtained via the partial fraction expansion method during which $\mathcal{L}$ is treated as an ordinary polynomial. At present, we have a represent $\state$ via a finite $q$ weighted average of values of $\xi$. However, in substituting the definition of $ \Lambda_{q'} \equiv (1- \lambda_{q'} \mathcal{L})^{-1}$, we recover the form of an MA representation (setting $c \equiv \tilde{\state}_n  = 0, \quad  \forall n$ for simplicity): 
+\begin{align}
+\state_n & = \left[ \sum_{q'=1}^{q} a_{q'} \mathcal{L}^0 +  \lim_{k \to \infty}  \sum_{k'=1}^{k} \left( \sum_{q'=1}^{q} a_{q'}  \lambda_{q'}^{k'} \right) \mathcal{L}^{k'}\right] \xi_n \\
+& = \Psi_0 + \sum_{k=1}^{\infty} \Psi_k \mathcal{L}^k \xi_{n}  \\
+\Psi_0 & \equiv \sum_{q'=1}^{q} a_{q'} \mathcal{L}^0  \\
+\Psi_k & \equiv \sum_{q'=1}^{q} a_{q'}  \lambda_{q'}^{k'}
+\end{align}
+By examining the properties of $\Phi$ raised to arbitrary powers, it can be shown that $\sum_{q'=1}^{q} a_{q'} \equiv 1$ and $\Psi_k$ is the first element of $\Phi$ raised to the $k$-the power \cite{hamilton1994time}, yielding absolute summability of $\Psi_k$ if $|\phi_{q'<q}| < 1$. This ensures that Wold's theorum is fully satisfied and an AR($p$) process has an MA($\infty$) representation. 
+% In moving to an arbitrarily high $q$, we enable the approximation of any covariance stationary $\state$.
+
+
+The proofs that high $q$ AR approximations for covariance stationary $f$ improve with $q$ for example, in \cite{wahlberg1989estimation}. The key correspondence is that the number of finite lag terms $q$ in an AR($q)$) model contribute to the first $q$ values of the covariance function. This approximation improves with $q$ even if $\state$ is not a true AR process \cite{wahlberg1989estimation,west1996bayesian}. Asymptotically efficient coefficient estimates for any $MA(\infty)$ representation of $\state$ are obtained by letting the order of a purely AR($q$) process tend to infinity and increasing total data size, $N$ \cite{wahlberg1989estimation}. In our application with finite data $N$, we increase $q$ to settle on a high order AR model for tracking arbitrary covariance stationary power spectral densities \cite{brockwell1996introduction}.  When data is fixed at $N$, we expect a high $q$ model to gradually saturate in predictive estimation performance and this was confirmed numerically for model selection in LSF. One can arbitrarily increase performance by increasing both $q, N$ \cite{wahlberg1989estimation}. In frequency domain language, this would equate to increased physical Fourier resolution for learning the power spectral density of $\state$. For our application, we use LSF to construct a high $q$ AR model for Kalman Filtering.  A high $q$ AR model is often the first step for developing models with smaller number of parameters, for example, considering a mixture of finite order AR($q$) and MA($p$) models and estimating $p+q$ number of coefficients using a range of standard protocols \cite{brockwell1996introduction,west1996bayesian}. We pursue a high order AR($q$) model and efficient ARMA estimators can be developed on the basis of our initial model. 
+
+
+\subsection{Spectral Decomposition}
 
 % ##############################################################################
 \section{Liska Kalman Filter: Predictions via a Fixed Basis} \label{sec:ap_liska_fixedbasis}
@@ -125,10 +239,10 @@ We define system and interaction Hamiltonians for a two level system with energy
 \\
 \begin{align}
 \op{H_0} &= \frac{1}{2} \hbar \omega_A \p{z} \\
-\eta & \equiv \vec{g} \cdot \op{z} = \bra{1} \op{d} \cdot \op{z} \ket{2} \\
-\op{H}_{AF} & = -\eta \Omega(t)  \cos(\omega_\mu t + \phi(t)) \p{-} \\
-& - \eta^* \Omega(t)  \cos(\omega_\mu t + \phi(t)) \p{+}
-\end{align} Here, $\op{H_0}$ is the system Hamiltonian, $\op{d}$ is the dipole operator for a spin half particle in a magnetic field, $\vec{g}$ is a complex system-field coupling term that inherits the direction of the dipole operator, $\eta$ is a complex scalar that captures the coupling strength, and $\op{H}_{AF}$ is the Schoedinger picture atom-field interaction Hamiltonian in the rotating wave approximation.
+\xi & \equiv \vec{g} \cdot \op{z} = \bra{1} \op{d} \cdot \op{z} \ket{2} \\
+\op{H}_{AF} & = -\xi \Omega(t)  \cos(\omega_\mu t + \phi(t)) \p{-} \\
+& - \xi^* \Omega(t)  \cos(\omega_\mu t + \phi(t)) \p{+}
+\end{align} Here, $\op{H_0}$ is the system Hamiltonian, $\op{d}$ is the dipole operator for a spin half particle in a magnetic field, $\vec{g}$ is a complex system-field coupling term that inherits the direction of the dipole operator, $\xi$ is a complex scalar that captures the coupling strength, and $\op{H}_{AF}$ is the Schoedinger picture atom-field interaction Hamiltonian in the rotating wave approximation.
 
 The carrier with noise is identically defined as in \cite{soare2014}:
 \begin{align}
@@ -145,7 +259,7 @@ Substituting $\op{H}_{N}$ for a stochastic detuning, $\delta \omega (t)$ from \c
 \dr{\pjs{2}{\psi}} &\equiv \dot{c_2} \\
 & = \frac{-i}{\hbar}\bra{2} \op{H}_0 + \op{H}_{N} + \op{H}_{AF}^{RWA}  \ket{\psi} \\
 & = -\frac{i(\omega_A - \delta\omega(t)) }{2}c_2 - \frac{i}{\hbar}Z_0^*\dd e^{-i\omega_\mu t}c_1 \\
-\quad Z_0\dd &\equiv \frac{\Omega\dd\eta}{2}e^{i\phi\dd}.
+\quad Z_0\dd &\equiv \frac{\Omega\dd\xi}{2}e^{i\phi\dd}.
 \end{align}
 
 The first interaction picture transformation is with respect to the carrier, namely, we define an arbitrary transformation as:
@@ -188,13 +302,13 @@ We substitute $Z_0\dd$ and set $2\lambda\dd \equiv -\phi_N\dd$ resulting in:
 %%%%% [SECTION BELOW IS CHANGED FROM ORIGINAL NOTES] 
 \begin{align}
 \dot{\alpha}_1 & =  i\frac{\Delta \omega(t) - \dot{\phi}_N \dd}{2}\alpha_1 \nonumber \\ %%%% ADDED PHI_N
-& - \frac{i}{2\hbar}(\Omega\dd \eta e^{i\phi_C\dd}) \alpha_2  \\
+& - \frac{i}{2\hbar}(\Omega\dd \xi e^{i\phi_C\dd}) \alpha_2  \\
 \dot{\alpha}_2 & =  -i\frac{\Delta \omega(t) - \dot{\phi}_N\dd}{2}\alpha_2 \nonumber  \\ %%%% ADDED PHI_N
-& - \frac{i}{2\hbar}(\Omega\dd \eta^* e^{-i\phi_C\dd})\alpha_1  \\
+& - \frac{i}{2\hbar}(\Omega\dd \xi^* e^{-i\phi_C\dd})\alpha_1  \\
 \Rightarrow \op{H}^{I}_{\omega_\mu,\phi_N\dd} &\equiv \frac{\hbar}{2}(\Delta \omega(t)- \dot{\phi}_N\dd)\p{z} \nonumber \\
-& + \frac{\Omega\dd}{2} (\eta e^{i\phi_C\dd}\p{-} + \eta^* e^{-i\phi_C\dd}\p{+}) \label{eqn:Hi}
+& + \frac{\Omega\dd}{2} (\xi e^{i\phi_C\dd}\p{-} + \xi^* e^{-i\phi_C\dd}\p{+}) \label{eqn:Hi}
 \end{align}
-In the last line, $\op{H}^{I}_{\omega_\mu,\phi_N\dd}$ is the effective interaction picture Hamiltonian acting on the transformed state $\ket{\psi} = \alpha_1\ket{1} + \alpha_2\ket{2}$. For the case where we set $\eta^* = \eta \equiv 1$ (real coupling constant), we recover the effective interaction picture Hamiltonian in \cite{soare2014}.
+In the last line, $\op{H}^{I}_{\omega_\mu,\phi_N\dd}$ is the effective interaction picture Hamiltonian acting on the transformed state $\ket{\psi} = \alpha_1\ket{1} + \alpha_2\ket{2}$. For the case where we set $\xi^* = \xi \equiv 1$ (real coupling constant), we recover the effective interaction picture Hamiltonian in \cite{soare2014}.
 
 % ##############################################################################
 \section{Liska Kalman Predictor with Fixed Basis} \label{sec:ap_liska_deriv}
