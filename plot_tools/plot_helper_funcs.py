@@ -153,7 +153,7 @@ def plot_risk_trajectories(figaxes, algotype, RISKDICT,
     
     figaxes.set_xlim([-sstep - 10, fstep])  # start 10 points before sstep, add n_train label
     xtickslabels =[x.get_text() for x in figaxes.get_xticklabels()]
-    xtickslabels[0] = str(r'$-n_{T}$')
+    xtickslabels[0] = str(r'$-N_{T}$')
     xtickvalues = [int(x) for x in figaxes.get_xticks()]
     xtickslabels[1:] = xtickvalues[1:]
     
@@ -335,7 +335,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
     # figaxes.axvspan(-sstep, 0, color='gray', alpha=0.1)
     figaxes.set_xlim([-sstep - nt_label, fstep])  # start 10 points before sstep, add n_train label
     xtickslabels =[x.get_text() for x in figaxes.get_xticklabels()]
-    xtickslabels[0] = str(r'$-n_{T}$')
+    xtickslabels[0] = str(r'$-N_{T}$')
     xtickvalues = [int(x) for x in figaxes.get_xticks()]
     xtickslabels[1:] = xtickvalues[1:]
     figaxes.set_xticklabels(xtickslabels)
@@ -462,7 +462,7 @@ def plot_normed_means(figaxes, inset, ALGOLIST, test_case, variation, path,
     figaxes.axvspan(-sstep,0, color='gray', alpha=0.1)
     figaxes.set_xlim([-sstep - 10, fstep])  # start 10 points before sstep, add n_train label
     xtickslabels =[x.get_text() for x in figaxes.get_xticklabels()]
-    xtickslabels[0] = str(r'$-n_{T}$')
+    xtickslabels[0] = str(r'$-N_{T}$')
     xtickvalues = [int(x) for x in figaxes.get_xticks()]
     xtickslabels[1:] = xtickvalues[1:]
     
