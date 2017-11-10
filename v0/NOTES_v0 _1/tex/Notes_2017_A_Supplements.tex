@@ -472,3 +472,11 @@ p_{0,N} &= \exp (- \frac{1}{l^2}) \sum_{\alpha = 0}^{\alpha = \alpha_{n}^{MAX}} 
 Here, the indice $j$ labels an infinite comb of oscillators and $n$ represents the higher order terms in the power reduction forumulae. The key message is that truncating $n$ to a finite number of terms $N$ will forecably truncate $j$ to represent a finite number of oscillators, $J$. By examining the cosine expansion, one sees that a truncation at $(N, J)$ means our summarised formulae will require $\beta_{j,N}^{MAX} = \lfloor\frac{N-j}{2}\rfloor$ and $\alpha_{N}^{MAX} = \lfloor\frac{N}{2}\rfloor$  where $\lfloor \rfloor$ denotes the ceiling floor. If we truncate with $N \equiv J$ such that $\alpha_{N}^{MAX} = \lfloor\frac{J}{2}\rfloor, \beta_{j,N}^{MAX} =  \lfloor\frac{J-j}{2}\rfloor $ and re-adjust the kernel for the zero-th frequency term, then we agree with results in \cite{solin2014explicit} and we recover the covariance function for trigonometric polynomials appoximating a covariance stationary process. 
 \end{widetext}
 
+\iffalse %%%%%%%%%% THIS BELONGS IN THE APPENDIX, NOT THE MAIN TEXT AS ITS A NUMERICAL DETAIL
+\begin{align}
+\sigma_k, R_k &\equiv \iota_0 10^{\iota_1} \\
+\iota_0 & \sim \mathcal{U}[0, 1]\\
+\iota_1 & \sim \mathcal{U}[\{ -\iota_{max}, -\iota_{max} + 1,  \hdots,  \iota_{min}\}]
+\end{align}
+Scale magnitudes are set by $\iota_1$, a random integer chosen with uniform probability over $\{ -\iota_{max}, \hdots, \iota_{min} \}$ where we set $\iota_{min} = 3, \iota_{max} = 8$  such that $10^{-\iota_{max}}$ is sufficiently high to avoid machine floating point errors from recursive calculations over $> 10^3$ measurements. Uniformly distributed floating points for $\sigma_k, R_k $ in each order of magnitude is set by $\iota_0$. 
+\fi
