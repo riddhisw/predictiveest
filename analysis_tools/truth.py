@@ -24,14 +24,31 @@ norm_squared: Returns magnitude squared of a vector
 
 from __future__ import division, print_function, absolute_import
 import numpy as np
-#import scipy.stats as pdf
+# import scipy.stats as pdf
 
-#PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
+# PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
 Moments = {'Mean':np.mean, 'Variance':np.var}
 
-FUDGE_1 = 0.5  # (Kalman Amplitudes vs. Theory)
-HILBERT_TRANSFORM_ = 2.0 # (Kalman Amplitudes vs. Theory)
-FUDGE_2 = 2.0*np.pi # Guessed numerically (Numerical averaging vs. Theory)
+
+# SCALING FACTOR FOR ALL LKKFB AMPLITUDES
+# LKFFB acts on Hilbert transform of the true signal. 
+# Negative frequencies are shifted to postive spectrum. 
+# For a real, covariance stationary signal, the spectrum is symmetric
+# Hence, our application of LKKFB means that we will estimate twice the true spectrum
+LKFFB_HILBERT_TRANSFORM_ = 0.5 
+
+
+# SCALING FACTOR FOR ALL TRUTHS
+# We convert a true, two sided power spectral density into a one sided power spectral density
+# For a real, covariance stationary signal, the spectrum is symmetric
+# int_(-w)^(w) S(w) dw = 2 int_(0)^(w) S(w) dw
+# So if we take only the postive end of the LHS, we have to multiply it by 2.0 to conserve power.
+SYMMETRIC_ONE_SIDED_PSD = 2.0
+
+
+# FUDGE_1 = 0.5  # (Kalman Amplitudes vs. Theory)
+# HILBERT_TRANSFORM_ = 2.0 # (Kalman Amplitudes vs. Theory)
+# FUDGE_2 = 2.0*np.pi # Guessed numerically (Numerical averaging vs. Theory) # not reported in paper
 
 
 class Truth(object):

@@ -33,7 +33,7 @@ import kf.fast_2 as Kalman
 from kf.common import calc_inst_params
 from akf.armakf import autokf as akf
 from ls import statePredictions as sp
-from analysis_tools.truth import FUDGE_1, HILBERT_TRANSFORM_
+from analysis_tools.truth import SYMMETRIC_ONE_SIDED_PSD, LKFFB_HILBERT_TRANSFORM_ #FUDGE_1, HILBERT_TRANSFORM_
 
 ################
 # LSF
@@ -284,8 +284,8 @@ def LKFFB_amps(LdExp, freq_basis_array=None, instantA=None):
 
     x_data = [2.0*np.pi*freq_basis_array, LdExp.Truth.true_w_axis[LdExp.Truth.J -1:]]
 
-    kalman_amps = (instantA**2)*(2*np.pi)*FUDGE_1
-    theory_PSD = HILBERT_TRANSFORM_*LdExp.Truth.true_S_twosided[LdExp.Truth.J -1:]
+    kalman_amps = (instantA**2)*(2*np.pi)*LKFFB_HILBERT_TRANSFORM_ #*FUDGE_1
+    theory_PSD = SYMMETRIC_ONE_SIDED_PSD*LdExp.Truth.true_S_twosided[LdExp.Truth.J -1:] #*HILBERT_TRANSFORM_
 
     norm_kalman_amps = kalman_amps*(1.0/ LdExp.Truth.true_S_norm)
     norm_theory_PSD = theory_PSD*(1.0/ LdExp.Truth.true_S_norm)

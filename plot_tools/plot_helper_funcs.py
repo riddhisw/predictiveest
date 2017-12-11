@@ -195,7 +195,9 @@ def calc_undersampling(testobj):
 
 def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variation, path,
                             GPRP_load='Yes', LSF_load='Yes', AKF_load='Yes', LKFFB_load='Yes', QKF_load='No',
-                            fstep=50, sstep=50, lowloss=20, lgd_loc=4, nt_label=10, 
+                            plot_past_data=150,
+                            fstep=50, sstep=50, # can't really change these without breaking TUNED_RUNS_DICT
+                            lowloss=20, lgd_loc=4, nt_label=10, 
                             ylim_amps = [-4.5, 1], yscale='linear', undersampl_scale_on=0, sig_scale_on=1, save_data=0):
     
     '''Returns single predictions from all algorithms, spectral estimates from AKF/LSF, LKKFB'''
@@ -227,7 +229,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
         true_undersampl_const = calc_undersampling(testobj)
     
     # plot data
-    figaxes.plot(x_axis[ : sstep], signal[ntn - sstep : ntn]*signal_scaling, msmt_marker_s, c= datamarker_c, label='Data', markersize=msmt_marker, alpha=0.7)
+    figaxes.plot(range(-plot_past_data, 0, 1), signal[ntn - plot_past_data: ntn]*signal_scaling, msmt_marker_s, c= datamarker_c, label='Data', markersize=msmt_marker, alpha=0.7)
     
     # store ylim for each algorithm for plotting later on
     ylim_list = []
@@ -258,6 +260,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
                          true_undersampl_const=true_undersampl_const, signal_scaling=signal_scaling)
             
             # Plot predictions (Kalman)
+            print(pred.shape)
             figaxes.plot(x_axis[ : sstep], pred[ntb - sstep : ntb ], statepred_s, lw=state_lw, color=COLOURDICT[algo_type])
             figaxes.plot(x_axis[ sstep : ], pred[ntb : ntb + fstep], STYLEDICT[algo_type],
                          color=COLOURDICT[algo_type], 
@@ -331,9 +334,12 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
     figaxes_amps.axvline(x=bandedge, ls=':', c=true_bandedg_clr)#, label= 'True Band Edge')
     figaxes_amps.axvline(x=compedge, ls=':', c=lkffb_bandedg_clr)#, label= 'KF Basis Ends')
     
+    # plot truth
+    figaxes.plot(range(-plot_past_data, fstep, 1), truth[ntn - plot_past_data : ntn + fstep]*signal_scaling, c=COLOURDICT['TRUTH'], label='Truth', lw=truthline_lw)
+    
     # Config x axis for predictions
     # figaxes.axvspan(-sstep, 0, color='gray', alpha=0.1)
-    figaxes.set_xlim([-sstep - nt_label, fstep])  # start 10 points before sstep, add n_train label
+    figaxes.set_xlim([-plot_past_data - nt_label, fstep])  # start nt_label points before sstep, add n_train label
     xtickslabels =[x.get_text() for x in figaxes.get_xticklabels()]
     xtickslabels[0] = str(r'$-N_{T}$')
     xtickvalues = [int(x) for x in figaxes.get_xticks()]
@@ -357,9 +363,7 @@ def plot_single_predictions(figaxes, figaxes_amps, ALGOLIST, test_case, variatio
     figaxes_amps.set(xlabel=r'$\omega$ [rad]', ylabel=r'$S(\omega)$ [$f_n^2$/(rad $s^{-1}$)]')
     figaxes.set(xlabel='Time Steps [num]', ylabel=r'Predictions [$f_n$]')
     
-    # plot truth
-    figaxes.plot(x_axis, truth[ntn - sstep : ntn + fstep]*signal_scaling, c=COLOURDICT['TRUTH'], label='Truth', lw=truthline_lw)
-    
+       
     # Make things arial and same size:
     figaxes = set_font_sizes(figaxes, fsize, Fsize)
     figaxes_amps = set_font_sizes(figaxes_amps, fsize, Fsize)

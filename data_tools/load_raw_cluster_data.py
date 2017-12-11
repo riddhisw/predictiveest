@@ -27,7 +27,8 @@ FILENAME_DICT = {'AKF': '_BR_AKF_MAP_correctQ_.npz',
                  'LSF': '_LS_Ensemble.npz',
                  'LKFFB': 'BR_Map.npz', 
                  'GPRP': '_GPR_PER_.npz',
-                 'QKF': 'BR_QKF_Map_II.npz'}
+                 # 'QKF': 'BR_QKF_Map_correct_Q.npz'} # AKF Q Matrix (tag: correct_Q)
+                 'QKF': 'BR_QKF_Map_II.npz'} # Stablised Q Matrix [in paper]
 
 
 class LoadExperiment(object):

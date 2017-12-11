@@ -3,7 +3,7 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 import numpy.linalg as la
 import scipy.stats as stats
-
+from scipy.special import erf as erf_func
 
 ############################################### QIF Bayes Risk Helper Funcs ########################################
 
@@ -180,21 +180,22 @@ def rho(z_value, rk, b =0.5):
     Measurement error e is zero mean, white and Gaussian distributed with variance rk (not standard deviation) . 
     In Karrlson (2005), p(y|z) \equiv Pr.(e < -z) \equiv Pr (e' < -z/ rk) for zero mean Gaussian normal e'''
     
-    # error_dist = stats.norm(loc=0, scale=1)
-    # normalised_value = -1*z_value/np.sqrt(rk) # normalised via standard deviation
-    # rho = error_dist.cdf(normalised_value) # Theorum 3 
+    error_dist = stats.norm(loc=0, scale=1)
+    normalised_value = -1*(z_value - 0.0) /np.sqrt(rk) # normalised via standard deviation, take out 0.5 pi mean in x makes z zero mean
+    rho = error_dist.cdf(normalised_value) # Theorum 3 
     
-    rho = (1./(4*np.sqrt(rk*np.pi)))*(1 + z_value)*(math.erf(z_value + b) + math.erf(b -z_value))
-    rho += (1./(4*np.pi)) * ( np.exp( -(1./rk)*(z_value + b)**2 ) - np.exp( -(1./rk)*(z_value - b)**2 )  )    
+    # rho = (1./(4*np.sqrt(rk*np.pi)))*(1 + z_value)*(math.erf(z_value + b) + math.erf(b -z_value))
+    # rho += (1./(4*np.pi)) * ( np.exp( -(1./rk)*(z_value + b)**2 ) - np.exp( -(1./rk)*(z_value - b)**2 )  )    
     
     return rho
 
 def J_one_bit(z_value, rk):
     
     '''Returns J_{m=1, t} given by (64) for the calculation in (41) in Karlsson (2005)'''
-    # j_onebit = np.exp(-(z_value**2)/rk)*( 1./((rho(z_value, rk) * (1. - rho(z_value, rk))))) / (2.0 * np.pi*rk) # Theorum 3
-    j_onebit = 1.0 / (rho(z_value, rk)*(1.0 - rho(z_value, rk)))
+    j_onebit = np.exp(-(z_value**2)/rk)*( 1./((rho(z_value, rk) * (1. - rho(z_value, rk))))) / (2.0 * np.pi*rk) # Theorum 3
+    # j_onebit = 1.0 / (rho(z_value, rk)*(1.0 - rho(z_value, rk)))
     return j_onebit
+    
     
 def J_x_n(x_value, z_value, rk):
     
@@ -216,24 +217,30 @@ def inverse_Ricatti_recursion(x_hat_, z_hat_, rk, true_oe, dynamical_model, time
     Note that Q_inv, V, S, are time invariant for our model. 
     Only J(x) changes. These terms are defined in Karlsson (2005)'''
     
-    Q_inv = np.eye(dynamical_model.shape[0])* (1.0 / true_oe) # Not Q in AKF, but approx defined to have an inverse
+    Q_inv = np.eye(dynamical_model.shape[0])* (1.0 / true_oe**2) # Not Q in AKF, but approx defined to have an inverse
     V = np.dot(np.dot(dynamical_model, Q_inv), dynamical_model.T)
     S = -1 * np.dot(dynamical_model.T, Q_inv)
     
     # print('Q_inv', Q_inv, 'V', V, 'S', S)
     # print('dynamical model', dynamical_model)
     
-    order = dynamical_model.shape[0]
-    posterior = np.zeros((order, order, time_steps))
+    order = dynamical_model.shape[0] 
+    # posterior = np.zeros((order, order, time_steps)) # CHANGED
+    posterior = np.zeros((time_steps)) # CHANGED
     J_empty = np.zeros((order, order))
     J_empty[0,0] = 1.0
-    posterior[:,:, 0] = p0
+    # posterior[:,:, 0] = p0 # CHANGED
+    posterior[0] = p0 # NOTE: THIS IS INVERSE OF VARIANCE> SMALL NUMBERS == LARGE VARIANCE
     
-    for n in range(1, time_steps):
+    for n in range(1, time_steps): # effectively implement a scalar recursion for f_n (not x) since Q, V, S, are time invariant
         
-        posterior[: , :, n] = Q_inv + J_x_n(x_hat_[n], z_hat_[n], rk).ravel()*J_empty # Fisher info calculated at the same time step as posterior
-        update = np.linalg.inv(posterior[: , :, n-1] + V) 
-        posterior[: , :, n] += -1 * np.dot(np.dot(S.T, update), S)
+        # posterior[: , :, n] = Q_inv + J_x_n(x_hat_[n], z_hat_[n], rk).ravel()*J_empty # Fisher info calculated at the same time step as posterior # CHANGED
+        # update = np.linalg.inv(posterior[: , :, n-1] + V)  # CHANGED
+        # posterior[: , :, n] += -1 * np.dot(np.dot(S.T, update), S) # CHANGED
+        
+        posterior[n] = Q_inv[0,0] + J_x_n(x_hat_[n], z_hat_[n], rk)[0,0]
+        update = 1./(posterior[ n-1] + V[0,0]) 
+        posterior[n] += -1 * update * S[0,0]**2
         
         if not np.isfinite(posterior).all():
             print("posterior is not finite")
@@ -244,12 +251,70 @@ def inverse_Ricatti_recursion(x_hat_, z_hat_, rk, true_oe, dynamical_model, time
             raise RuntimeError
     
     # print('J', J_x_n(x_hat_[n], z_hat_[n], rk).ravel()*J_empty)
-    print('shape of J', (J_x_n(x_hat_[n], z_hat_[n], rk).ravel()*J_empty).shape)
-    print('Shape of Q', Q_inv.shape)
-    print('Shape of S', S.shape)
+    # print('shape of J', J_x_n(x_hat_[n], z_hat_[n], rk)[0,0])
+    # print('Shape of Q', Q_inv[0,0])
+    # print('Shape of S', S[0,0])
     
     return posterior
 
+############################################### QUANTISED COINFLIP ONE BIT CRLB WITH TIME-VARYING H (V, S, Q, R are time invariant) ########################################
+
+
+def J_one_bit_coinflip(z_value, rk):
+    
+    '''Returns J_{m=1, t} given by derived coin flip msmt action'''
+    
+    scale_rk = np.real(np.sqrt(2*rk))
+    rho_0 = erf_func(1.0/(scale_rk)) + (scale_rk/np.sqrt(np.pi))*(np.exp(-(1.0/scale_rk)**2)- 1.0)
+    
+    if abs(z_value)== 0.5:
+        print("diverged, reset z = 0.49999999") # avoids divergence at the boundaries
+        z_value=0.49999999
+    
+    j_onebit = (rho_0 * 4.0 ) / (1.0 - 4*(z_value)**2)
+    return j_onebit
+    
+    
+def J_x_n_coinflip(x_value, z_value, rk):
+    
+    '''identical to J_x_n but calls on J_one_bit_coinflip'''
+    
+    j_onebit = J_one_bit_coinflip(z_value, rk)    
+    H_n = calc_H(x_value)
+    j_x_n =  j_onebit*np.outer(H_n, H_n)
+    
+    return j_x_n
+
+def inverse_Ricatti_recursion_coinflip(x_hat_, z_hat_, rk, true_oe, dynamical_model, time_steps=100, p0=0.0):
+    '''identical to inverse_Ricatti_recursion but calls on J_x_n_coinflip'''
+    
+    Q_inv = np.eye(dynamical_model.shape[0])* (1.0 / true_oe**2) 
+    V = np.dot(np.dot(dynamical_model, Q_inv), dynamical_model.T)
+    S = -1 * np.dot(dynamical_model.T, Q_inv)  
+    
+    order = dynamical_model.shape[0] 
+
+    posterior = np.zeros((time_steps)) 
+    J_empty = np.zeros((order, order))
+    J_empty[0,0] = 1.0
+
+    posterior[0] = p0 # 
+    
+    for n in range(1, time_steps): 
+        
+        posterior[n] = Q_inv[0,0] + J_x_n_coinflip(x_hat_[n], z_hat_[n], rk)[0,0]
+        update = 1./(posterior[ n-1] + V[0,0]) 
+        posterior[n] += -1 * update * S[0,0]**2
+        
+        if not np.isfinite(posterior).all():
+            print("posterior is not finite")
+            print('J', J_x_n(x_hat_[n], z_hat_[n], rk))
+            print('Q_inv', Q_inv)
+            print('S', S)
+            print('dynamical_model', dynamical_model)
+            raise RuntimeError
+    
+    return posterior
 ############################################### Scalar Time Invariant Discrete Time Riccati Steady State ########################################
 
 def scalar_dre_time_invariant_steady_state(Q, H, R, Phi, p0, k):
