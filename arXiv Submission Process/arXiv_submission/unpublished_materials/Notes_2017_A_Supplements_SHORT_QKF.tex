@@ -1,0 +1,270 @@
+
+% ##############################################################################
+\section{Deriving a Cramer Rao Lower Bound for the QKF \label{sec:app:qkf}}
+% ##############################################################################
+The definition of the QKF and the accompanying the numerical results stand of their own accord in the main text and are not revisited here. 
+In this Appendix, we wish to interpret the numerical results reported for the QKF by using analytical insights from classical quantisation theory. 
+
+To define the classical framework for quantised measurements, we rely on the filtering and estimation theory outlined by \cite{widrow1996,karlsson2005} and we summarise their results here for convenience. We suggest a way of using this classical framework for deriving a Cramer Rao Lower Bound (CRLB) for state uncertainties obtained via a QKF using a coin-flip experiment, rather than a classical `mid-tread' quantiser in typical engineering applications. 
+
+
+\subsection{QKF (Summary Definitions)}
+
+As stated in the main text, we summarise the QKF definitons below for easy reference:
+\begin{align}
+d_n &\equiv \mathcal{Q}(\tilde{y})\\
+\tilde{y}_n &= z_n + v_n \\
+z_n & \equiv  h(x_n[0])  \equiv h(f_n) \equiv \frac{1}{2}\cos(\state_{n}) \\
+x_n & = \Phi_n x_{n-1} + \Gamma_n w_n  \equiv  \begin{bmatrix} f_{n} \hdots f_{n-q+1} \end{bmatrix}^T \\
+H_n &\equiv \frac{d h(\state_n)}{d\state_n} =  -\frac{1}{2}\sin(\state_{n}) \\
+w_n & \sim \mathcal{N}(0, \sigma^2) \quad \forall n \\
+v_n & \sim \mathcal{N}(0, R) \quad \forall n
+\end{align}
+
+The quantisation action, $\mathcal{Q}$, is performed by a binomial coin toss in QKF, where the bias on the coin in the QKF is given by $\tilde{y}_n$:
+\begin{align}
+\mathcal{Q}: Pr(d_n| \tilde{y}_n, \state_{n}, \tau) & \equiv \mathcal{B}(n_{\mathcal{B}}=1;p_{\mathcal{B}}= \tilde{y}_n + 0.5 ) \label{eqn:app:coinflipquantiser}
+\end{align}
+
+In the first two subsequent sections, we provide a background to classical amplitude quanitisation as relevant to the full system defined for the QKF (above). There is only one point of departure: classically, quantisation occurs using a so-called mid-tread/mid-riser procedure (described in due-course), instead of the coin flip defined by \cref{eqn:app:coinflipquantiser}. We address the coin-flip quantisation procedure in the last two sections of this Appendix.
+
+\subsection{Classical Amplitude Quantisation}
+
+Many classical situations are give rise to scenarios where a continuous time, continuous amplitude signal is discretised in both time and amplitude. The discretisation in time is governed by well known Nyquist and Fourier domain sampling theory. In the amplitude domain, quantisation occurs by specifying discrete values that a signal amplitude can take. One defines $2\vartheta = 2^b$ discrete amplitude levels (symmetric above and below the zero value), where $b$ is the number of bits. In the language of filtering and estimation, a  classical sensor of $b$ bits generates quantised data measurements, where there are  $2\vartheta$ values a measurement can take \cite{karlsson2005}. 
+
+The classical quantisation process under consideration is called a `mid tread' or a `mid riser' quantiser and its action will be explained in terms of the effects of the quantisation procedure on the probability distribution of the underlying continuous amplitude signal \cite{widrow1996,karlsson2005}. A simple visual analogy is that if a continuous-amplitude continuous-time trajectory was a linear signal, then discretisation in time using a Nyquist convention, and discretisation in amplitude using a mid-riser convention, would result in a staircase function. The number of staircase steps depends on the number of amplitude quantisation levels; the width of each step reflects time domain spacing; and the height of each step depends on amplitude domain spacing \cite{karlsson2005}.
+
+In classical probability theory, the underlying probability distribution of a true amplitude-continuous random process is discretised by the process of amplitude quantisation. We re-write Eq. (3)-(6) in \cite{karlsson2005} suggestively in our notation, where $z$ is a continuous amplitude signal with probability density $Pr_z$; $d$ is the quantised amplitude signal corresponding to $z$ with probability density $Pr_d$; $\star$ denotes a convolution and $l(d)$ denotes a pulse train defined by $\vartheta$ and the Dirac-delta function, $\delta(\cdot)$:
+
+\begin{align}
+Pr_d(d) & \equiv l(d) (Pr_z \star Pr_U)(d)  \label{eqn:app:classical_amp_quan_1}\\
+l(d) & \equiv \sum_{i = -\vartheta}^{\vartheta-1} \delta (d - i2^{-b} +  \frac{2^{-b}}{2} ) \\
+Pr_U & \equiv \begin{cases} 2^b, \quad -\frac{2^{-b}}{2} \leq d \leq  \frac{2^{-b}}{2} & 0, \quad \text{otherwise} \end{cases}
+\end{align}
+If amplitudes are quantised into $2\vartheta= 2^b$ levels, then the term $2^{-b}$ represents the size of the quantisation box in the dual domain, namely, it specifies the width of the uniform probability density function ($Pr_U$) by which to sample $Pr_z$.  The resulting error between the the true and quantised process is found to be zero mean and of variance $2^{-b} / 12$ \cite{widrow1996}. 
+
+From above equations, amplitude quantisation is a map between $Pr_z$ and $Pr_d$, namely, $Pr_z$ is divided into $2\vartheta$ sections. The area under each section is calculated and condensed into a discrete (area-sampled) probability density function, $Pr_d$ \cite{widrow1996,karlsson2005}.  Since a convolution operator and the multiplication with $l(d)$ are all linear transformations, the above relation describes a  \emph{linear} map between probability densities of continuous-amplitude $z$ and the quantised amplitude $d$  \cite{widrow1996}.  
+
+With this theoretical framework for understanding classically quantised sensor measurements, there are two implications for our work. First, a procedure like Kalman filtering solves the Bayesian inference problem of reconstructing a true unobserved state using a measurement record.  In the language of state estimation and filtering, \cref{eqn:app:classical_amp_quan_1} defines a component of the measurement model independent of the dynamical model for a given system. Hence, state estimation and filtering procedure can be adapted such that the filter uses quantised measurements by redefining the measurement model. Secondly, one can derive a Cramer Rao Lower Bound (CRLB) for classically quantised measurements. The CRLB provides a lower theoretical bound on the Kalman state variance and this can be recursively estimated for a given Kalman filtering application. The behavior of the CRLB recursion can be used to sense check filter design and the performance of a filter.
+
+In the next subsection, we summarise results relevant in  \cite{karlsson2005} for recursively calculating a CRLB using classically quantised measurements.
+
+\subsection{Classical CRLB for Non Linear, Quantised Measurements}
+
+In general, a CRLB for any filtering and estimation procedure establishes a minimum variance given a particular true system for any choice of estimator or algorithmic procedure. In the Kalman filtering context, a true theoretical CRLB binds the value of the Kalman covariance, $P_n$ from below at each time step, $n$:
+\begin{align}
+Cov(x_n- \hat{x}_n) & \equiv \ex{(x_n - \hat{x}_n)(x_n- \hat{x}_n)^T} \\
+& \succcurlyeq P_n 
+\end{align}
+ 
+We first discuss the procedure for CRLB calculation for a non-linear measurement action. For a typical filtering problem,  the true state, $x_n$ and its variance, $P_n$, are propagated by a set of equations. The equations for propagating the variance alone are known as the Ricatti equations \cite{grewal2001theory}. In information filtering, the quantity of interest is not $P_n$, but Fisher information, namely the inverse of $P_n$. When uncertainty about the state $x_n$ is high, working with information filtering is considered easier as one can model infinite variance in stable way by setting $P_n^{-1}$ to zero. Where the variance propagation for $P_n$ can be decoupled from state propagation for $x_n$, the Ricatti equations (or equivalent equations of motion for $P_n^{-1}$) will yield $P_n$ ($P_n^{-1}$) in the absence of measurement data. However, a non-linear measurement action often couples state and variance propagation via a time dependent Jacobian. In this case, one must obtain the theoretical CRLB by performing a recursive calculation with additional information about the true state $x_n$. 
+
+The key aspect of deriving the CRLB for Kalman filters on classically quantised sensor information is the introduction of an extra `Fisher information term' purely due to classical quantisation of measurements given by \cref{eqn:app:classical_amp_quan_1}  \cite{karlsson2005}. An extra Fisher information term, $I_{\vartheta=1, n}$, is stated below for a one bit quantisation procedure by re-writing Eqs. (48-53) in \cite{karlsson2005} as:
+\begin{align}
+P_{n+1}^{-1} &= Q_n^{-1} + I_{\vartheta=1, n+1} - S_n^T(P^{-1}_n + V_n)^{-1} S^T_n \label{eqn:app:CRLB_recursion} \\
+S_n &\equiv -\Phi_n^T Q_n^{-1} \\
+&\equiv -\Phi^T Q^{-1}, \quad \forall n \\
+V_n & \equiv \Phi_n Q_n^{-1} \Phi_n^T\\
+& \equiv \Phi Q^{-1} \Phi^T , \quad \forall n 
+\end{align} 
+In the above equations, we make some simplifications relevant to our study. The dynamical model is linear and does not depend on $n$; noise covariance matrices are also time invariant, and the recursion equations simplify as $S, V$ are independent of time. This means that the only time varying term in the specified recursion is $I_{\vartheta=1, n+1}$. The time dependence in  $I_{\vartheta=1, n+1}$ arises due to a non-linear measurement action, $h(x_n)$, and secondly, through the value of $x_n$ in determining the mean Fisher contribution for each of the measurement outcomes, $d \in \{0,1\} $. The form of $I_{\vartheta=1, n+1}$ as given by Theorem 5 of \cite{karlsson2005}, where $I(x)$ defines the total Fisher information for $N$ observations in a measurement record:
+\begin{align}
+I(x) & \equiv \sum_{n=1}^{N} I_{\vartheta=1, n} \label{eqn:app:quantisedFisherinfo:total}\\
+I_{\vartheta=1, n} & \equiv  H_n^T I_{\vartheta=1}(z_n) H_n  \label{eqn:app:quantisedFisherinfo:msmt}\\
+I_{\vartheta=1}(z_n) & \equiv - \ex{\frac{\partial^2}{\partial z_n^2} \log Pr(d_n|z_n)} \label{eqn:app:quantisedFisherinfo}
+\end{align}
+
+The classical quantiser, $\mathcal{Q}$, defined as area-sampling of probability distributions, has a corresponding effect such that there is an analytical from for $Pr(d_n|z_n)$. This form is derived in Theorem 3 in \cite{karlsson2005} for $\vartheta=1$ mid-riser quantisation procedure. We re-state the results from Theorum 3 in our notation as:
+
+\begin{align}
+Pr(d_n=d| z_n) & \equiv \delta(d) \rho(-z_n/ \sqrt{R}) + \delta(d-1) (1- \rho(-z_n/ \sqrt{R})), \quad d \in \{0,1\} \label{eqn:app:classicalquantiser}\\
+\rho(-z_n/ \sqrt{R}) & \equiv \int_{-\infty}^{-z_n/ \sqrt{R}} \frac{1}{\sqrt{2\pi}} e^{-\frac{v^2}{2 R}} dv \\
+\delta(k) &\equiv \begin{cases} 1, &k=0 \\ 0, &k \neq 0 \end{cases}
+\end{align}
+Here, $\rho(-z_n/ \sqrt{R})$ is the \emph{erf} function, namely the normalised cumulative probability distribution function for Gaussian distributed variables with finite limits. The derivation assumes that the error  between the true signal and its quantised value, $v_n$, is zero mean, white Gaussian distributed with variance $R$. The derivation proceeds by stating that if $z_n + v_n < 0$, then we are much more likely to quantise $z_n$ in the bottom level corresponding to $z_n = -1/2, d= 0$. For the conditional probability where $z_n$ is given, this is the same as the probability of seeing a value of the error such that $v_n < -z_n$.  Hence, the probability of seeing a particular outcome, $d$, is given by summing the the Gaussian probability distribution for $v_n$ from $-\infty$ to a finite upper limit given by value of $-z_n$. This argument defines $\rho(-z_n/ \sqrt{R})$ as the normalised \emph{erf} function above.
+
+The definitions from \cref{eqn:app:CRLB_recursion} to \cref{eqn:app:classicalquantiser} completely define the classical framework for calculating a CRLB for measurements quantised by the mid-riser / mid-tread scheme.
+
+\subsection{QKF: Departure from Classical Quantisation}
+
+Our key point of departure from classical quantisation is therefore given by \cref{eqn:app:coinflipquantiser}. This corresponds to a departure in the calculation of $Pr(d_n | z_n)$ in $I_{\vartheta=1}(z_n)$ for the CRLB recursion.
+
+We believe that the remaining framework for classical amplitude quantisation remains unchanged with the introduction of a coin-flip measurement. Of the classical framework, we consider the calculation of the Fisher information term solely due to quantisation in  \cref{eqn:app:quantisedFisherinfo:total,eqn:app:quantisedFisherinfo:msmt,eqn:app:quantisedFisherinfo}.  In \cref{eqn:app:quantisedFisherinfo:total}, the form of  $I_{\vartheta=1, n}$ is justified using general arguments about the additivity of information under appropriately linearised maps, namely the Jacobian $H_n$ to represent the non-linear measurement action prior to implementing a quantisation procedure. In \cref{eqn:app:quantisedFisherinfo:msmt}, the addition of $I_{\vartheta=1, n}$ into information filtering equations captures the general influence of a quantised measurement action on variance propagation but does not reference the description of how quantisation occurs. Hence, both \cref{eqn:app:quantisedFisherinfo:total,eqn:app:quantisedFisherinfo:msmt} use a rationale that is  unchanged with the addition of a coin-flip quantisation procedure. Next, we note that it is only the $P(d_n|z_n)$ term in \cref{eqn:app:quantisedFisherinfo} that must change for a coin-flip (instead of a classical mid-riser/mid-tread ) quantisation.
+
+Having considered the Fisher information implications for quantised measurements, we consider whether the interpretation of quantisation as area-sampling of probability distributions is changed via a coin flip measurement. We revisit the fundamental interpretation of classical quantisation as area-sampling in \cref{eqn:app:classical_amp_quan_1} and observe that the arguments about area sampling (in \cite{widrow1996,karlsson2005}) are unrelated to the properties of the continuous-amplitude distribution being quantised. Consider the explicit variables in \cref{eqn:app:classical_amp_quan_1}: the convolution with a uniform distribution followed by multiplication with a pulse train is not related to the form of underlying distribution being quantised. The properties of the pulse train and the uniform distribution are set by the level spacing between quantised amplitude levels, namely, the spacing given by $2^b$ in the amplitude domain, and $2^{-b}$ spacing in the probability (dual) domain. These are fixed by the choice of application (i.e. the continuous-amplitude axis being quantised) and the number of bits $b$ (i.e. the $2\vartheta=2^b$ equally spaced levels for the new quantised-amplitude axis).  Implicitly, the procedure above may be subject to re-interpretation and we leave this as a question for subsequent work. 
+
+At present, we consider the calculation of $Pr(d_n| z_n)$, with the understanding that  a coin flip measurement given by \cref{eqn:app:coinflipquantiser} is the only point of departure from the classical amplitude quantisation framework. This is the subject of the section below.
+
+\subsection{Proposed $Pr(d_n | z_n)$ for CRLB using Coin-Flip Quantiser}
+
+In the language of the classical framework outlined in \cite{karlsson2005, widrow1996}, we propose that $d_n$ is the quantised signal (with area-sampled posterior distribution) with the true continuous amplitude process being given by $\{z_n \}$. The true signal, $\{z_n\}$, is a sequence of stochastically drifting `biases' derived from repeated applications of the Born rule. Born's rule governs the naturally quantised outcomes of a qubit and we are able to incorporate additional a priori information about the measurement and quantisation process in our filtering algorithm. These are appropriately re-scaled to be zero mean and symmetric around zero for numeric purposes, via the quantity $z_n$. In the ideal case, the quantity $z_n$ is used to set the bias of a coin before performing a single coin toss, namely the quantised action $\mathcal{Q}$.  One may question whether the value of $z$ is continuous between $n$ and $n+1$ and we assert that this follows from the slow, non-Markovian drift assumption about the underlying covariance stationary process, $\delta \omega (t)$.  
+
+During the quantisation, there is uncertainty in our knowledge of $z_n$ as this is a theoretically unobservable quantity and exists only in the limit of infinite coin toss experiments (in the frequentist sense). Hence, the bias  of the binomial distribution in QKF is set by $\tilde{y}_n$. Just quantisation errors  from a classical procedure were considered in \cite{karlsson2005} and yielded a model for $Pr(d_n | z_n)$ based on $\rho(-z_n/ \sqrt{R})$,  we \emph{define} the quantities $Pr(d_n | z_n, v_n)$ and $ Pr( \tilde{y}_n | z_n)$ and we use an appropriate marginalisation over our error model for $v_n$ to yield $Pr(d_n | z_n)$.
+
+
+The first term, $Pr(d_n | z_n, v_n)$ is obtained by considering repeated applications of the Born rule. For each independent time step, $n$, the Born rule gives us the likelihood function for obtaining an outcome:
+\begin{align}
+Pr(d_n=1 | f_n, t, \tau) & \equiv \cos^2(\frac{f_n}{2}) 
+\end{align}
+Note that is a likelihood function. A typical inference procedure is to consider a map between probability distributions using Bayes Rule. This is implemented under the Kalman framework naturally through the Kalman update equations. To re-iterate, we wish to define a map \emph{within} the Kalman measurement action, namely, a map between the probability distributions of continuous ideal measurements, $z_n$, and quantised measurements, $d_n$. In this formalism, we interpret $Pr(d_n=d | f_n, t, \tau)$ as a likelihood providing probabilities of different observed outcomes, labeled by $d$, for $d \in \{0, 1\}$. We shift the likelihood function for $d=1$ to obtain a zero mean process $z_n$ as follows: 
+\begin{align} 
+Pr(d_n=d=1 | f_n, t, \tau) &\equiv Pr(1 | f_n, t, \tau)\\
+ & \equiv \cos^2(\frac{f_n}{2}) \\
+& = \frac{1}{2} +  \frac{1}{2}\cos(f_n) \\
+& \equiv \frac{1}{2} +  z_n  \\
+Pr(0 | f_n, t, \tau) & = 1 - Pr(1 | f_n, t, \tau)\\
+& = \frac{1}{2} - z_n \label{eqn:app:bornrule:up}
+\end{align}
+
+In actuality, we use $\tilde{y}_n$ to set the bias of the binomial distribution for a single coin toss experiment,that is, our quantisation procedure reflects our uncertainty in the knowledge of the true, unobservable bias. This means that the distribution arising for coin toss experiments is obtained by $z_n \to \tilde{y}_n$ in \cref{eqn:app:bornrule:up}, and the calculation for all outcomes labeled by $ d\in \{0, 1\}$ is:
+\begin{align}
+Pr(d_n=d | z_n, v_n) &\equiv  \delta(d-1) (\tilde{y}_n + \frac{1}{2})  +  \delta(d) ( \frac{1}{2} - \tilde{y}_n) \\
+& =  \tilde{y}_n \left( \delta(d-1) - \delta(d) \right)  + \frac{1}{2}\left(\delta(d-1) + \delta(d) \right) \\
+& = \tilde{y}_n \left( \delta(d-1) - \delta(d) \right)  + \frac{1}{2}
+\end{align}
+The distribution above is conditioned both on $z_n$ (corresponding to stochastic qubit phase $f_n$) and the uncertainty $v_n$, such that $\tilde{y} = z_n + v_n$ is given.  In the first line above, the first term corresponds to the probability of observing the $\ket{d}, d=1$, and the second term denotes the probability of observing the qubit in state $d=0$. In the next line, the term $\frac{1}{2}\left(\delta(d-1) + \delta(d) \right)$ always contributes a $1/2$ factor and this simplification results in the final expression. Physically, this means that a qubit under no dephasing noise remains on the equator of the Bloch sphere with no stochastic phase accumulation, and an equal probability of being in either state, $\ket{0}, \ket{1}$. This is exactly what one obtains, $Pr(d_n=d | z_n=0, v_n=0) = 0.5 \quad \forall d$ under zero dephasing. 
+
+Next, we consider the error model for incorporating the uncertainty in the knowledge of the bias. The simplest construction is to re-apply the Gaussian assumption for $v_n$ under which typical Kalman filtering and estimation problems are conducted, but without the traditional interpretation that this $v_n$ corresponds to additive white Gaussian measurement noise. Instead, $v_n$ captures uncertainty in our knowledge of the true bias $z_n$. One could define a model, for example:
+\begin{align}
+Pr( \tilde{y}_n | z_n) & \equiv Pr( z_n + v_n | z_n) \\
+& \equiv Pr(v_n) \\
+Pr(v_n)  & \sim \mathcal{N}(0, R)
+\end{align}
+
+However, this model for $v_n$ is an insufficient description for  the uncertainty in the our knowledge of true $z_n$. In particular, the value of $z$ (ideal) is bounded by the Born rule to be between $[-0.5, 0.5]$. We assume that $v_n$ is Gaussian distributed additive white noise with mean zero. However, Gaussian noise is not bounded, whereas we wish to saturate the values of $\tilde{y}_n$ between $[-0.5, 0.5]$. These saturation effects are commonly encountered in studies of classical quantisation and a discussion of appropriately saturating the values of random variable without effecting positivity of the underlying distribution is borrowed from \cite{widrow1996}. Namely, the techique we use is to convolve with a uniform distribution defined between the limits $(a,b)$, where $a=-0.5, b=0.5$. In this manner, $Pr( \tilde{y}_n | z_n) \to Pr( \tilde{y}_n | z_n) \star \mathcal{U}(a,b)$, where the $\star$ denotes a convolution. 
+
+A convolution of probability distributions implies the addition of uniformly distributed random noise to $\tilde{y}_n$, known as `dithering noise' in engineering literature. The addition of dithering noise is valid in many signal processing applications, where one can access the system before quantisation \cite{widrow1996,karlsson2005}. In our application, we do not assign a physical interpretation of our abstract dithering noise and instead, we use a convolution with uniform distribution  as a purely analytical technique below to appropriately saturate a probability distribution for $v_n$ without losing positivity.  We note that some information is lost in the saturation procedure, and the extent to which this approach modifies the inference problem for the ideal Kalman measurement, $z_n$, based on quantised observed values $d_n$, remains an open question for future work.  
+
+For subsequent computations, we establish useful properties of the error function:
+
+\begin{align}
+\erf(x) & \equiv \frac{2}{\sqrt{\pi}} \int_0^{x} e^{-t^2} dt \\
+\erf(-x) & = - \erf(x) \\
+\erf(0) & = 0 \\
+\erf(\infty) & = 1  \label{sec:app:qkf:errfunc_diverge}\\
+\int \erf(x) dx & = x \erf(x) + \frac{e^{-x^2}}{\sqrt{\pi}} 
+\end{align}
+
+We will also use the following results, where $t, \tau$ are dummy variables for implementing integration:
+
+\begin{align}
+\tau & \equiv \frac{t-v_n}{\sqrt{2R}} \\
+\implies \frac{d\tau}{dt} & \equiv \frac{1}{\sqrt{2R}} \\
+\implies t& = a, b \quad \to \tau = \frac{a-v}{\sqrt{2R}}, \frac{b-v}{\sqrt{2R}} 
+\end{align}
+
+We compute our error model, $Pr( \tilde{y}_n | z_n) \star \mathcal{U}(a,b)$ by substituting the results above:
+
+\begin{align}
+Pr( \tilde{y}_n | z_n) \star \mathcal{U}(a,b) & =  Pr( v_n) \star \mathcal{U}(a,b) \\
+& = \frac{1}{\sqrt{2\pi R}} \int_{a}^{b} e^{-\frac{(t-v)^2}{2R}} dt\\
+& = \frac{1}{\sqrt{2\pi R}} \int_{0}^{\frac{b-v}{\sqrt{2R}} } e^{-\tau^2} \sqrt{2 R} d\tau  - \frac{1}{\sqrt{2\pi R}} \int_{0}^{\frac{a-v}{\sqrt{2R}}} e^{-\tau^2} \sqrt{2 R} d\tau \\
+& = \frac{1}{\sqrt{\pi }} \int_{0}^{\frac{b-v}{\sqrt{2R}} } e^{-\tau^2} d\tau  - \frac{1}{\sqrt{\pi }} \int_{0}^{\frac{a-v}{\sqrt{2R}}} e^{-\tau^2} d\tau \\
+& = \frac{1}{2} \erf(\frac{b-v}{\sqrt{2R}}) - \frac{1}{2} \erf(\frac{a-v}{\sqrt{2R}})
+\end{align}
+The first line follows from the definition of a convolution; the second line implements a change of variable from $ t \to \tau$. Next, we substitute the intermediary results for a change of variable ( established above) in the third line. The fourth line applies the definition of the error function.
+
+We now obtain an expression for $Pr(d_n | z_n)$ under a coin flip measurement action by marginalising over all values of $v_n$:
+\begin{align}
+Pr(d_n=d | z_n) & \equiv  \int_{-\infty}^{\infty} dv_n \quad  Pr(d_n=d | z_n, v_n) \left( Pr( \tilde{y}_n = z_n + v_n| z_n) \star \mathcal{U}(a,b) \right)  \\
+& \equiv  \int_{-\infty}^{\infty} dv_n \quad  Pr(d_n=d | z_n, v_n) \left( Pr( v_n) \star \mathcal{U}(a,b) \right)  \\
+& = \frac{1}{2} \int_{a}^{b} dv_n \quad  \left( \tilde{y}_n \left( \delta(d-1) - \delta(d) \right)  + \frac{1}{2} \right) 
+\left(\erf(\frac{b-v}{\sqrt{2R}}) - \erf(\frac{a-v}{\sqrt{2R}})\right) \\
+& = \frac{1}{2} \left( z_n \left( \delta(d-1) - \delta(d) \right)  + \frac{1}{2} \right)  \int_{a}^{b} dv_n \quad
+\left(\erf(\frac{b-v}{\sqrt{2R}}) - \erf(\frac{a-v}{\sqrt{2R}})\right) \nonumber\\
+& + \frac{1}{2}  \left( \delta(d-1) - \delta(d) \right) \int_{a}^{b} dv_n \quad  v_n  
+\left(\erf(\frac{b-v}{\sqrt{2R}}) - \erf(\frac{a-v}{\sqrt{2R}})\right) \\
+& =  \frac{\rho_0}{2}  + \rho_0 z_n \left( \delta(d-1) - \delta(d) \right)  + \rho_1 \left( \delta(d-1) - \delta(d) \right) \label{eqn:app:proposedquantiser:1} \\
+\rho_0 & \equiv  \frac{1}{2}  \int_{a}^{b} dv_n \quad
+\left(\erf(\frac{b-v}{\sqrt{2R}}) - \erf(\frac{a-v}{\sqrt{2R}})\right) \\
+\rho_1 & \equiv \frac{1}{2}  \int_{a}^{b} dv_n \quad  v_n  
+\left(\erf(\frac{b-v}{\sqrt{2R}}) - \erf(\frac{a-v}{\sqrt{2R}})\right)
+\end{align}
+In the derivation above, since $v_n$ is serially uncorrelated and independent of $z_n$, it is safe to treat $z_n$ outside the integral with respect to $v_n$. As a result, the marginalisation procedure yields two numbers, $\rho_0, \rho_1$ whose values do not depend on the outcome under consideration, $d$, or the conditioning random variable, $z_n$. Instead, $\rho_0, \rho_1$ depend only on our description of the error model for $v_n$, namely, the saturation limits ($a, b$) and the noise variance strength, $R$. 
+This yields $ Pr(d_n=d | z_n) $. The first term of \cref{eqn:app:proposedquantiser:1} describes a contribution that exists irrespective of the value of $z_n$ or the outcome $d$. The second and third terms of \cref{eqn:app:proposedquantiser:1} define the  distribution over quantised outcomes, namely, $d \in \{ 0, 1\}$.  Lastly, this distribution changes with $n$, and the time dependence of $P(d_n|z_n)$ arises from the time dependence of the stochastically changing true bias, $z_n$. 
+
+Next, we note that in our application, $a\equiv -b $, and we will always consider a symmetric saturation of $v_n$. Under this condition, the  integral for $\rho_1 \equiv 0$. This arises because the two error functions contribute equal areas and the linear dependence on $v_n$ means that these areas will have opposite signs for integral limits which are symmetric around zero. Hence, we simplify to:
+
+\begin{align}
+Pr(d_n=d | z_n) & =  \frac{\rho_0}{2}  + \rho_0 z_n \left( \delta(d-1) - \delta(d) \right)   \label{eqn:app:proposedquantiser:2} 
+\end{align}
+
+In the limit that $z_n=v_n=0$ (no dephasing noise), $P(d_n|z_n)$ does not depend on the outcome, $d$, and this is physically sensible. Physically, we expect $P(d_n|z_n)$ to yield $1/2$, and we see that in this model, we will obtain an extra scaling factor $\rho_0$ as a function of $R$:
+
+\begin{align}
+\rho_0 & \equiv  \frac{1}{2}  \int_{-b}^{b} dv_n \quad
+\left(\erf(\frac{b-v}{\sqrt{2R}}) + \erf(\frac{b+v}{\sqrt{2R}})\right) \\
+& = \sqrt{2R} \int_{0}^{\frac{2b}{\sqrt{2R}}} d\tau \quad \erf(\tau) \\
+& = \sqrt{2R} \left( \frac{2b}{\sqrt{2R}} \erf(\frac{2b}{\sqrt{2R}}) + \frac{e^{-(\frac{2b}{\sqrt{2R}})^2}}{\sqrt{\pi}}  - \frac{1}{\sqrt{\pi}}  \right) 
+\end{align}
+The first line follows from substituting $a=-b$ and that $\erf$ is odd. A change of variables implemented separately for each term reveals that both terms contribute the same area for a symmetric integral, yielding the second line. In this case, we implement a change of variable $\tau = (b-v)/(\sqrt{2R})$ for the first term, and multiply this by $2$. Using the properties of the integral of the error function, we obtain the last line above. Substituting $2b=1$ in our case:
+
+\begin{align}
+\rho_0 & = \erf(\frac{1}{\sqrt{2R}}) + \frac{\sqrt{2R} e^{-(\frac{1}{\sqrt{2R}})^2}}{\sqrt{\pi}}  - \frac{\sqrt{2R}}{\sqrt{\pi}}
+\end{align}
+
+In the absence of dephasing noise,  $R \equiv 0$, such that the first term of $\rho_0$ is unity using (\cref{sec:app:qkf:errfunc_diverge}), and all other terms are zero.  This means that $\rho_0 \equiv 1 $ and $Pr(d_n=d | z_n) \equiv 1/2$ as required when $z_n=v_n=0$. 
+
+Similarly, we consider the limit that we have perfect knowledge of $z_n$. For zero mean $v_n$, this again corresponds to $R\equiv0, \rho_0 \equiv 1$, and we recover Born's rule in \cref{eqn:app:proposedquantiser:2} as required. 
+
+The expressions given by \cref{eqn:app:proposedquantiser:2} (with $a= -0.5, b=0.5$) is the final result for this derivation and the proposed quantity to substitute into \cref{eqn:app:quantisedFisherinfo} for the calculation of a Fisher Information corresponding to a quantiser given a coin flip action. To reiterate, our present understanding is that the rest of the classical formalism can be implemented without modification. We compare \cref{eqn:app:proposedquantiser:2} to the classical counterpart given by  \cref{eqn:app:classicalquantiser}. While there are some structural similarities, there are no physical insights we can make. A better comparison will be to calculate the Fisher information via \cref{eqn:app:quantisedFisherinfo} and compare the resulting CRLB computations of the coin-flip quantisation procedure with its classical counterpart for a QKF. This is the subject of the next section. 
+
+
+\subsection{Proposed Fisher Information Term for a Coin-Flip Measurement Action}
+
+The calculation of the Fisher information term for quantised measurements, $I_{\vartheta=1, n}$, enables one to calculate the CRLB for the QKF with a coin-flip measurement action. We now calculate and plot this term. Our objective is to compare the classical quantisation CRLB recursion results with a CRLB from a coin-flip quantisation. We wish to sense-check the derivations and assumptions above; and attempt to gain a theoretical insight into the numerical results reported for the QKF. 
+
+To proceed, we expand the argument of \cref{eqn:app:quantisedFisherinfo} using the quotient rule, and we expand the expectation value by summing over all possible values of $d\in \{0,1 \}$, as in \cite{karlsson2005}. 
+
+\begin{align}
+\frac{\partial}{\partial z_n} \log Pr(d_n|z_n) & \equiv \frac{1}{Pr(d_n|z_n)}  \frac{\partial}{\partial z_n} Pr(d_n|z_n) \\ 
+\frac{\partial^2}{\partial z_n^2} \log Pr(d_n|z_n) & = \frac{Pr(d_n|z_n)  \frac{\partial^2}{\partial z_n^2}Pr(d_n|z_n) - \left(  \frac{\partial}{\partial z_n} Pr(d_n|z_n) \right)^2 }{Pr(d_n|z_n)^2} \\
+I_{\vartheta=1}(z_n) & \equiv - \ex{\frac{\partial^2}{\partial z_n^2} \log Pr(d_n|z_n)} \\
+& = - \sum_{d\in \{0, 1\}}  Pr(d_n=d|z_n)  \frac{\partial^2}{\partial z_n^2} \log Pr(d_n=d|z_n) \\
+& = - \sum_{d\in \{0, 1\}}  Pr(d_n=d|z_n)  \frac{Pr(d_n=d|z_n)  \frac{\partial^2}{\partial z_n^2}Pr(d_n=d|z_n) - \left(  \frac{\partial}{\partial z_n} Pr(d_n=d|z_n) \right)^2 }{Pr(d_n=d|z_n)^2}\\
+& = - \sum_{d\in \{0, 1\}}  \frac{\partial^2}{\partial z_n^2}Pr(d_n=d|z_n) - \frac{\left(  \frac{\partial}{\partial z_n} Pr(d_n=d|z_n) \right)^2 }{Pr(d_n=d|z_n)}
+\end{align}
+
+We now find expressions for the calculation of the partial derivatives with respect to $z_n$ for the general case: 
+\begin{align}
+Pr(d_n=d|z_n) 
+& = \rho_0 \frac{1}{2} + (\rho_0 z_n + \rho_1)\left( \delta(d-1) - \delta(d) \right) \\
+\frac{\partial}{\partial z_n} Pr(d_n=d|z_n) & = \rho_0 \left( \delta(d-1) - \delta(d) \right)\\
+\frac{\partial^2}{\partial z_n^2}Pr(d_n=d|z_n) & = 0
+\end{align}
+
+Substituting these partial derivatives into the Fisher information term yields:
+
+\begin{align}
+I_{\vartheta=1}(z_n)  & = - \sum_{d\in \{0, 1\}}  0 - \frac{\left( \rho_0 \left( \delta(d-1) - \delta(d) \right) \right)^2 }{ \frac{\rho_0}{2} + (\rho_0 z_n + \rho_1)\left( \delta(d-1) - \delta(d) \right)} \\
+& = \sum_{d\in \{0, 1\}} \frac{\rho_0^2}{ \frac{\rho_0}{2} + (\rho_0 z_n + \rho_1)\left( \delta(d-1) - \delta(d) \right)} \label{eqn:app:applied_fisherinfo:0}
+\end{align}
+
+The result follows after observing that $\left( \delta(d-1) - \delta(d) \right)$ yields $\pm 1 $ for $d \in \{ 0,1 \}$, and hence, $\left( \delta(d-1) - \delta(d) \right)^2 \equiv 1, \quad \forall d$. We can further simplify by substituting $a=-0.5, b=0.5, \rho_1=0$ into \cref{eqn:app:applied_fisherinfo:0}:
+\begin{align}
+I_{\vartheta=1}(z_n) & = \sum_{d\in \{0, 1\}} \frac{\rho_0}{ \frac{1}{2} + z_n \left( \delta(d-1) - \delta(d) \right)}\\
+& =  \sum_{d\in \{0, 1\}} \frac{1}{ \frac{1}{2} + z_n \left( \delta(d-1) - \delta(d) \right)} \\
+& = \rho_0 \left( \frac{1}{ \frac{1}{2} + z_n} + \frac{1}{ \frac{1}{2} - z_n} \right) \\
+& = \rho_0 \frac{4}{ 1 - 4z_n^2}  \\
+& = \left( \erf(\frac{1}{\sqrt{2R}}) + \frac{\sqrt{2R} e^{-(\frac{1}{\sqrt{2R}})^2}}{\sqrt{\pi}}  - \frac{\sqrt{2R}}{\sqrt{\pi}} \right) \frac{4}{ 1 - 4z_n^2} \label{eqn:app:applied_fisherinfo:final}
+\end{align}
+We see that the Fisher information should have units of $[z^-2]$ (inverse variance) and this is true since $\sqrt{R}$ is inherited as a unitless scaling factor from the Gaussian distributed error model for $v_n$. In the absence of dephasing noise, $z_n=0$, and the Fisher information contribution for $d=0$ or $d=1$ to the total sum does not depend on the measurement outcome $d$. The physical interpretation is that the qubit has an equal probability of being in both $d$ states in the absence of dephasing noise, and hence, the associated information contributions are indistinguishable. Lastly, we sense check this term with the classical case in \cite{karlsson2005} given by \cref{eqn:app:classicalquantiser}. We observe that both $I_{\vartheta=1}(z_n)$ terms take as input parameters the value of $z_n$ at each time step, and the scaling of this term is proportional to the noise covariance strength $R$. No other information is required for computation of this Fisher information term during the recursion for the CRLB, and hence, there is some structural agreement between the classical and coin-flip versions of the quantisation procedure. However, the Fisher information formula diverges at the boundaries at $|z_n| \equiv 0.5$. The divergence at the boundaries appears to be a result of saturating the probability distribution for $v_n$. 
+
+\subsection{Classical CRLB vs. Coin Flip CRLB in Numerical Results \cref{fig:main:fig_data_qkf2}(a)}
+
+We plot and compare the CRLB given by the recursion equation in \cref{eqn:app:CRLB_recursion} for the results presented in \cref{fig:main:fig_data_qkf2}(a)  for the QKF in the main text. This case corresponds to a perfectly learned dynamical model and noise parameters, such that the effect of the non-linear quantised measurement action is being tested for a non-Markovian, covariance stationary $\state'$. The oversampling regime is slowly reduced and we observe reduction in prediction horizon in the main text. 
+
+For the true $\state'$, we calculate the CRLB using a Fisher information term for coin-flip measurements, \cref{eqn:app:applied_fisherinfo:final}, and the classical counterpart using the Fisher information term for quantised measurements given by \cref{eqn:app:classicalquantiser}. In all cases, we discard data for the first $100$ points, as the AKF model needs to accumulate enough measurements before dynamic updates can begin sensibly. The expectation values of the Kalman residuals [not shown] lie above both the classical and coin-flip CRLBs by 1-2 orders of magnitude. 
+
+\begin{figure}[h!]
+	\includegraphics[scale=1]{CRLB_final} 
+	\caption{ \label{fig:app:CRLB} Comparison of CRLB using Classical vs. Coin Flip quantisation procedure, for experiments reported in \cref{fig:main:fig_data_qkf2}(a). (a) Corresponding to $J\omega_0 / \omega^{(B)} = 0.2$ case in  \cref{fig:main:fig_data_qkf2}(a), we plot CRLB against time steps using Fisher information for a coin-flip quantiser [black solid] and a classical mid-tread/mid-riser quantiser [grey dotted]. (b) The ratio of a classical CRLB / coin-flip CRLB against time steps is plotted for all cases in \cref{fig:main:fig_data_qkf2}(a).}
+\end{figure}
+\FloatBarrier
+
+In \cref{fig:app:CRLB}(a), we observe that the coin-flip CRLB decays quickly to a saturating value as state estimation progresses, thereby acting as a stable lower bound for the Kalman variance [black solid]. We note that the incorrect application of a classical Fisher information recursion in \cref{fig:app:CRLB}(a) [grey dotted] shows considerable volatility. These results correspond to 
+\cref{fig:main:fig_data_qkf2}(a) for the case $J\omega_0 / \omega^{(B)} = 0.2$, but these observations hold true across the range of experiments considered in \cref{fig:main:fig_data_qkf2}(a) [not shown].
+
+In \cref{fig:app:CRLB}(b), we plot the ratio of the classical CRLB / coin-flip CRLB, where a ratio of unity implies that both calculations are approximately identical in the mean square limit. The rationale for plotting a ratio is to enable a comparison across different experiments, where the absolute value of a CRLB may be different due to other experimentally engineered parameters. In panel (b), we make three key observations. Firstly,  the volatility in the classical CRLB is inherited by the ratios of CRLBs plotted below across all experiments. Secondly, the coin flip CRLB always lies below the classical counterpart for the cases considered, namely, the ratio is greater than unity for all cases. Lastly, the ratio tends to unity as oversampling reduces and QKF predictive performance decreases.   
+
+The analysis above allows one to consider the QKF's atypical measurement action in context of insights from classical amplitude quantisation theory, such that the standalone numerical results for QKF in the main text are not completely isolated from an analytical framework. Nevertheless, the materials presented in this Appendix is preliminary and no general conclusions can be drawn without a detailed investigation beyond the scope of the introductory remarks made so far. 

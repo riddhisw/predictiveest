@@ -1,0 +1,11 @@
+sed -f ../arXiv_submission/main_doc_compiler.sed ../arXiv_submission/mainbody.tex > mainbody_ref.tex
+sed -f ../arXiv_submission/main_doc_compiler.sed ../arXiv_submission/appendices.tex > appendices_ref.tex
+
+
+REFERENCE FORMATTING - CNTL F AFTER SED
+
+\nobreakspace \ref { ==> ~\ref{
+
+Eq.\nobreakspace \textup { ==> Eq.~ plus manually remove } on \textup
+
+Eqs.

@@ -1,0 +1,421 @@
+
+
+% ##############################################################################
+\section{Physical Setting \label{sec:app:setup_1}}
+% ##############################################################################
+
+In this Appendix, we derive \cref{eqn:main:likelihood}. We consider a qubit under environmental dephasing.  For any two level system, a quantum mechanical description of physical quantities of interest can be provided in terms of the Pauli spin operators $\{ \p{x}, \p{y}, \p{z}\}$. If $\hbar \omega_A$ corresponds to an energy difference separating these two qubit states, then the Hamiltonian for a single qubit in free evolution can be written in the Pauli representation. We consider a qubit states in the $\p{z}$ basis, $\ket{0}$ or $\ket{1}$ with energies $E_0, E_1$ in our notation, corresponding to a 0 or 1 outcome upon measurement. This yields a Hamiltonian for a single qubit as:
+
+\begin{align}
+%\op{\mathcal{H}}_0 &= E_0\ket{0}\bra{0} + E_1\ket{1}\bra{1} \\
+\p{z} &\equiv \ket{1}\bra{1} - \ket{0}\bra{0} \\
+\op{\mathcal{I}} & \equiv \ket{0}\bra{0} + \ket{1}\bra{1} \\
+\quad E_{0,1} &\equiv \mp \frac{1}{2} \hbar \omega_A \\
+\op{\mathcal{H}}_0 & = \frac{1}{2} (E_0\ket{0}\bra{0}+ E_1\ket{1}\bra{1}) \\
+& + \frac{1}{2} [(E_1 - E_0)\p{z} + E_0 \ket{1}\bra{1} + E_1 \ket{1}\bra{1}]\\
+ &= \frac{1}{2} \hbar \omega_A \p{z}
+\end{align}
+
+In this representation, the effect of dephasing noise on a free qubit system is that any initially prepared qubit superposition of $\ket{0}$ and $\ket{1}$ states will decohere over time in the presence of dephasing noise. This physical effect is modelled as a stochastically fluctuating process $\delta\omega(t)$ that couples with the $\p{z}$ operator. The noise Hamiltonian is described as:
+\begin{align} 
+\op{\mathcal{H}}_{N}(t) & \equiv \frac{\hbar}{2}\delta\omega(t)\p{z}
+\end{align}
+In the formula above, $\delta\omega(t)$ is a classical, stochastically fluctuating parameter that models environmental dephasing and $\hbar/2$ appears as a convenient scaling factor. The total Hamiltonian for a single qubit under dephasing is:
+\begin{align} 
+\op{\mathcal{H}}(t) &\equiv \op{\mathcal{H}}_0 + \op{\mathcal{H}}_{N}(t)
+\end{align}
+
+Since $\op{\mathcal{H}}_{N}(t)$ commutes with $\op{\mathcal{H}}_0$, we can transform away $\op{\mathcal{H}}_0$ by moving to a rotating frame with respect to $H_0$. Let $\ket{\psi (t)}$ be a state in the lab frame, let $\op{U}$ define a transformation to a rotating frame, and let $\ket{\tilde{\psi} (t)}$ be the state in the rotating frame. The notation, $\tilde{}$, indicates operators and states in the transformed frame. In this simple case, the transformed Hamiltonian governing the evolution of $\ket{\tilde{\psi} (t)}$ will just be $\op{\mathcal{H}}_{N}(t)$:
+
+\begin{align}
+\op{U} &\equiv e^{-i\op{\mathcal{H}}_0 t / \hbar } \\
+\ket{\tilde{\psi} (t)} &\equiv \op{U}^\dagger \ket{\psi (t)} \\
+i \hbar \frac{d}{dt} \ket{\tilde{\psi} (t)} & \equiv i \hbar \frac{d}{dt} \op{U}^\dagger \ket{\psi (t)} \\
+&= -\op{\mathcal{H}}_0 \op{U}^\dagger \ket{\psi (t)} + i\hbar \op{U}^\dagger \frac{d}{dt} \ket{\psi (t)} \\
+& =  ( \op{U}^\dagger \mathcal{H}(t) \op{U} -\op{\mathcal{H}}_0  ) \ket{\tilde{\psi} (t)} \\
+\implies \op{\tilde{\mathcal{H}}} &\equiv \op{U}^\dagger \mathcal{H}(t) \op{U} -\op{\mathcal{H}}_0 \\
+& = \op{U}^\dagger \op{\mathcal{H}}_0\op{U}  + \op{U}^\dagger \op{\mathcal{H}}_{N}(t) \op{U} -\op{\mathcal{H}}_0 \\
+& = \op{\mathcal{H}}_{N}(t),  \quad [\op{U}, \op{\mathcal{H}}_0 ] = [\op{U}, \op{\mathcal{H}}_{N}(t) ] = 0 \\
+\end{align}
+In the semiclassical approximation,  $\op{\mathcal{H}}_{N}(t)$ commutes with itself at different $t$, and hence we can write a unitary time evolution operator in the rotating frame as:
+\begin{align}
+\op{\tilde{U}}(t, t + \tau) &\equiv  e^{-\frac{i}{\hbar}  \int_{t}^{t + \tau} \op{\mathcal{H}}_{N}(t') dt'  } = e^{-\frac{i}{2} \state(t, t + \tau) \p{z} } \\
+\state(t, t + \tau) & \equiv  \int_{t}^{t + \tau} \delta \omega (t') dt' \label{eqn:app:phases}
+\end{align}
+In the rotating frame, we prepare an initial state that is a superposition of $\ket{0}$ and $\ket{1}$ states. This state evolves under $\op{\mathcal{H}}_{N} (t)$ during a Ramsey experiment for duration $\tau$.  Subsequently, the qubit state is rotated before a projective measurement is performed with respect to the $\p{z}$ axis i.e. the measurement action resets the qubit. 
+
+Without loss of generality, define the initial state as  $\ket{\tilde{\psi} (0)} \equiv \frac{1}{\sqrt{2}} \ket{0} + \frac{1}{\sqrt{2}} \ket{1}$ in the rotating frame. Then, the probability of measuring the same state after time $\tau$ in a single shot measurement, $d_n$ as:
+\begin{align} 
+Pr(d_n = 1| f(0, \tau), \tau) & = |\bra{\tilde{\psi} (0)} \op{\tilde{U}}(0, \tau) \ket{\tilde{\psi} (0)}|^2 \label{eqn:app:likelihood} \\
+%& = \cos(\frac{\state(0, \tau)}{2})^2 \\
+Pr(d_n = 0| f(0, \tau), \tau) & \equiv 1 -Pr(d_n = 1| f(0, \tau), \tau)
+\end{align}
+The second $\pi/2$ control pulse rotates the state vector such that a measurement in $\p{z}$ basis is possible, and the probabilities correspond to observing the qubit in the   $\ket{1}$ state. Hence, \cref{eqn:app:likelihood} defines the likelihood for single shot qubit measurement. Further, \cref{eqn:app:likelihood} defines the non linear measurement action on phase noise jitter, $\state(0, \tau)$.  We impose a condition that $\state(0, \tau)/2 \leq \pi$  such that accumulated phase over $\tau$ can be inferred from a projective measurement on the $\p{z}$ axis. 
+
+
+% ##############################################################################
+\subsection{Experimentally Controlled Discretisation of Dephasing Noise \label{sec:app:exptres}} 
+% ##############################################################################
+ In this section, we consider a sequence of Ramsey measurements. At time $t$, the \cref{eqn:app:likelihood} describes the qubit measurement likelihood at one instant under dephasing noise. We assume that the dephasing noise is slowly drifting with respect to a fast measurement action on timescales of order $\tau$. In this regime, \cref{eqn:app:phases} discretises the continuous time process $\delta\omega(t)$, at time $t$, for a number of $n= 0, 1, ..., N$ equally spaced measurements with $t = n \Delta t$. Performing the integral for $\tau \ll \Delta t$ and slowly drifting noise such that we substitute the following terms in \cref{eqn:app:phases}:
+\begin{align}
+\delta\bar{\omega}_n &\equiv \delta\omega(t')|_{t'=n \Delta t } \\
+\state_n &\equiv \state(n\Delta t, n\Delta t + \tau) \\
+&=\frac{\hbar}{2}  \int_{n\Delta t}^{n\Delta t + \tau} \delta\bar{\omega}_n dt'  = \frac{\hbar}{2}\p{z}\delta\bar{\omega}_n \tau \label{eqn:app:phases_constantdetuning}
+\end{align}
+In this notation, $\delta\bar{\omega}_n $ is a random variable realised at time, $t = n \Delta t$, and it remains constant over short duration of the measurement action, $\tau$.  We use the shorthand $\state_n \equiv \state(n\Delta t, n\Delta t + \tau)$ to label a sequence of stochastic, temporally correlated qubit phases $ \state \equiv \{\state_n \}$. 
+
+Since the qubit is reset by each projective measurement at $n$, the unitary operator governing qubit evolution is also reset such that \{$\op{\tilde{U}}_n \equiv \op{\tilde{U}}(n\Delta t, n\Delta t + \tau) \}$ are a collection of $N$ unitary operators describing qubit evolution for each new Ramsey experiment. They are not to be interpreted, for example, as describing qubit free evolution without re-initialising the system. Hence, for each stochastic qubit phase $\state_n$, the true probability for observing the $\ket{1}$ in a single shot is given by substituting $\state_n $ for $ \state(0,1)$ in \cref{eqn:app:likelihood}.
+\begin{align}
+Pr(d_n=d | \state_n, \tau, n \Delta t) &= \begin{cases} \cos(\frac{\state_{n}}{2})^2 \quad \text{for $d=1$} \\   \sin(\frac{\state_{n}}{2})^2  \quad \text{for $ d=0$} \end{cases} 
+\end{align}
+The last line follows from the fact that total probability of the qubit occupying either state must add to unity. This yields \cref{eqn:main:likelihood} in the main text.
+
+
+% ##############################################################################
+\subsection{True Dephasing Noise Engineering \label{sec:app:truenoise}} 
+% ##############################################################################
+In the absence of an apriori model for describing qubit dynamics under dephasing noise, we impose the following properties on a sequence of stochastic phases, $\state  \equiv \{ \state_n \}$ such that we can design meaningful predictors of qubit state dynamics. We assert that a stochastic process, $\state_n$, indexed by a set of values, $ n = 0, 1, \hdots N $ satisfies: 
+
+\begin{align}
+\ex{\state_n} &= \mu_\state \quad \forall n \label{eqn:app:f_mean} \\
+\ex{\state_n^2} & < \infty \quad \forall n \label{eqn:app:f_var} \\
+\ex{(\state_{n_1} - \mu)(\state_{n_2} - \mu)} &= R(\nu), \quad  \nu = |n_1-n_2|, \quad \forall n_1, n_2 \in N  \label{eqn:app:f_covar} \\
+R(\nu) & \neq \sigma^2  \delta(\nu) \label{eqn:app:f_Markovian} 
+\end{align}
+Covariance stationarity of $\state$ is established by satisfying \cref{eqn:app:f_mean,eqn:app:f_var,eqn:app:f_covar}, namely that the mean is independent of $n$, the second moments are finite, and the covariance of any two stochastic phases at arbitrary time-steps, $n_1, n_2$, do not depend on time steps but only on the separation distance, $\nu$. The $\delta(\nu)$ in the last condition,   \cref{eqn:app:f_Markovian}, is the Dirac-delta function and establishes that $\state$ is not delta-correlated (white). This condition captures the slowly drifting assumption for environmental dephasing noise. 
+
+
+We also require that correlations in $\state$ eventually die off as $\nu \to \infty$ otherwise any sample statistics inferred from noise-corrupted measurements are not theoretically guaranteed to converge to the true moments. Let $M$ be the number of runs for an experiment with $M$ different realisations of the random process $\state$, $\mu_\state$ be the true mean, $\hat{\mu}_\state$ its estimate, $\mathcal{D}_M$ denote the dataset of $M$ experiments, and $R(\nu)$ define the correlation function for the true process, $\state$. Then mean square ergodicity states that estimators approach true moments only if the correlations die off over long temporal separations:
+\begin{align}
+ \lim_{M \to \infty} \frac{1}{M} \sum_{\nu=0}^{M-1} R(\nu) & = 0  \iff  \lim_{M \to \infty} \ex{(\hat{\mu}_\state  - \mu_\state )^2}_{\mathcal{D}_M} = 0 \nonumber \\
+\text{for} \quad \nu &= |n_{m_1} - n_{m_2}|, \quad \forall m_1, m_2 \in M, n_{m_1}, n_{m_2} \in N  \nonumber \\
+\text{with} \quad \hat{\mu}_\state  &= \frac{1}{M} \sum_{m=0}^M f_{n_m} \quad   \label{eqn:app:f_msergodic}  
+\end{align}
+The statement above means that a true $R(\nu)$ associated with $\state$ is bandlimited for sufficiently large (but unknown) $M$. If correlations never `die out', then any designed predictors for one realisation of dephasing noise will fail for a different realisation of the same true dephasing. For the purposes of experimental noise engineering, we satisfy the assumptions above by engineering discretised process, $\state$, as:
+\begin{align}
+\state_n &= \alpha \omega_0 \sum_{j=1}^{J} j F(j)\cos(\omega_j n \Delta t + \psi_j) \label{eqn:app:noiseengineering} \\
+F(j) & = j^{\frac{\eta}{2}-1}  
+\end{align}
+
+As described in \cite{soare2014}, $\alpha$ is an arbitrary scaling factor, $\omega_0$ is the fundamental spacing between true adjacent discrete frequencies, such that $\omega_j = 2 \pi f_0 j =\omega_0 j, j = 1, 2, ...J$. For each frequency component, there exists a uniformly distributed random phase, $\psi_j \in [0, \pi]$. The free parameter $\eta$ allows one to specify an arbitrary shape of the true power spectral density of $\state$. In particular, the free parameters $\alpha, J, \omega_0, \eta$ are true dephasing noise parameters which any prediction algorithm cannot know beforehand.
+
+It is straightforward to show that $\state$ is covariance stationary. To show mean square ergodicity of $\state$, one requires phases are randomly uniformly distributed over one cycle for each harmonic component of $\state$ \cite{gelb1974applied}. Subsequently, one shows that an ensemble average and a long time average of multi-component engineered $\state$ are equal. For the evaluation of the long time average, we use product-to-sum formulae and observe that the case $j\neq j'$ has a zero contribution as any finite contribution from cosine terms over a symmetric integral are reduced to zero as $N \rightarrow \infty $.  For $j = j'$, only a single cosine term survives. The surviving term depends on $\nu$ and $N$ cancels to yield a finite, non-zero contribution that matches the ensemble average.
+
+We briefly comment that $\state$ is Gaussian by the central limit theorum in the regimes considered in this manuscript. The probability density function of a sum of random variables is a convolution of the individual probability density functions. The central limit theorum grants that each element of $\state_n$ at $n$ appears Gaussian distributed for large $J$, irrespective of the underlying properties of the constituent terms or the distribution of the phases $\psi$. Numerical analysis shows that $J > 15$ results in each $\state_n$ appearing approximately Gaussian distributed. 
+
+There is an important difference between $\state_n$ - defined here in \cref{sec:app:setup_1} and \cref{soare2014}- and $\state_n $ in \cref{sec:app:AKF,sec:app:spec_methods}.  In subsequent \cref{sec:app:AKF,sec:app:spec_methods}, the term $\state_n $  defines the `true model' for an algorithmic representation of an arbitrary covariance stationary process - either by invoking Wold's decomposition theorum (AKF, QKF) or the spectral representation theorum (LKFFB, GPR with Periodic Kernel). This means that $\state_n $ in subsequent Appendices only approximates the true covariance stationary stochastic qubit phases, $\{f_n\}$ of the \cref{sec:app:setup_1} in the limit where total size of available sample data increases to infinity. Our notation, $f_n$, fails to distinguish these two different interpretations as such a difference does not arise in typical applications - in our case, we have no apriori true model of describing stochastic qubit phases, and must rely on mean square approximations. Henceforth, we retain $\state_n $ to be the true model for an algorithm with an understanding that this refers to an approximate representation of an arbitrary, covariance stationary sequence of stochastic qubit phases. We reserve the use of the $\hat{f_n}$ for the state estimates and predictions that an algorithm makes having considered a single noisy measurement record. 
+
+
+\clearpage
+% ##############################################################################
+\section{ Autoregressive Representation of $\state$ in AKF (and QKF) \label{sec:app:AKF}}
+% ##############################################################################
+
+Our objective in this Appendix is to justify the representation of $\state_n$ assumed by the AKF. In particular, we justify any $\state_n$ drawn from any arbitrary power spectral density satisfying the properties in \cref{sec:app:truenoise} can be approximated by a high order autoregressive process.
+
+Such results are well known, if dispersed among standard engineering and econometrics textbooks \cite{hamilton1994time,brockwell1996introduction,west1996bayesian,harvey1990forecasting,landau1998adaptive,candy2016bayesian}. We struggled to find standard references that explicitly link high $q$ AR models in approximating arbitrary covariance stationary time series of arbitrary power spectral densities, though some general comments are made in \cite{west1996bayesian}. In the discussion below, we summarise relevant background, and link a high $q$ AR process to a theorum that guarantees arbitrary representation of zero mean covariance stationary processes, and provide explicit references for proofs out of scope of introductory remarks in this Appendix. In order to achieve this, we will consider autoregressive (AR) processes of order $q$, (AR($q$)), and  moving average processes of order, $p$ (MA($p$)). A model incorporating both types of processes is known as an ARMA($q,p$) model in our notation. 
+
+First, we define the lag operator, $\mathcal{L}$. This operator defines a map between time series sequences and enables a compact description of ARMA processes. For an infinite time series $\{ f_n \}_{n = -\infty}^{\infty}$ and a constant scalar, $c$, the lag operator is defined by the following properties:
+\begin{align}
+\mathcal{L} f_n & = f_{n-1} \\
+\mathcal{L}^q f_n & = f_{n-q} \\
+\mathcal{L}(cf_n) & = c\mathcal{L}f_n = cf_{n-1}  \\
+\mathcal{L}f_n & = c, \quad \forall n, \implies \mathcal{L}^q f_n  = c
+\end{align}
+Next, we define a Gaussian white noise sequence, $\xi$, under the strong condition than what is stated simply in \cref{eqn:app:ARMA:xi_indep}, that $\xi_{n_1}, \xi_{n_2}$ are independent $\forall n_1, n_2 $:
+\begin{align}
+\ex{\xi} &\equiv 0  \\
+\ex{\xi_{n_1} \xi_{n_2}} &\equiv \sigma^2 \delta(n_1-n_2)\label{eqn:app:ARMA:xi_indep}   
+\end{align}
+
+With these definitions, we can define an autoregressive process and a moving average process of unity order.  \cref{eqn:app:ARMA:AR_1} defines an AR($q=1$) process and dynamics of $\state_n$ are given as lagged values of the variable $\state$. The second definition in \cref{eqn:app:ARMA:MA_1} depicts a MA($p = 1$) process where dynamics are given by lagged values of Gaussian white noise $\xi$. 
+\begin{align}
+(1 - \phi_1 \mathcal{L}) f_n  & = c + \xi_n  \label{eqn:app:ARMA:AR_1} \\
+f_n & = c' + (\Psi_1 \mathcal{L} + 1)\xi_n  \label{eqn:app:ARMA:MA_1} 
+\end{align}
+Here, $\Psi_1, \phi_1$ are known scalars defining dynamics of $\state_n$; $w_n$ is a white noise Gaussian process, and $c, c'$ are fixed scalars. It is well known that an MA($\infty$) representation is equivalently an AR($1$) process, and the reverse relationship also applies. For example, we can re-write \cref{eqn:app:ARMA:AR_1} as:
+\begin{align}
+\state_n & = c + \xi_n + \phi_1 \state_{n-1} \\
+& = w_n + \phi_1 \state_{n-1} \\
+& = w_n + \phi_1 (w_{n-1}+ \phi_1 \state_{n-2} ) \\
+& \vdots \\
+& = \phi_1^{n+1} F_0 + \phi_1^{n} w_{0} + \phi_1^{n-1} w_{1} + \hdots w_n \\
+& = \phi_1^{n+1} F_0 + \phi_1^{n} (c + \xi_{0}) + \hdots + (c + \xi_{n}) \\
+& = \phi_1^{n+1} F_0 +  c (\phi_1^{n} + \phi_1^{n-1} + \hdots + 1) + \sum_{k=0}^{n} \phi_1^k \xi_{n-k} \\
+w_n & \equiv c + \xi_n \\
+F_0 & \equiv \state_{n=-1} 
+\end{align} In the last line (and for all subsequent analysis in this Appendix),  $k$ should only be interpreted as a index variable for compactly re-writing terms in an equation as summations. We restrict $|\phi_1| < 1$ such that $\state$ is covariance stationary \cite{hamilton1994time}. % An MA process of any order is covariance stationary for any choice of coefficients - instead, the restrictions on the MA representation arise in the form of invertibility of an MA process \cite{hamilton1994time}.
+Under these conditions, we take the limit of $\state$ capturing an infinite past, namely, as $n \to \infty$. The initial state $F_0$ is eventually forgotten, $\phi_1^{n+1} F_0 \approx 0$ if $n$ is large and $|\phi_1| < 1$. Similarly, the terms $c (\phi_1^{n} + \phi_1^{n-1} + \hdots + 1)$  can be summarised as a geometric series in $\phi_1$. The remaining terms satisfy the definition of an MA($\infty$) process:
+\begin{align}
+\state_n &= c \frac{1}{1 - |\phi_1|}  +  \sum_{k=0}^{\infty} \phi_1^k \xi_{n-k}, \quad |\phi_1| < 1
+% & = c' + \sum_{k=0}^{\infty} \Psi_k \xi_{n-k}\\
+% \Psi_k  & \equiv \Phi^k, \quad \sum_{k=0}^{\infty}  |\Psi_k| = \sum_{k=0}^{\infty}  |\phi|^k < \infty 
+\end{align}
+It is straightforward to show that the reverse is true, namely, an MR($1$) is equivalent to an AR($\infty$) representation \cite{hamilton1994time}.
+
+The consideration of an MA($\infty$) process leads us directly to Wold's decomposition for arbitrary covariance stationary processes, namely, that any covariance stationary $\state$ can be represented as:
+\begin{align}
+\state_n & \equiv  c' + \sum_{k=0}^{\infty} \Psi_k \mathcal{L}^k \xi_{n}  \label{eqn:app:ARMA:MAinf} \\
+% & =  \tilde{f}_n + \sum_{k=0}^{\infty} \Psi_k \mathcal{L}^k \xi_{n}  \\
+c' & \equiv \ex{\state_n | \state_{n-1}, \state_{n-2}, \hdots} \\
+% \xi_n & \equiv   \state_n - \ex{\state_n | \state_{n-1}, \state_{n-2}, \hdots} \\
+\Psi_0 & \equiv 1 \\
+\sum_{k=0}^{\infty} \Psi_k^2 & < \infty
+% & = \sum_{k=0}^{\infty} \Psi_k \xi_{n-k} 
+\end{align}
+\cref{eqn:app:ARMA:MAinf} defines an MA($\infty$) process derived previously as an AR($1$) process. This process is ergodic for Gaussian $\xi$. However, such a representation of $\state$ requires fitting data to an infinite number of parameters $\{\Psi_1, \Psi_2, \hdots \}$  and approximations must be made. 
+
+% A standard approximation is to leverage the dual behaviour of MA($p$) and AR($q$) process and consider finite order polynomials in an ARMA($q,p$) model with MA coefficients given by $\theta_{p \leq p'}$ and AR coefficients given by $\phi_{p \leq p'}$:
+% \begin{align}
+% \sum_{k=0}^{\infty} \Psi_k \xi_{n-k} & \to \frac{ 1 + \theta_{1}\mathcal{L}^{1} + \hdots + \theta_{p}\mathcal{L}^{p}}{1 - \phi_{1}\mathcal{L}^{1} - \hdots - \phi_{1}\mathcal{L}^{q}}\\
+% & \quad |\phi_i|  < 1, i = 1, \hdots, q
+% \end{align}
+% Instead of using an infinite past or an ARMA approximation,
+
+We approximate an arbitrary covariance stationary $\state$ using finite but high order AR($q$) processes. Below we show that any finite order AR($q$) process has an MA($\infty$) representation satisfying Wold's theorum.
+
+We define an arbitrary AR($q$) process as:
+\begin{align}
+\xi_n & \equiv (1 - \phi_1 \mathcal{L}  - \phi_2 \mathcal{L} ^2 - \hdots -\phi_q \mathcal{L} ^q) (\state_n - c)
+% & = (1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L}) (\state_n - c) \label{eqn:app:ARMA:ar_p_1}
+% \state_n - c & \equiv \frac{1}{(1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L})}
+\end{align}
+In particular, we define $\lambda_i, i = 1, \hdots, q$ as eiqenvalues of the dynamical model, $\Phi$:
+\begin{align}
+\Phi &\equiv \begin{bmatrix} \phi_1 & \phi_2 & \phi_3 & \hdots & \phi_{q-1}  &\phi_q \\
+1 & 0 & 0 & \hdots & 0 & 0 \\
+0 & 1 & 0 & \hdots & 0 & 0 \\
+0 & 0 & 1 & \hdots & 0 & 0 \\
+\vdots & \vdots & \vdots & \hdots & \vdots & \vdots \\
+0 & 0 & 0 & \hdots & 1 & 0 \\
+ \end{bmatrix} \\
+\bf{\lambda} & \equiv \begin{bmatrix} \lambda_1 \dots \lambda_q \end{bmatrix} \quad \text{s.t.} |\Phi - \lambda\mathcal{I}_q|  = 0 \\
+\end{align}
+We use the following result from \cite{hamilton1994time} without proof that the above implies:
+\begin{align}
+1 & - \phi_1 \mathcal{L}  - \phi_2 \mathcal{L}^2 - \hdots -\phi_q \mathcal{L}^q \\
+&\equiv (1 - \lambda_1\mathcal{L}) \hdots (1 - \lambda_q \mathcal{L}) 
+\end{align}
+This yields:
+\begin{align}
+\xi_n & = (1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L}) (\state_n - c) \label{eqn:app:ARMA:ar_p_1}
+\end{align}
+For us to invert this problem and recover an MA process, we need to show that the inverse for each $(1 - \lambda_{q'} \mathcal{L})$ term exists for $q' = 1, \hdots, q$. To do this, we start by defining the operator $\Lambda_q(\mathcal{L}) $ :
+\begin{align}
+\Lambda_q(\mathcal{L}) & \equiv \lim_{k\to \infty} (1 + \lambda_q \mathcal{L} + \hdots + \lambda_q^k\mathcal{L}^k) \label{eqn:app:AR_inverse_0}
+\end{align}
+% \begin{align}
+% \xi_n & = (1 - \lambda_q \mathcal{L}) (\state_n - c) \\
+% \Lambda_q(\mathcal{L}) \xi_n & = \Lambda_q(\mathcal{L}) (1 - \lambda_q \mathcal{L}) (\state_n - c) \\
+%  & = \lim_{k\to \infty}(1 + \lambda_q^{k+1}\mathcal{L}^{k+1})(\state_n - c)
+% \end{align}
+We consider an arbitrary $q'$-th eigenvalue term in process and we multiply $\Lambda_{q'}(\mathcal{L})$ :
+\begin{align}
+ \Lambda_{q'}(\mathcal{L}) \xi_n &= 
+ \Lambda_{q'}(\mathcal{L}) (1 - \lambda_{0} \mathcal{L}) \hdots (1 - \lambda_{q'} \mathcal{L}) \hdots(\state_n - c) \\
+ & = \lim_{k\to \infty} (1 + \lambda_{q'} \mathcal{L} + \hdots + \lambda_{q'}^k\mathcal{L}^k)  (1 - \lambda_{q'} \mathcal{L})(1 - \lambda_{0} \mathcal{L}) \hdots (1 - \lambda_{q'-1} \mathcal{L})  (1 - \lambda_{q'+1} \mathcal{L}) \hdots(1 - \lambda_{q} \mathcal{L})(\state_n - c) \\
+ & = \lim_{k\to \infty} (1 + \lambda_{q'} \mathcal{L} + \hdots + \lambda_{q'}^k\mathcal{L}^k)(1 - \lambda_{0} \mathcal{L}) \hdots (1 - \lambda_{q'-1} \mathcal{L})  (1 - \lambda_{q'+1} \mathcal{L}) \hdots(1 - \lambda_{q} \mathcal{L})(\state_n - c) \\
+  & - \lim_{k\to \infty} (\lambda_{q'} \mathcal{L} + \hdots + \lambda_{q'}^{k+1}\mathcal{L}^{k+1})(1 - \lambda_{0} \mathcal{L}) \hdots (1 - \lambda_{q'-1} \mathcal{L})  (1 - \lambda_{q'+1} \mathcal{L}) \hdots(1 - \lambda_{q} \mathcal{L})(\state_n - c) \\
+& = \lim_{k\to \infty}(1 + \lambda_{q'}^{k+1}\mathcal{L}^{k+1}) (1 - \lambda_{0} \mathcal{L}) \hdots (1 - \lambda_{q'-1} \mathcal{L})  (1 - \lambda_{q'+1} \mathcal{L})\hdots (1 - \lambda_{q} \mathcal{L})(\state_n - c)
+\end{align}
+Each of the residual terms,  $\lambda_{q'}^{k+1}\mathcal{L}^{k+1} \to 0 $ if $|\lambda_{q'}| < 1$  for large $k$, and this case $\Lambda_{q'}(\mathcal{L})$ defines the inverse $(1 - \lambda_{q'} \mathcal{L})^{-1}$. This procedure is repeated for all $q$ eigenvalues to invert \cref{eqn:app:ARMA:ar_p_1} and subsequently perform a partial fraction expansion as follows:
+\begin{align}
+\state_n - c & = \frac{1}{(1 - \lambda_1 \mathcal{L}) \hdots (1 - \lambda_q \mathcal{L})} \xi_n\\
+& = \sum_{q'=1}^{q}\frac{a_{q'}}{1- \lambda_{q'} \mathcal{L}} \xi_n  \label{eqn:app:AR_inverse_1}\\
+a_{q'} & \equiv \frac{\lambda_{q'}^{q-1}}{\prod_{q''=1, q''\neq q'}^{q} (\lambda_{q'} - \lambda_{q''})}
+\end{align} The coefficients are $a_{q'}$ as obtained via the partial fraction expansion method during which $\mathcal{L}$ is treated as an ordinary polynomial. At present, we have a represent $\state$ via a finite $q$ weighted average of values of $\xi$. However, in substituting the definition of $ \Lambda_{q'} \equiv (1- \lambda_{q'} \mathcal{L})^{-1}$ from \cref{eqn:app:AR_inverse_0} in \cref{eqn:app:AR_inverse_1} and regrouping terms in powers of $\mathcal{L}$, we recover the form of an MA representation (setting $c \equiv \tilde{\state}_n  = 0, \quad  \forall n$ for simplicity): 
+\begin{align}
+\state_n & = \left[ \sum_{q'=1}^{q} a_{q'} \mathcal{L}^0 +  \lim_{k \to \infty}  \sum_{k'=1}^{k} \left( \sum_{q'=1}^{q} a_{q'}  \lambda_{q'}^{k'} \right) \mathcal{L}^{k'}\right] \xi_n \\
+& = \Psi_0 + \sum_{k=1}^{\infty} \Psi_k \mathcal{L}^k \xi_{n}  \\
+\Psi_0 & \equiv \sum_{q'=1}^{q} a_{q'} \mathcal{L}^0  \\
+\Psi_k & \equiv \sum_{q'=1}^{q} a_{q'}  \lambda_{q'}^{k'}
+\end{align}
+By examining the properties of $\Phi$ raised to arbitrary powers, it can be shown that $\sum_{q'=1}^{q} a_{q'} \equiv 1$ and $\Psi_k$ is the first element of $\Phi$ raised to the $k$-the power \cite{hamilton1994time}, yielding absolute summability of $\Psi_k$ if $|\phi_{q'<q}| < 1$. This ensures that Wold's theorum is fully satisfied and an AR($p$) process has an MA($\infty$) representation. In moving to an arbitrarily high $q$, we enable the approximation of any covariance stationary $\state$.
+
+The proofs that high $q$ AR approximations for covariance stationary $f$ improve with $q$ for example, in \cite{wahlberg1989estimation}. The key correspondence is that the number of finite lag terms $q$ in an AR($q)$) model contribute to the first $q$ values of the covariance function. This approximation improves with $q$ even if $\state$ is not a true AR process \cite{wahlberg1989estimation,west1996bayesian}. Asymptotically efficient coefficient estimates for any $MA(\infty)$ representation of $\state$ are obtained by letting the order of a purely AR($q$) process tend to infinity and increasing total data size, $N$ \cite{wahlberg1989estimation}. 
+
+When data is fixed at $N$, we expect a high $q$ model to gradually saturate in predictive estimation performance. One can arbitrarily increase performance by increasing both $q, N$ \cite{wahlberg1989estimation}.  In our application with finite data $N$, we increase $q$ to settle on a high order AR model while training LSF to track arbitrary covariance stationary power spectral densities \cite{brockwell1996introduction}.
+
+A high $q$ AR model is often the first step for developing models with smaller number of parameters, for example, considering a mixture of finite order AR($q$) and MA($p$) models and estimating $p+q$ number of coefficients using a range of standard protocols \cite{brockwell1996introduction,west1996bayesian}. The design of potential ARMA models for our application requires further investigation beyond the scope of this manuscript.
+
+\clearpage
+% ##############################################################################
+\section{Spectral Representation of $\state$ in GPR (Periodic Kernel) and LKFFB} \label{sec:app:spec_methods}
+% ##############################################################################
+
+ The well-known spectral representation theorum  guarantees that any covariance stationary random process (real or complex) can be represented in a generalised harmonic basis.  We defer a detailed treatment of spectral analysis of covariance stationary processes in standard textbooks, for example, \cite{hamilton1994time,karlin1975first} and present background and key results to provide insights into the choice of LKFFB and GPR (periodic kernel).
+ 
+ The spectral representation theorum states that any covariance stationary random process has a representation given by $\state_n$, and correspondingly,  a probability distribution, $F(\omega)$ over $[-\pi, \pi]$ in the dual domain such that:
+ 
+\begin{align}
+\state_n & = \mu_\state + \int_{0}^{\pi} [ a(\omega) \cos(\omega n) +  b(\omega) \sin(\omega n) ] d\omega \\
+R(\nu) & = \int_{-\pi}^{\pi} e^{-i\omega \nu } dF(\omega)
+\end{align}
+Here, $\mu_\state $ is the true mean of the process $\state$.  The processes $a(\omega) $ and $b(\omega)$ are zero mean and serially and mutually uncorrelated, namely, $\int_{\omega_1}^{\omega_{2}} a(\omega) d\omega$ is uncorrelated with $\int_{\omega_3}^{\omega_{4}} a(\omega) d\omega$ and $\int_{\omega_j}^{\omega_{j'}} b(\omega) d\omega$ for any $\omega_1 < \omega_2 < \omega_3 < \omega_4$ and any choice of $j, j'$ within the half cycle  $[0, \pi]$.
+
+The distribution $F(\omega)$ exists as a limiting case of considering cumulative probability density functions for $\state_n$ at each $n$ and letting $n \to \infty$ such that a sequence of these density functions approach $F(\omega)$ \cite{karlin1975first}.  If $F(\omega)$ is differentiable with respect to $\omega$, then we see the power spectral density $S(\omega)$ and $R(\nu)$ are Fourier duals \cite{karlin1975first}:
+\begin{align}
+R(\nu) & = \int_{-\pi}^{\pi} e^{-i\omega \nu } S(\omega)d\omega \\
+S(\omega) & \equiv \frac{dF(\omega)}{d\omega} 
+\end{align}
+The duality of the covariance function and the spectral density is formally expressed  in literature by the  Wiener Khinchin theorum.
+
+We consider the finite sample analogue of the spectral representaiton theorum considered above by following \cite{hamilton1994time}. To proceed, we define mean square convergence as a distance metric for determining when a sequence of random variables $\{ \hat{f}_n\}$ converges to a random variable, $f_n$ in the mean square limit if:
+\begin{align}
+\ex{\hat{f}_n^2} & < \infty \quad \forall n \\
+\lim_{n \to \infty}\ex{\hat{f}_n - f_n} & = \lim_{n \to \infty} ||\hat{f}_n- f_n || = 0
+\end{align} 
+The statement $||\hat{f}_n- f_n || = 0$ measures the closeness between random variables $\hat{f}_n$ and $f_n$ even though the mean square limit is defined for terms of a sequence of random variables, $\{ \hat{f}_n\}$, where convergence improves with $n \to \infty$. In context of this study, we define $\hat{f}_n$ as a linear predictor of $f_n$ belonging to a covariance stationary $\state$. Hence, each $\hat{f}_n$ for large $n$ is a linear combination of the set of random variables belonging all past noisy observations (and in Kalman Filtering,  all past state predictions). Mean square convergence of $||\hat{f}_n- f_n || = 0$ in our context is a statement of the quality of a predictor, $\hat{f}_n$ , in predicting $f_n$ as the total measurement data grows.
+
+Next, we account for finite data and define the finite sample analogue for the spectral representation theorum. We suppose there exists a set of arbitrary, fixed frequencies  $\{\omega_j\}$  for $j = 1, \hdots , J$. We let $n$ denote finite time steps for observing $\state_n$ at $n= 1, \hdots, N$. Further, we define a set of zero mean, mutually and serially uncorrelated random process  $\{a_j \}$ and $\{b_j\}$ as finite sample analogues of the true  $a(\omega)$ and $b(\omega)$ for the $j$-th spectral component. In particular, these processes are constant over $n$ by covariance stationarity of $\state$. Then, the finite sample analogue for the spectral representation theorum becomes \cite{hamilton1994time}:
+\begin{align} 
+\state_n &= \mu_f  + \sum_{j=1}^{J}  [ a_j \cos(\omega_j n) +  b_j \sin(\omega_j n) ] \\
+\ex{a_j} & = \ex{b_j} = 0\\
+\ex{a_ja_{j'}} &= \ex{b_jb_{j'}} = \sigma^2 \delta(j - j') \\
+\ex{a_jb_{j'}} &= 0 \quad \forall j, j' \\
+\mu_\state &\equiv 0 
+\end{align} The last line enforces a zero mean stochastic process and simplifies analysis without loss of generality  and  $\delta(\cdot)$ is the Dirac-delta function. 
+
+To illustrate, the first two moments are of the form:
+\begin{align}
+\ex{f_n} &=  \mu_\state +  \sum_{j=0}^{J} E[a_j] \cos(\omega_j n) + E[b_j] \sin(\omega_j n)  = 0\\
+R(\nu) &= \sum_j^{J} \sum_{j'}^{J} \sigma_j^2\delta{j,j'} [\cos(\omega_j n)\cos(\omega_j' (n+\nu)) + \sin(\omega_j n)\sin(\omega_j' (n+\nu)) ]\\
+% &= \sum_j^{J} \sigma_j^2 \cos(\omega_j\nu), \quad \text{$(\cos(a)\cos(b) + \sin(a)\sin(b) = \cos(a-b))$} \\
+&= \sigma^2 \sum_j^{J}  p_j \cos(\omega_j\nu) \label{eqn:app:spectral:Rvtrue} \\
+p_j & \equiv \frac{\sigma_j^2}{\sigma^2} \equiv \frac{\sigma_j^2}{\sum_j \sigma_j^2} 
+\end{align}
+
+We introduce process noise, $w_n$, into the formula for true $f_n$, and this establishes a commonality with state dynamics in Kalman filtering for a covariance stationary process:
+\begin{align} 
+\state_n &= \mu_f  + \sum_{j=1}^{J}  [ a_j \cos(\omega_j (n-1)) +  b_j \sin(\omega_j (n-1)) ] + w_n 
+\end{align}
+
+In the absence of measurement noise and operating in the oversampling regime, an ordinary least squares (OLS) regression can be constructed by providing a collection of $J^{(B)}$ basis frequencies $\{\omega_j^{(B)}\}$, as in \cite{hamilton1994time}. The OLS problem is constructed by separating the set of coefficients $\{\hat{\mu}_\state, \hat{a}_1, \hat{b}_1, \hdots \hat{a}_J, \hat{b}_J\}$ and regressors $\{1,\cos(\omega_1 (n-1)), \sin(\omega_1 (n-1)), \hdots, \cos(\omega_J^{(B)} (n-1)), \sin(\omega_J^{(B)} (n-1)) \}$. For the specific particular choice of basis,  $J^{(B)} = (N-1)/2$, (odd $N$) and $\omega_j^{(B)} \equiv 2\pi j / N$, we state the key result from \cite{hamilton1994time} that the coefficient estimates are obtained as:
+
+\begin{align}
+\hat{\state}_n &= \hat{\mu}_f  + \sum_{j=1}^{J^{(B)}}  [\hat{a}_j \cos(\omega_j^{(B)} (n-1)) +  \hat{b}_j \sin(\omega_j^{(B)} (n-1)) ] \\
+\hat{a}_j &\equiv \frac{2}{N} \sum_{n'=1}^{N} \hat{\state}_{n'} \cos(\omega_j^{(B)}(n'-1)) \\
+\hat{b}_j &\equiv \frac{2}{N} \sum_{n'=1}^{N} \hat{\state}_{n'} \sin(\omega_j^{(B)}(n'-1))
+\end{align}
+This choice of basis results in the number of regressors being the same as the length of the measurement record. Further, the term $(\hat{a}_j^2 + \hat{b}_j^2)$ is proportional to the total contribution of the $j$-th spectral component to the total sample variance of $\state$, or in other words, the amplitude estimate for the power spectral density of true $\state$.
+
+Next, we depart from the OLS problem above by in several ways, firstly, by introducing measurement noise and secondly, by changing basis oscillators considered in the problem above. As in the main text, the linear measurement record is defined as:
+\begin{align}
+y_n &\equiv  f_n + v_n \\
+v_n & \sim \mathcal{N}(0, R)
+\end{align}
+The link in GPR (periodic kernel) is direct and the link with LKFFB is made by setting $f_n \equiv H_nx_n$. In both frameworks, we incorporate the effect of measurement noise through the measurement noise variance, $R$, which has the effect of regularising the least squares estimation process discussed above.
+
+\subsection{Infinite Basis of Oscillators in a GPR Periodic Kernel}\label{sec:ap_approxSP:GPRPKernel}
+
+The departure from simple OLS plus measurement noise (above) to GPR (periodic kernel) arises from the fact that data is projected on an infinite basis of oscillators, namely, $J^{(B)} \to \infty$.
+
+We follow the sketch of a proof provided in \cite{solin2014explicit} to show that a sine squared exponential (periodic kernel) used in Gaussian Process Regression satisfies covariance function of trigonometric polynomials. Here, the index $j$ labels an infinite comb of oscillators and $m$ represents the higher order terms in the power reduction formulae in the last line of the definition below:
+\begin{align}
+\omega_0^{(B)}  &\equiv \frac{\omega_j^{(B)} }{j}, j \in \{0, 1,..., J^{(B)}\} \\
+R(\nu) &\equiv \sigma^2 \exp (- \frac{2\sin^2(\frac{\omega_0^{(B)}  \nu}{2})}{l^2}) \\
+&=  \sigma^2 \exp (- \frac{1}{l^2}) \exp (\frac{\cos(\omega_0^{(B)}  \nu)}{l^2}) \label{eqn:periodic_0}\\
+&=  \sigma^2 \exp (- \frac{1}{l^2}) \sum_{m = 0}^{M  \to\infty} \frac{1}{m!} \frac{\cos^m(\omega_0^{(B)}  \nu)}{l^{2m}} \label{eqn:periodic_1}
+\end{align}
+Next, we expand each cosine using power reduction formulae for odd and even powers respectively, and we re-group terms. For example, we expande the terms for  $m = 0,1,2,3,4,5...$ as:
+\begin{align}
+R(\nu) &= \sigma^2 \exp (- \frac{1}{l^2}) \cos(\omega_0^{(B)}  \nu) \left[ \frac{2}{(2l^2)}\binom{1}{0} + \frac{2}{(2l^2)^3} \frac{1}{3!} \binom{3}{1} +  \frac{2}{(2l^2)^5} \frac{1}{5!}\binom{5}{2} \dots \right] \label{eqn:cosine1}\\
+& + \sigma^2 \exp (- \frac{1}{l^2}) \cos(2\omega_0^{(B)}  \nu) \left[ \frac{2}{(2l^2)^2} \frac{1}{2!} \binom{2}{0} + \frac{2}{(2l^2)^4} \frac{1}{4!} \binom{4}{1} + \dots \right] \\
+& + \sigma^2 \exp (- \frac{1}{l^2}) \cos(3\omega_0^{(B)}  \nu) \left[ \frac{2}{(2l^2)^3} \frac{1}{3!} \binom{3}{0} + \frac{2}{(2l^2)^5} \frac{1}{5!}\binom{5}{1} \dots \right] \\
+& + \sigma^2 \exp (- \frac{1}{l^2}) \cos(4\omega_0^{(B)}  \nu) \left[ \frac{2}{(2l^2)^4} \frac{1}{4!} \binom{4}{0} + \dots \right] \\
+& + \sigma^2 \exp (- \frac{1}{l^2}) \cos(5\omega_0^{(B)}  \nu) \left[ \frac{2}{(2l^2)^5} \frac{1}{5!}\binom{5}{0} + \dots \right] \label{eqn:cosine5}\\
+& \vdots \nonumber \\
+& + \sigma^2 \exp (- \frac{1}{l^2}) \left[ \frac{1}{(2l^2)^2} \frac{1}{2!} \binom{2}{1} + \frac{1}{(2l)^4} \frac{1}{4!} \binom{4}{2} + \dots \right] + \sigma^2 \exp (- \frac{1}{l^2}) \label{eqn:eventerms}
+\end{align}
+In the expansion above, the vertical and horizontal dots represent contributions from $m>5$ terms. The key message is that truncating $m$ to a finite number of terms $M$ will forecably truncate $j$ to represent a finite number of oscillators. For the example above, if the power reduction expansion indexed by $m$ above was trucated to $M=5$ terms, then the  number of basis oscillators (number of rows) would also be truncated.  We now summarise the amplitudes \cref{eqn:cosine1} to  \cref{eqn:cosine5} in second term of $R(\nu)$ and  \cref{eqn:eventerms} corresponds to $p_{0,M}$ term below:
+\begin{align}
+R(\nu) &= \sigma^2 (p_{0,M} + \sum_{j=0}^{\infty} p_{j,M} \cos(j\omega_0^{(B)}  \nu)) \label{eqn:app:spectral:Rvperiodic}\\
+p_{j,M} & \equiv \sigma^2 \exp (- \frac{1}{l^2}) \sum_{\beta = 0}^{\beta = \beta_{j,m}^{MAX}} \frac{2}{(2l^2)^{(j + 2\beta)}} \frac{1}{(j + 2\beta)!} \binom{j + 2\beta}{\beta} \label{eqn:beta_series2} \\
+\beta &\equiv  0,1,..., \beta_{j,m}^{MAX}  \\
+p_{0,M} &= \exp (- \frac{1}{l^2}) \sum_{\alpha = 0}^{\alpha = \alpha_{m}^{MAX}} \frac{1}{(2l^2)^{(2\alpha)}} \frac{1}{(2\alpha)!} \binom{2\alpha}{\alpha} \label{eqn:alpha_series}\\
+\alpha &\equiv  0,1,..., \alpha_{m}^{MAX} 
+\end{align}
+By examining the cosine expansion, one sees that a truncation at $(M, J^{(B)} )$ means our summarised formulae will require $\beta_{j,M}^{MAX} = \lfloor\frac{M-j}{2}\rfloor$ and $\alpha_{M}^{MAX} = \lfloor\frac{M}{2}\rfloor$  where $\lfloor \rfloor$ denotes the ceiling floor. If we truncate with $M \equiv J^{(B)} $ such that $\alpha_{M}^{MAX} = \lfloor\frac{J^{(B)} }{2}\rfloor, \beta_{j,M}^{MAX} =  \lfloor\frac{J^{(B)}-j}{2}\rfloor $ and re-adjust the kernel for the zero-th frequency term, then we agree with final result in \cite{solin2014explicit}.
+
+We compare the covariance function of the periodic kernel in \cref{eqn:app:spectral:Rvperiodic} with the covariance function of trigonometric polynomials in \cref{eqn:app:spectral:Rvtrue}.  Here, $p_{j,M}$ for the periodic kernel are not identically specified in general to those under the spectral representation theorum, but otherwise retain a structure as a cosine basis where the correlations between two random variables in a sequence only depends on the separation between them. For a constant mean Gaussian process, the form of the periodic kernel allows the underlying process to satisfy covariance stationarity and appears to permit an interpretation via the spectral representation theorum.
+
+\subsection{Amplitude and Phase Extraction for Finite Oscillator Basis in LKFFB \label{sec:app:subsec:LKFFB}}
+ In LKFFB, we depart from the simple OLS plus measurement noise problem considered earlier by specifying a fixed basis of oscillators at the physical Fourier resolution established by the measurement record. Using a specific state space model, we can track amplitudes and phases for each basis oscillator individually to enable forward prediction at any time-step of our choosing. The design of a fixed basis necessarily incorporates apriori assumptions about the extent to which a fast measurement action over-samples slowly drifting non-Markovian noise, that is, a (potentially incorrect) assumption about dephasing noise bandwidth.
+ 
+The efficacy of the Liska Kalman Filter in our application assumes an appropriate choice of the `Kalman basis' oscillators. The choice of basis can effect the forward prediction of state estimates. To illustrate, consider the choice of Basis A - C defined below. Basis A depicts a constant spacing above the Fourier resolution (e.g. $\omega_0^{(B)} \geq \frac{2\pi}{N_T \Delta t}$). Basis B  introduces a minimum Fourier resolution and effectively creates an irregular spacing if one wishes to consider a basis frequency comb coarser than the experimentally established Fourier spacing over the course of the experiment. Basis C is identical to Basis B but allows a projection to a zero frequency component. 
+ \begin{align}
+ \text{Basis A: } & \equiv \{0, \omega_0^{(B)}, 2\omega_0^{(B)} \dots  J^{(B)} \omega_0^{(B)} \} \\
+ \text{Basis B: } & \equiv \{ \frac{2\pi}{N \Delta t}, \frac{2\pi}{N \Delta t} + \omega_0^{(B)} , \dots,   \frac{2\pi}{N \Delta t} + J^{(B)} \omega_0^{(B)} \} \\
+ \text{Basis C: } & \equiv \{ 0, \frac{2\pi}{N \Delta t}, \frac{2\pi}{N \Delta t} + \omega_0^{(B)},  \dots,   \frac{2\pi}{N \Delta t} + J^{(B)} \omega_0^{(B)} \} 
+ \end{align}
+ While one can propagate LKFFB with zero gain, it may be advantageous for predictive control applications to generate predictions in one calculation rather than recursively. This means we sum contributions over all $j\in J^{(B)}$ oscillators and we reconstruct the signal for all future time values in one calculation, without having to propagate the filter recursively with zero gain. The interpretation of the predicted signal, $\hat{\state}_n$, requires an additional (but time-constant) phase correction term $\psi_C$ that arises as a byproduct of the computational basis (i.e. Basis A, B or C).  The phase correction term corrects for a gradual mis-alignment between Fourier and computational grids which occurs if one specifies a non-regular spacing inherent in Basis B or C. Let $n_C$ denote the time-step at which instantaneous amplitudes $\norm{\hat{x}^j_{n_C}}$ and instantaneous phase $\theta_{\hat{x}^j_{n_C}}$ is extracted for the oscillator represented by the $j$-th state space resonator, $x^j_n $, where super-script $j$ denotes an oscillator of  frequency $\omega_j^{(B)} \equiv j\omega_0^{(B)}$ (not a power):
+ \begin{align}
+ \hat{f} &= \sum_{j=0}^{J^{(B)}}\norm{\hat{x}^j_{n_C}} \cos(m\Delta t \omega_j^{(B)} + \theta_{\hat{x}^j_{n_C}} + \psi_C), \\
+ & \quad  n_C \in N_T, \quad m \in N_P \nonumber \\
+ \psi_C & \equiv \begin{cases}
+ 0,  \quad \text{(Basis A)} \\
+ \equiv  \frac{2\pi}{\omega_0^{(B)} } (\omega_0^{(B)} - \frac{2\pi}{N \Delta t}), \quad \text{(Basis B or C)} \\
+ \end{cases}
+ \end{align}
+ The output predictions from calculating a harmonic sum using learned instantaneous amplitudes, phases and the LKFFB Basis A-C agree with zero-gain predictions if $\psi_C$ is specified as above. The calculation of $\psi_C$ is determined entirely by the choice of computational and experimental sampling procedures, and assumes no information about true dephasing.  
+ 
+ Next, we define an analytical ratio to define the optimal training time, $n_C$, at which LKFFB predictions should commence, irrespective of whether the prediction procedure is recursively propagating the Kalman Filter with zero gain, or by calculating a harmonic sum for all prediction points in one go. 
+ \begin{align}
+ n_C &\equiv \frac{1}{\Delta t \omega_0^{(B)}} = \frac{f_s}{\omega_0^{(B)}} \label{eqn:sec:ap_liska_fixedbasis_nC}
+ \end{align}
+ Consider an arbitrarily chosen training period, $N_T \neq n_C $.  For $f_s$ fixed, our choice of $N_T > n_C $ means we are achieving a Fourier resolution which exceeds the resolution of the LKFFB basis. Now consider $N_T< n_C$. This means that we've extracted information prematurely, and we have not waited long enough to project on the smallest basis frequency, namely, $\omega_0^{(B)}$.  In the case where data is perfectly projected on our basis, this has no impact. For imperfect learning, we see that instantaneous amplitude and phase information slowly degrades for $N_T > n_C$; and trajectories for the smallest basis frequency have not stablised for $N_T < n_C$. 
+ 
+ Of these choices, Basis A for $\omega_0^{(B)} \equiv \frac{2\pi}{N_T \Delta t}$ is expected to yield best performance, at the expense of computational load, and this is confirmed in numerical experiments. All results in this manuscript are reported for Basis A with $N_T \equiv \frac{1}{\Delta t \omega_0^{(B)}} = \frac{f_s}{\omega_0^{(B)}} $.
+
+\subsection{Equivalent Spectral Representation of $\state$ in LKFFB and GPR Periodic Kernel}
+
+In this section, we consider the structural similarities between LKFFB and GPR with a periodic kernel. We show that the LKFFB has an analogous structure to a stack of stochastic processes on a circle \cite{karlin1975first}, and in moving from discrete to continuous time, we recover a covariance function that has the same structure if the periodic kernel was truncated to a finite basis of oscillators, $J^{(B)}$. For zero mean, Gaussian random variables, covariance stationarity is established, completing the link between LKFFB and the periodic kernel. For the case $\Gamma_n w_n \to w_n$ in LKFFB,  stacked Kalman resonators as an approximation to infinite oscillators in a periodic kernel is documented in \cite{solin2014explicit}.
+
+At time step $n$,  the posterior Kalman state at $n-1$ acts as the initial state at $n$, such that $\nu = \Delta t$ for a small $\Delta t$ such that a linearised trajectory is approximately true for each basis frequency. We show this using the following correlation relations and a Gaussian assumption for process noise, where $n,m \in N$ are indices for time steps and $j = 0, 1, \hdots J^{(B)} $ indexes the set of basis oscillators:
+ \begin{align}
+ \ex{w_n} &= 0 \quad \forall j \in J^{(B)}, \quad n \in N \\
+\ex{w_n,w_m} &= \sigma^2 \delta(n-m)  \quad n,m \in N \\
+\ex{A^j_0} &=\ex{B^{j'}_0} = 0, \quad \forall j, j' \in J^{(B)} \\
+\ex{A^j_n B^{j'}_m} &= 0, \quad \forall j, j' \in J^{(B)}, \quad n,m \in N\\
+\ex{A^j_n A^{j'}_m} &= \ex{B^j_n B^{j'}_m} = \sigma_j^2 \delta(n - m)\delta(j-j'), \quad \forall j, j' \in J^{(B)}, \quad n,m \in N \\
+\ex{w_n A^j_m} &= \ex{w_n B^{j'}_m} \equiv 0  \quad \forall j, j' \in J^{(B)}, \quad n,m \in N 
+\end{align}
+Consider a $j$-th state space resonator, $x^j_n$, in the LKFFB, where super-script $j$ denotes an oscillator (not a power) and we obtain:
+\begin{align}
+\Theta(j \omega_0^{(B)} \Delta t) &= \begin{bmatrix} \cos(j \omega_0^{(B)} \Delta t) & -\sin(j \omega_0^{(B)} \Delta t) \\ \sin(j \omega_0^{(B)} \Delta t) & \cos(j \omega_0^{(B)} \Delta t) \\ \end{bmatrix} \\
+x^j_n & \equiv \begin{bmatrix} A^j_{n} \\ B^j_{n} \\ \end{bmatrix} = \Theta(j \omega_0^{(B)} \Delta t) \left[\idn + \frac{w_{n-1}}{\sqrt{A^j_{n-1}{}^2 + B^j_{n-1}{}^2}} \right] \begin{bmatrix} A^j_{n-1} \\ B^j_{n-1} \\ \end{bmatrix} \\
+\end{align}
+\begin{align}
+\implies \ex{x^j_n} &= 0 \\
+\implies \ex{x^j_n x^j_m{}^T}_j & =   \Theta(j \omega_0^{(B)} \Delta t) \ex{\begin{bmatrix} A^j_{n-1}A^j_{m-1} & A^j_{n-1}B^j_{m-1}\\ B^j_{n-1}A^j_{m-1} & B^j_{n-1}B^j_{m-1}\\ \end{bmatrix}} \Theta(j \omega_0^{(B)} \Delta t)^T \label{eqn:cov_kf_term1}\\
+& +   \Theta(j \omega_0^{(B)} \Delta t) \left[\frac{w_{n-1}}{\sqrt{A^j_{n-1}{}^2 + B^j_{n-1}{}^2}} + \frac{w_{m-1}}{\sqrt{A^j_{m-1}{}^2 + B^j_{m-1}{}^2}} \right]\begin{bmatrix} A^j_{n-1}A^j_{m-1} & A^j_{n-1}B^j_{m-1}\\ B^j_{n-1}A^j_{m-1} & B^j_{n-1}B^j_{m-1}\\ \end{bmatrix} \Theta(j \omega_0^{(B)} \Delta t)^T  \label{eqn:cov_kf_term2}\\
+& +   \Theta(j \omega_0^{(B)} \Delta t) \left[\frac{w_{n-1}w_{m-1}}{\sqrt{A^j_{n-1}{}^2 + B^j_{n-1}{}^2}\sqrt{A^j_{m-1}{}^2 + B^j_{m-1}{}^2}} \right]\begin{bmatrix} A^j_{n-1}A^j_{m-1} & A^j_{n-1}B^j_{m-1}\\ B^j_{n-1}A^j_{m-1} & B^j_{n-1}B^j_{m-1}\\ \end{bmatrix} \Theta(j \omega_0^{(B)} \Delta t)^T \label{eqn:cov_kf_term3} \\
+& = \sigma^2_j \delta(n-m) \begin{bmatrix} 
+1 & 0 \\ 
+0 & 1  \\
+\end{bmatrix} \label{eqn:cov_kf_term4}
+ \end{align}
+
+The cross correlation terms disappear under the temporal correlation functions so defined, namely, if assume $n \geq m$, then states $A^j_{m-1}, B^j_{m-1}$ at $m-1$ at most have a $w_{n-2}$ term (for the case $n=m$) and cannot be correlated with a future noise term $w_{n-1}$. 
+
+The dynamical trajectory in LKFFB is linearised for small $\Delta t$.  The linearisation is an approximation to a true, continuous time deterministic trajectory defining a stochastic process on a circle. 
+
+We briefly visit this continuous time trajectory to specify the link between LKFFB and GPR (periodic kernel). Let $t$ denote the continuous time deterministic dynamics for random initial state given by $a^j_0, b^j_0$, where super-script $j$ denotes an oscillator with frequency $\omega_j \equiv j \omega_0^{(B)}$ (not a power):
+\begin{align}
+\ex{a^j_0} &=\ex{b^{j'}_0} = 0, \quad \forall j, j' \in J^{(B)} \\
+\ex{a^j_0 b^{j'}_0} &= 0, \quad \forall j, j' \in J^{(B)}\\
+\ex{a^j_0 a^{j'}_0} &= \ex{b^j_0 b^{j'}_0} = \sigma_j^2\delta(j-j'), \quad \forall j, j' \in J^{(B)} \\
+x^j(t) &  \equiv \begin{bmatrix} \cos(\omega_j t) & -\sin(\omega_j t) \\ \sin(\omega_j t) & \cos(\omega_j t) \\ \end{bmatrix} \begin{bmatrix} a^j_0 \\ b^j_0 \\ \end{bmatrix} \\
+E[x^j(t)]&= 0 \\%\ex{\begin{bmatrix} a^j_0 \\ b^j_0 \\ \end{bmatrix}} = \begin{bmatrix} 0 \\ 0 \\ \end{bmatrix} \\
+E[x^j(t) x^j(t'){}^T]&= \begin{bmatrix} \cos(\omega_j t') & -\sin(\omega_j t') \\ \sin(\omega_jt') & \cos(\omega_jt') \\ \end{bmatrix} \begin{bmatrix} a^j_0 \\ b^j_0 \\ \end{bmatrix} \begin{bmatrix} a^j_0 & b^j_0 \\ \end{bmatrix} \begin{bmatrix} \cos(\omega_j t) & -\sin(\omega_j t) \\ \sin(\omega_j t) & \cos(\omega_j t) \\ \end{bmatrix} \\ 
+&=\sigma_j^2 \begin{bmatrix} 
+\cos(\omega_j\nu) & 0 \\ 
+0 & \cos(\omega_j\nu)  \\
+\end{bmatrix}, \quad \nu \equiv |t'-t| \label{eqn:cov_circle}
+\end{align}
+We see that the initial state variables, $a^j_0, b^j_0$, must be zero mean, independent and identically distributed variables for each $j$ such that $x^j(t)$ is covariance stationary. If $a^j_0, b^j_0$ are Gaussian, then the joint distribution, $x^j(t)$, remains Gaussian under the linear operations above. Hence, the continuous time limit of the dynamics in LKFFB for $J^{(B)}$  independent substates, $x^j(t)$, describe a process with the same first and second moments for a periodic kernel truncated at $J^{(B)}$. For Gaussian processes, this results in an approximate equivalent representation of LKFFB for $J^{(B)}$ stacked resonators with an expansion of the periodic kernel truncated at $J^{(B)}$.
+
+While the formalism of LKFFB shares a common structure with GPR (periodic kernel) in a particular limit, the  physical interpretation of $A^j_{n}, B^j_{n}$ is that these are components of the Hilbert transform of the original signal \cite{livska2007}. This gives us the ability to track and extract instantaneous amplitude and phase associated with each basis oscillator in LKFFB. In contrast, the coefficients of the periodic kernel are always contingent on the arbitrary truncation of the infinite basis, as seen in \cref{eqn:app:spectral:Rvperiodic,eqn:beta_series2,eqn:alpha_series}. Hence, tracking (or extracting) amplitudes and phases for individual oscillators  does not seem appropriate for the periodic kernel, as these values would change depending on the arbitrary choice of a truncation point.  
+
+
+\clearpage
