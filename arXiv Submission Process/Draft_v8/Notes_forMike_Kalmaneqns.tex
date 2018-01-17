@@ -1,0 +1,18 @@
+\documentclass[pra, reprint]{revtex4-1}
+
+\input{Notes_2017_DocPreamble.tex}
+
+\begin{document}
+With appropriate definitions, the Kalman equations below specify all Kalman algorithms in this paper. At each time step, $n$,  we denote estimates of the moments of the  prior and posterior distributions (equivalently, estimates of the true Kalman state) with $(\amx{n}, \amp{n})$ and $(\apx{n}, \app{n})$ respectively. Any standard textbook (e.g. \cite{grewal2001theory}) yields the Kalman update equations as:
+
+\begin{align}
+\amx{n} & = \Phi_{n-1} \apx{n-1} \label{eqn:main:KF:dynamic_x}\\ 
+Q_{n-1} & = \sigma^2 \Gamma_{n-1}\Gamma_{n-1}^T  \label{eqn:main:KF:Q}\\
+\amp{n}&= \Phi_{n-1} \app{n-1} \Phi_{n-1}^T + Q_{n-1} \label{eqn:main:KF:dynamic_P}\\
+\gamma_n &= \amp{n} H_n^T(H_n\amp{n}H_n^T + R_n)^{-1} \label{eqn:main:KF:gain}\\
+\hat{y}_n(-) & = h(\amx{n}) \label{eqn:main:KF:step_ahead}\\
+\apx{n} &= \amx{n} + \gamma_n (y_n - \hat{y}_n(-)) \label{eqn:main:KF:bayesian_x}\\
+\app{n} &= \left[1  - \gamma_n H_n \right] \amp{n} \label{eqn:main:KF:bayesian_p}
+\end{align}
+To reiterate formally, \cref{eqn:main:KF:dynamic_x} and \cref{eqn:main:KF:dynamic_P} bring the best state of knowledge from the previous time step into the current time step, $n$, as a prior distribution. Dynamical evolution is modified by features of process noise, as encoded in \cref{eqn:main:KF:Q}, and propagated in \cref{eqn:main:KF:dynamic_P}. The propagation of the moments of the apriori distribution, as outlined thus far, does not depend on the incoming measurement, $y_n$, but is determined entirely by the apriori (known) dynamical model, in our case $\Phi \equiv \Phi_n \forall n$. The Kalman gain depends on the uncertainty in the true state, $\amp{n}$ and is modified by features of the measurement model, $H_n$,  and measurement noise, $R\equiv R_n \forall n$. Before seeing any measurement data, the filter predicts an observation $\hat{y}_n(-)$ corresponding to the best available knowledge at $n$ in \cref{eqn:main:KF:step_ahead}. This value is compared to the actual noisy measurement $y_n$ received at $n$, and the difference is used update our knowledge of the true state using \cref{eqn:main:KF:bayesian_x}. If measurement data is noisy and unreliable (high $R$), or if we wish to make $n>1$ step predictions (set $\gamma \equiv 0$), then $\gamma$ has a small or a null value, and the algorithm propagates Kalman state estimates according to the dynamical model and virtually ignores data. In particular, only the second terms in both \cref{eqn:main:KF:bayesian_x} and \cref{eqn:main:KF:bayesian_p} represent the Bayesian update of the moments of priori distribution ($(-)$ terms) to the posterior distribution ($(+)$ terms) at $n$. If $\gamma_n \equiv 0$, then the prior and posterior moments at any time step are exactly identical by \cref{eqn:main:KF:bayesian_x,eqn:main:KF:bayesian_p}, and only dynamical evolution occurs using \cref{eqn:main:KF:dynamic_x,eqn:main:KF:Q,eqn:main:KF:dynamic_P}. 
+\end{document}

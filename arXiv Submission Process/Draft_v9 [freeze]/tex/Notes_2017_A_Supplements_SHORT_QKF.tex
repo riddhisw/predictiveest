@@ -257,7 +257,7 @@ We plot and compare the CRLB given by the recursion equation in \cref{eqn:app:CR
 For the true $\state'$, we calculate the CRLB using a Fisher information term for coin-flip measurements, \cref{eqn:app:applied_fisherinfo:final}, and the classical counterpart using the Fisher information term for quantised measurements given by \cref{eqn:app:classicalquantiser}. In all cases, we discard data for the first $100$ points, as the AKF model needs to accumulate enough measurements before dynamic updates can begin sensibly. The expectation values of the Kalman residuals [not shown] lie above both the classical and coin-flip CRLBs by 1-2 orders of magnitude. 
 
 \begin{figure}[h!]
-	\includegraphics[scale=1]{./unpublished_materials/CRLB_final} 
+	\includegraphics[scale=1]{CRLB_final} 
 	\caption{ \label{fig:app:CRLB} Comparison of CRLB using Classical vs. Coin Flip quantisation procedure, for experiments reported in \cref{fig:main:fig_data_qkf2}(a). (a) Corresponding to $J\omega_0 / \omega^{(B)} = 0.2$ case in  \cref{fig:main:fig_data_qkf2}(a), we plot CRLB against time steps using Fisher information for a coin-flip quantiser [black solid] and a classical mid-tread/mid-riser quantiser [grey dotted]. (b) The ratio of a classical CRLB / coin-flip CRLB against time steps is plotted for all cases in \cref{fig:main:fig_data_qkf2}(a).}
 \end{figure}
 \FloatBarrier

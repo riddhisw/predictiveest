@@ -1,0 +1,14 @@
+\title{Machine learning tools for predictive estimation of a single qubit under dephasing noise}
+
+\author{Riddhi Swaroop} 
+\email{riddhi.sw@gmail.com}
+\affiliation{ARC Centre of Excellence for Engineered Quantum Systems, School of Physics, The University of Sydney, New South Wales 2006, Australia}
+
+\author{Michael J. Biercuk}
+\affiliation{ARC Centre of Excellence for Engineered Quantum Systems, School of Physics, The University of Sydney, New South Wales 2006, Australia}
+
+\begin{abstract}
+We consider machine learning (ML) algorithms for predictive control of qubits. Our task is to use a past measurement record to predict future evolution of the qubit state in the absence of an apriori dynamical model for qubit dynamics. We compare predictive performance of ML approaches for qubits subject to non-Markovian dephasing noise. Our numerical investigations quantify the achievable prediction horizon, model robustness, and noise filtering capabilities for two Kalman Filter (KF) variants and a Gaussian Process Regression (GPR) algorithm. We track stochastic qubit dynamics using autoregressive processes and harmonic oscillators. Our study reveals that an autoregressive KF is model-robust compared to an oscillator-based KF for realistic scenarios. We modify an autoregressive KF to use only single shot (0 or 1) qubit data and we achieve a prediction horizon if errors during filtering remain small. Meanwhile, we find a GPR algorithm representing an infinite basis of oscillators enables interpolation but not forward prediction of qubit evolution. Our work numerically characterises real-time predictive estimation for qubits under non-Markovian dephasing for future experimental applications.
+\end{abstract}
+
+\maketitle
