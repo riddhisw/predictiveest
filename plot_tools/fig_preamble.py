@@ -18,7 +18,7 @@ from plot_tools.plot_helper_funcs import plot_single_predictions as psp
 from plot_tools.plot_helper_funcs import cm2inch, plot_risk_map, plot_risk_trajectories, get_Kalman_LSF_difference, shiftedColorMap, plot_risk_map_2, set_font_sizes
 
 from plot_tools.plot_figstyle_sheet import ALGOLIST, ALGOKEYS, fsize, Fsize, my_dpi, PRED_H, PRED_L, RISK_H, RISK_L, PRED_H2, PRED_L2, COLOURDICT, STYLEDICT, prediczero_lw, algorithm_lw
-from plot_tools.plot_figstyle_sheet import PRED_H_ILL, PRED_L_ILL, RISK_H_ILL, RISK_L_ILL, RISK_H2, RISK_L2, SPEC_EST_H, SPEC_EST_L, ONESHOT_L, ONESHOT_H
+from plot_tools.plot_figstyle_sheet import PRED_H_ILL, PRED_L_ILL, RISK_H_ILL, RISK_L_ILL, RISK_H2, RISK_L2, SPEC_EST_H, SPEC_EST_L, ONESHOT_L, ONESHOT_H, color_pallete
 
 # Set global parameters
 matplotlib.rcParams['font.size'] = fsize # global

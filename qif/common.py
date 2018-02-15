@@ -94,7 +94,10 @@ def noisy_z(x, rk, saturate_='Yes'):
     z = np.zeros(x.shape[0])
     # z[:] = x[:] # Linear Msmt Model
     z = 0.5*np.cos(x) # Non Linear Msmt Model 
-    z += rk*np.random.normal(size=z.shape[0])
+    
+    if rk !=0.0:
+        print(rk)
+        z += np.random.normal(loc=0.0, scale=np.sqrt(rk), size=z.shape[0]) # not equivalent to rk*np.random.normal(size=z.shape[0]) 
     
     if saturate_ == 'No':
         return z
@@ -269,7 +272,7 @@ def J_one_bit_coinflip(z_value, rk):
     
     if abs(z_value)== 0.5:
         print("diverged, reset z = 0.49999999") # avoids divergence at the boundaries
-        z_value=0.49999999
+        z_value=0.49999999 # INCORRECT - doesnt account for negative values
     
     j_onebit = (rho_0 * 4.0 ) / (1.0 - 4*(z_value)**2)
     return j_onebit
