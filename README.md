@@ -1,4 +1,4 @@
-#### List of packages
+#### PYTHON PACKAGES
 **akf**: The purpose of akf package is to implement autoregressive Kalman Filtering (AKF) 
 
 **analysis_tools**: The purpose of analysis_tools is to optimise and generate analysis for Livska
@@ -16,3 +16,12 @@ At present, the kernel being testing is the Periodic Kernel.
 **qif**: The purpose of kqf package is to implement Quantised Kalman Filtering (QKF) using AKF dynamics and single shot qubit outcomes [WIP]
 
 **plot_tools**: The purpose of plot_tools package is to generate data figures and completely reproduce all figures reported in manuscript; locally held at */home/riddhisw/Documents/2017/Scripts_Git/v0/NOTES_v0 _1/tex/fig_main/scripts*
+
+#### PAPER ANALYSIS
+
+All analysis scripts, output data files, notes, and paper versions are stored in the folder v0
+
+#### NOT COPIED
+
+“ANALYSIS - does the CRLB theory work?.ipynb”.
+“ANALYSIS - does the CRL...y work?-checkpoint.ipynb”.
