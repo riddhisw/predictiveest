@@ -1,5 +1,5 @@
 #PBS -P QCL_KF
-#PBS -N crlb_cflag_0
+#PBS -N crlb_cflag_1
 #PBS -J 1-8
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
@@ -13,9 +13,11 @@ cd /project/RDS-FSC-QCL_KF-RW/crlb/job_outputs/
 test_case=24
 var_R=(0.0, 0.005, 0.01, 0.02, 0.03, 0.05, 0.1, 1.0, 10)
 name_R = ("0", "0_005", "0_01", "0_02", "0_03", "0_05", "0_1", "1", "10")
-cflag=0
+cflag=1
 
 module load python
 
 python ../kf/crlb_paper_v0/crlb_data_script.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag}
+
+
 
