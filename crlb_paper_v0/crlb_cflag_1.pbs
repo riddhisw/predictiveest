@@ -17,7 +17,7 @@ cflag=1
 
 module load python
 
-python ../kf/crlb_paper_v0/crlb_data_script.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag}
+python ../crlb/crlb_paper_v0/crlb_data_script.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag}
 
 
 
