@@ -17,7 +17,7 @@ import numpy as np
 # FILE PATH AND IMPORT INFO
 ###############################################################################
 
-sys.path.append('/project/RDS-FSC-QCL_KF-RW/crlb/kf/')
+sys.path.append('/project/RDS-FSC-QCL_KF-RW/crlb/')
 input_datapath='/scratch/RDS-FSC-QCL_KF-RW/CRLB/input_data/'
 output_data = '/scratch/RDS-FSC-QCL_KF-RW/CRLB/output_data/' 
 
