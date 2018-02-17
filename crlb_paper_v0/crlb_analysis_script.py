@@ -35,11 +35,14 @@ cnflp = np.zeros_like(midtrd)
 
 for idx_var in xrange(varlen):
 
-    midtrd[idx_var, :, :,:], cnflp[idx_var,:, :,:] = calculate_crlb(output_data, 
-                                                                    variation_scan[idx_var], 
-                                                                    cflag_, name_R_)
+    try:
+        midtrd[idx_var, :, :,:], cnflp[idx_var,:, :,:] = calculate_crlb(output_data, 
+                                                                        variation_scan[idx_var], 
+                                                                        cflag_, name_R_)
+        
+        sv_data = output_data+'CRLB_tc24_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
+        np.savez(sv_data, midtrd=midtrd, cnflp=cnflp)
     
-    sv_data = output_data+'CRLB_tc24_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
-    np.savez(sv_data, midtrd=midtrd, cnflp=cnflp)
-
+    except:
+        print(name_R_, idx_var, 'FAILED')
 
