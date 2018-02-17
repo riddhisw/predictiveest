@@ -1,6 +1,6 @@
 #PBS -P QCL_KF
 #PBS -N crlb_analyse
-#PBS -J 1
+#PBS -J 1-2
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
 #PBS -l select=1:ncpus=1:mem=20GB

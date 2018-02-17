@@ -8,7 +8,6 @@ cflag_ = int(sys.argv[4])
 
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 ###############################################################################
 # FILE PATH AND IMPORT INFO
@@ -16,8 +15,6 @@ import matplotlib.pyplot as plt
 
 sys.path.append('/project/RDS-FSC-QCL_KF-RW/crlb/')
 output_data = '/scratch/RDS-FSC-QCL_KF-RW/CRLB/output_data/' 
-
-from plot_tools.fig_preamble import *
 from riccatti_solver.ricatti_recursion import calculate_crlb
 
 ###############################################################################
