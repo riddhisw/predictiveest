@@ -146,7 +146,7 @@ def onebit(z_value, R):
 
 def calculate_crlb(output_data, var, cflag_, name_R_, qubit_avg='median'):
 
-    sv_data = output_data+'tc24_var_'+str(variation_scan[var])+'_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
+    sv_data = output_data+'tc24_var_'+str(var)+'_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
     data_object_1 = np.load(sv_data)
     
     raw_data_classical = np.mean(data_object_1['ensemble_crlb'], axis=0)
