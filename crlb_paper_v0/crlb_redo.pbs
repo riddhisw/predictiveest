@@ -1,0 +1,22 @@
+#PBS -P QCL_KF
+#PBS -N crlb_cflag_0
+#PBS -J 1-8
+#PBS -M riddhi.sw@gmail.com
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mem=80GB
+#PBS -l walltime=75:00:00 
+#PBS -q defaultQ
+#PBS -j oe
+
+cd /project/RDS-FSC-QCL_KF-RW/
+
+test_case=24
+var_R=(0.0 0.005 0.01 0.01 0.03 0.03 1.0 1.0 10)
+name_R=("0" "0_005" "0_01" "0_01" "0_03" "0_03" "1" "1" "10")
+cflag=0
+var_scan=(0 4 4 7 4 7 1 7 3)
+
+module load python
+
+python ./crlb/crlb_paper_v0/crlb_data_script_redo.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag} ${var_scan[$PBS_ARRAY_INDEX]}
+
