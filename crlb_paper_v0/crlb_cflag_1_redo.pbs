@@ -14,11 +14,10 @@ test_case=24
 var_R=(0.0 0.01 0.01 0.01 0.02) 
 name_R=("0" "0_01" "0_01" "0_01" "0_02") 
 cflag=1
-variations=(3 4 7 3)
+var_scan=(0 3 4 7 3)
 
 module load python
 
-python ./crlb/crlb_paper_v0/crlb_data_script_redo.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag} ${variations[$PBS_ARRAY_INDEX]}
-
+python ./crlb/crlb_paper_v0/crlb_data_script_redo.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag} ${var_scan[$PBS_ARRAY_INDEX]}
 
 
