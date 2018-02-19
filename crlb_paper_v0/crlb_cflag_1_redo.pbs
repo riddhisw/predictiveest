@@ -11,10 +11,10 @@
 cd /project/RDS-FSC-QCL_KF-RW/
 
 test_case=24
-var_R=  (0.0 0.01 0.01 0.01 0.02) 
-name_R= ("0" "0_01" "0_01" "0_01" "0_02") 
+var_R=(0.0 0.01 0.01 0.01 0.02) 
+name_R=("0" "0_01" "0_01" "0_01" "0_02") 
 cflag=1
-variations = (3 4 7 3)
+variations=(3 4 7 3)
 
 module load python
 
