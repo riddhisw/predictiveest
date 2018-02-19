@@ -1,5 +1,5 @@
 #PBS -P QCL_KF
-#PBS -N crlb_cflag_1
+#PBS -N crlb_cflag_1_redo
 #PBS -J 1-4
 #PBS -M riddhi.sw@gmail.com
 #PBS -m abe
@@ -8,7 +8,7 @@
 #PBS -q defaultQ
 #PBS -j oe
 
-cd /project/RDS-FSC-QCL_KF-RW/crlb_job_outputs/
+cd /project/RDS-FSC-QCL_KF-RW/
 
 test_case=24
 var_R=  (0.0 0.01 0.01 0.01 0.02 ) 
@@ -18,7 +18,7 @@ variations = (3 4 7 3)
 
 module load python
 
-python ../crlb/crlb_paper_v0/crlb_data_script_redo.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag} ${variations[$PBS_ARRAY_INDEX]}
+python ./crlb/crlb_paper_v0/crlb_data_script_redo.py ${test_case} ${var_R[$PBS_ARRAY_INDEX]} ${name_R[$PBS_ARRAY_INDEX]} ${cflag} ${variations[$PBS_ARRAY_INDEX]}
 
 
 
