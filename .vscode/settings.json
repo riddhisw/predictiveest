@@ -1,0 +1,34 @@
+// Place your settings in this file to overwrite default and user settings.
+{"latex-workshop.latex.toolchain": [
+  {
+    "command": "pdflatex",
+    "args": [
+      "-synctex=1",
+      "-interaction=nonstopmode",
+      "-file-line-error",
+      "%DOC%"
+    ]
+  }, {
+    "command": "bibtex",
+    "args": [
+      "%DOCFILE%"
+    ]
+  }, {
+    "command": "pdflatex",
+    "args": [
+      "-synctex=1",
+      "-interaction=nonstopmode",
+      "-file-line-error",
+      "%DOC%"
+    ]
+  }, {
+    "command": "pdflatex",
+    "args": [
+      "-synctex=1",
+      "-interaction=nonstopmode",
+      "-file-line-error",
+      "%DOC%"
+    ]
+  }
+]
+}
