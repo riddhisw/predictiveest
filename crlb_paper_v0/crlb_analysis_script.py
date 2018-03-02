@@ -15,7 +15,7 @@ import numpy as np
 
 sys.path.append('/project/RDS-FSC-QCL_KF-RW/crlb/')
 output_data = '/scratch/RDS-FSC-QCL_KF-RW/CRLB/output_data/' 
-from riccatti_solver.ricatti_recursion import calculate_crlb
+from riccatti_solver.calculate_crlb import calculate_crlb
 
 ###############################################################################
 # DATA PARAMETERS
@@ -45,4 +45,5 @@ for idx_var in xrange(varlen):
     
     except:
         print(name_R_, idx_var, 'FAILED')
+        print(sys.exc_info()[0])
 

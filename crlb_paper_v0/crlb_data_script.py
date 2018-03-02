@@ -70,30 +70,41 @@ for idx_var in xrange(len(variation_scan)):
     
     dynamical_model = get_autoreg_model(order, experiment.AKF_weights) 
 
-    ensemble_crlb = np.zeros((runs, number_of_steps, 101, 101))
-    ensemble_crlb_coinflip = np.zeros((runs, number_of_steps, 101, 101))
+    ensemble_crlb = np.zeros((runs, number_of_steps, order, order))
+    ensemble_crlb_trunc = np.zeros((runs, number_of_steps, order, order))
+    ensemble_crlb_coinflip = np.zeros((runs, number_of_steps, order, order))
     
     sv_data = output_data+'tc24_var_'+str(variation_scan[idx_var])+'_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
 
     for idx_runs in xrange(runs):
 
-        x_init = np.random.uniform(low=-0.5*np.pi, high=0.5*np.pi, size=order)
-        
-        true_x = generate_AR(x_init, number_of_steps + burn_in, 
-                             experiment.AKF_weights, true_oe)[burn_in:] 
-        noisy_z_ = noisy_z(true_x, add_crlb_noise) 
+        try:
+            x_init = np.random.uniform(low=-0.5*np.pi, high=0.5*np.pi, size=order)
+            
+            true_x = generate_AR(x_init, number_of_steps + burn_in, 
+                                    experiment.AKF_weights, true_oe)[burn_in:] 
+            noisy_z_ = noisy_z(true_x, add_crlb_noise) 
 
-        ensemble_crlb[idx_runs, :, :, :] = info_execute(dynamical_model,
-                                              true_x, noisy_z_, 
-                                              true_oe, var_R_, p0init, 'classical')
+            ensemble_crlb[idx_runs, :, :, :] = info_execute(dynamical_model,
+                                                    true_x, noisy_z_, 
+                                                    true_oe, var_R_, p0init, 'classical')
 
-        ensemble_crlb_coinflip[idx_runs, :, :, :] = info_execute(dynamical_model,
-                                              true_x, noisy_z_, 
-                                              true_oe, var_R_, p0init, 'coin')
+            ensemble_crlb_coinflip[idx_runs, :, :, :] = info_execute(dynamical_model,
+                                                    true_x, noisy_z_, 
+                                                    true_oe, var_R_, p0init, 'coin')
 
+            ensemble_crlb_trunc[idx_runs, :, :, :] = info_execute(dynamical_model,
+                                                    true_x, noisy_z_, 
+                                                    true_oe, var_R_, p0init, 'trunc')
 
-        if idx_runs%3 == 0 or idx_runs == runs-1:
-            np.savez(sv_data, 
-                     ensemble_crlb=ensemble_crlb,
-                     ensemble_crlb_coinflip=ensemble_crlb_coinflip)
+            if idx_runs%3 == 0 or idx_runs == runs-1:
+                np.savez(sv_data, 
+                            ensemble_crlb=ensemble_crlb,
+                            ensemble_crlb_coinflip=ensemble_crlb_coinflip,
+                            ensemble_crlb_trunc=ensemble_crlb_trunc)
+        except:
+            
+            print("For FILENAME=",sv_data)
+            print("FAILED RUN =",idx_runs)
+            print(sys.exc_info()[0])
 

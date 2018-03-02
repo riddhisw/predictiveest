@@ -6,7 +6,6 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 
 
-
 ###############################################################################
 # CLRB CALCULATIONS FROM FISHER INFO
 ###############################################################################
@@ -21,14 +20,19 @@ def calculate_crlb(output_data, var, cflag_, name_R_, qubit_avg='median'):
     if qubit_avg=='median':
         raw_data_coinflip = np.median(data_object_1['ensemble_crlb_coinflip'], 
                                      axis=0)
+        raw_data_trunc = np.median(data_object_1['ensemble_crlb_trunc'], 
+                                     axis=0)
     else:
         raw_data_coinflip = np.mean(data_object_1['ensemble_crlb_coinflip'],
+                                     axis=0)
+        raw_data_trunc = np.mean(data_object_1['ensemble_crlb_trunc'], 
                                      axis=0)
     
     crlb_classical = calc_variance(raw_data_classical)
     crlb_coinflip = calc_variance(raw_data_coinflip)
-    
-    return crlb_classical, crlb_coinflip
+    crlb_trunc = calc_variance(raw_data_trunc)
+
+    return crlb_classical, crlb_coinflip, crlb_trunc
 
 
 def calc_variance(fisher_stream, axis=0):
