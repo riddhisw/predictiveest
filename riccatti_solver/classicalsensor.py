@@ -29,7 +29,7 @@ def onebit(z_value, R):
 # Mid Tread Quantiser with a Truncated Error Model
 ################################################################################
 
-def Xi(z, R, b=0.5):
+def Xi(z, R, b):
     
     """Returns normalised pdf for mean zero and variance R Gaussian errors but defined over a finite interval paramterised by b.
     Eqn (C9) in Fullnotes v3."""

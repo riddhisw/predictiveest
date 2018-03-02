@@ -10,7 +10,7 @@ from scipy.special import erf
 
 def coinflip(z_value, R, b=0.5):
     
-    '''Returns J_{m=1, t} given by derived coin flip msmt action'''
+    '''Returns J_{vartheta=1, n} given by derived coin flip msmt action'''
 
     rho_0 = rho_qubit(R,b)
     
