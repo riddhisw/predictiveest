@@ -12,7 +12,7 @@ cd /project/RDS-FSC-QCL_KF-RW/
 
 test_case=24
 var_R=(0.0 0.005 0.01 0.02 ) 
-name_R=("0" "0_005" "0_01" "0_02" )
+name_R=("0" "0_005" "0_01" "0_02")
 cflag=0
 cflag2=1
 

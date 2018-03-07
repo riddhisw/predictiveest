@@ -15,7 +15,7 @@ import numpy as np
 
 sys.path.append('/project/RDS-FSC-QCL_KF-RW/crlb/')
 output_data = '/scratch/RDS-FSC-QCL_KF-RW/CRLB/output_data/' 
-from riccatti_solver.calculate_crlb import calculate_crlb
+from riccatti_solver.crlbcalculator import calculate_crlb
 
 ###############################################################################
 # DATA PARAMETERS
