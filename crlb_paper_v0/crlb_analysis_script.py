@@ -32,6 +32,7 @@ order=101
 varlen=len(variation_scan)
 midtrd = np.zeros((varlen, N, order, order))
 cnflp = np.zeros_like(midtrd)
+trunc = np.zeros_like(midtrd)
 
 for idx_var in xrange(varlen):
 
@@ -41,7 +42,7 @@ for idx_var in xrange(varlen):
                                                                         cflag_, name_R_)
         
         sv_data = output_data+'CRLB_tc24_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
-        np.savez(sv_data, midtrd=midtrd, cnflp=cnflp)
+        np.savez(sv_data, midtrd=midtrd, cnflp=cnflp, trunc=trunc)
     
     except:
         print(name_R_, idx_var, 'FAILED')
