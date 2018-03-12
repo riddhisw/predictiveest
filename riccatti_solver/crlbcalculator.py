@@ -26,25 +26,20 @@ def calculate_crlb(output_data, var, cflag_, name_R_, qubit_avg='median'):
                                          axis=0)
             raw_data_trunc = np.median(data_object_1['ensemble_crlb_trunc'], 
                                          axis=0)
+        
         except:
             print(sv_data)
             print("Failed Median Calc")
             print(traceback.format_exc())
-
+            raw_data_coinflip = np.zeros_like(data_object_1['ensemble_crlb_coinflip'][0,:,:,:])
+            raw_data_trunc = np.zeros_like(data_object_1['ensemble_crlb_trunc'][0,:,:,:])
+    
     else:
-        raw_data_coinflip = np.mean(data_object_1['ensemble_crlb_coinflip'],
-                                     axis=0)
-        raw_data_trunc = np.mean(data_object_1['ensemble_crlb_trunc'], 
-                                     axis=0)
+        raw_data_coinflip = np.mean(data_object_1['ensemble_crlb_coinflip'], axis=0)
+        raw_data_trunc = np.mean(data_object_1['ensemble_crlb_trunc'],axis=0)
     
-
-    try:
-        # crlb_classical = calc_variance(raw_data_classical)
-        crlb_coinflip = calc_variance(raw_data_coinflip)
-        crlb_trunc = calc_variance(raw_data_trunc)
-    
-    except:
-        print("Failed Variance Calc")
+    crlb_coinflip = calc_variance(raw_data_coinflip)
+    crlb_trunc = calc_variance(raw_data_trunc)
 
     return crlb_coinflip, crlb_trunc #, crlb_classical
 
