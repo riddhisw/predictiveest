@@ -15,7 +15,7 @@ def calculate_crlb(output_data, var, cflag_, name_R_, qubit_avg='median'):
     sv_data = output_data+'tc24_var_'+str(var)+'_flag_'+str(cflag_)+'_R_'+str(name_R_)+'.npz'
     data_object_1 = np.load(sv_data)
     
-    raw_data_classical = np.mean(data_object_1['ensemble_crlb'], axis=0)
+    # raw_data_classical = np.mean(data_object_1['ensemble_crlb'], axis=0)
     
     if qubit_avg=='median':
         raw_data_coinflip = np.median(data_object_1['ensemble_crlb_coinflip'], 
@@ -28,11 +28,11 @@ def calculate_crlb(output_data, var, cflag_, name_R_, qubit_avg='median'):
         raw_data_trunc = np.mean(data_object_1['ensemble_crlb_trunc'], 
                                      axis=0)
     
-    crlb_classical = calc_variance(raw_data_classical)
+    # crlb_classical = calc_variance(raw_data_classical)
     crlb_coinflip = calc_variance(raw_data_coinflip)
     crlb_trunc = calc_variance(raw_data_trunc)
 
-    return crlb_classical, crlb_coinflip, crlb_trunc
+    return crlb_coinflip, crlb_trunc #, crlb_classical
 
 
 def calc_variance(fisher_stream, axis=0):
