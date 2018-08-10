@@ -1,1 +1,89 @@
-[empty testfile]
+List of documentation to be updated for public publishing
+
+[ ] - MODULE 
+
+[ ] - akf
+
+    [ ] - akf_risk_analysis
+    [ ] - armakf
+    [ ] - common
+
+[ ] - analysis_tools 
+
+    [ ] - common
+    [ ] - experiment
+    [ ] - kalman
+    [ ] - noisydata
+    [ ] - riskanalysis
+    [ ] - truth
+
+[ ] - crlb_paper_v0 
+
+    [ ] - crlb_analysis_script
+    [ ] - crlb_data_script
+    [ ] - crlb.pbs
+    [ ] - crlb_analyse.pbs
+    [ ] - crlb_1.pbs
+    [ ] - /archiv
+
+[ ] - data_tools
+
+    [ ] - common
+    [ ] - data_risk_analysis
+    [ ] - data_tuned_run_analysis
+    [ ] - load_raw_cluster_data
+    
+[ ] - env
+
+    [ ] - /bin
+    [ ] - /include
+    [ ] - /lib
+    [ ] - numba_failed_to_build_on_cluster
+    [ ] - pip-selfcheck
+    
+[ ] - gpr
+
+    [ ] - common
+    [ ] - GPRP_risk_analysis
+    
+[ ] - kf
+
+    [ ] - common
+    [ ] - detailed
+    [ ] - fast
+    [ ] - fast_2
+    
+[ ] - ls
+
+    [ ] - common
+    [ ] - statePredictions_2
+    [ ] - LSF_risk_analysis
+    [ ] - statePredictions
+    
+[ ] - ml_paper_v0
+
+    [ ] - /FIGURE_SCRIPTS_v0
+    [ ] - /TEST_SCRIPTS_v0
+    [ ] - KalmanParameterRegimes
+
+[ ] - plot_tools
+
+    [ ] - fig_preamble
+    [ ] - plot_figstyle_sheet
+    [ ] - plot_helper_funcs
+
+[ ] - qif
+
+    [ ] - common
+    [ ] - qif
+
+[ ] - riccatti_solver
+
+    [ ] - classicalsensor
+    [ ] - common
+    [ ] - crlbcalculator
+    [ ] - qubitsensor
+    [ ] - ricatti_recursion
+
+    
+
