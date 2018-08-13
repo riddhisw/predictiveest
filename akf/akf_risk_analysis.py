@@ -11,6 +11,10 @@ Created on Thu Apr 20 19:20:43 2017
     the equivalent optimisation problem for an autoregressive Kalman Filter with
     LS Filter weights.
 
+    Module Level Classes:
+    --------------------
+        AKF_Optimisation : Initiates a Bayes Risk Map  instance for AKF.
+
 .. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
 
 """
@@ -28,7 +32,7 @@ from akf.armakf import autokf as akf
 class AKF_Optimisation(object):
     ''' AKF_Optimisation
 
-        Initiate a Bayes Risk Map for AKF
+        Initiate a Bayes Risk Map instance for AKF.
 
         For each instance, use pre-generated random samples for (sigma, R)and true noise
         realisations for equivalent (test_case, variation) in LKKFB. AR weights 

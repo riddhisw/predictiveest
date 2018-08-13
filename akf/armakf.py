@@ -11,9 +11,9 @@ Created on Thu Apr 20 19:20:43 2017
 
     Module Level Functions:
     ----------------------
-    get_autoreg_model : Return the dynamic state space model for AR(q).
-    propagate_states_no_gamma : Return state propagation without a Kalman update.
-    autokf : Save .npz file ooutput from an autoregressive Kalman Filtering (AKF) run.
+        get_autoreg_model : Return the dynamic state space model for AR(q).
+        propagate_states_no_gamma : Return state propagation without a Kalman update.
+        autokf : Save .npz file ooutput from an autoregressive Kalman Filtering (AKF) run.
 
 .. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
 '''

@@ -9,7 +9,7 @@ Created on Thu Apr 20 19:20:43 2017
 
     Module Level Functions:
     ----------------------
-    fetch_weights : Return LSF weights to approximate the dynamical model in AKF.
+        fetch_weights : Return LSF weights to approximate the dynamical model in AKF.
 
 .. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
 

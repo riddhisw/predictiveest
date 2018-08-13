@@ -1,42 +1,36 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+
 """
 Created on Thu Apr 20 19:20:43 2017
-
 @author: riddhisw
 
-PACKAGE: analysis_tools
-MODULE: analysis_tools.truth
+.. module:: analysis_tools.truth
 
-The purpose of analysis_tools is to optimise and generate analysis for Livska
-Kalman Filter on experimental scenarios indexed by (test_case, variation). 
+    :synopsis: Defines true stochastic state and its properties; as dictated by
+                (test_case, variation). (Algorithms are blind to these properties.)
 
-MODULE PURPOSE: Defines true stochastic state and its properties; as dictated by
-(test_case, variation). Learning algorithms are blind to these properties.
+    Module Level Classes:
+    ----------------------
+        Truth : Defines true dephasing field and its properties. The dephasing
+            field is used to generate simulated experimental datasets. Learning
+            algorithms are blind to the the properties of the dephasing field.
 
-METHODS: 
-beta_z: Returns true stochastic state in discrete time, namely f(n)
-beta_z_truePSD: Returns theoretical PSD for beta_z
-average_PSD: Returns numerical PSD estimate using beta_z() realisations.
-norm_squared: Returns magnitude squared of a vector
-
+.. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
 """
 
 from __future__ import division, print_function, absolute_import
 import numpy as np
-# import scipy.stats as pdf
 
-# PDF = {'Uniform':pdf.uniform,'Gamma': pdf.gamma, 'Normal': pdf.norm}
 Moments = {'Mean':np.mean, 'Variance':np.var}
 
 
 # SCALING FACTOR FOR ALL LKKFB AMPLITUDES
-# LKFFB acts on Hilbert transform of the true signal. 
-# Negative frequencies are shifted to postive spectrum. 
+# LKFFB acts on Hilbert transform of the true signal.
+# Negative frequencies are shifted to postive spectrum.
 # For a real, covariance stationary signal, the spectrum is symmetric
 # Hence, our application of LKKFB means that we will estimate twice the true spectrum
-LKFFB_HILBERT_TRANSFORM_ = 0.5 
-
+LKFFB_HILBERT_TRANSFORM_ = 0.5
 
 # SCALING FACTOR FOR ALL TRUTHS
 # We convert a true, two sided power spectral density into a one sided power spectral density
@@ -45,15 +39,54 @@ LKFFB_HILBERT_TRANSFORM_ = 0.5
 # So if we take only the postive end of the LHS, we have to multiply it by 2.0 to conserve power.
 SYMMETRIC_ONE_SIDED_PSD = 2.0
 
-
-# FUDGE_1 = 0.5  # (Kalman Amplitudes vs. Theory)
-# HILBERT_TRANSFORM_ = 2.0 # (Kalman Amplitudes vs. Theory)
-# FUDGE_2 = 2.0*np.pi # Guessed numerically (Numerical averaging vs. Theory) # not reported in paper
-
+# OTHER SCALING FACTORS
+NUM_SCALE = 2.0*np.pi # Numerical averaging vs. Theory # not required for paper
 
 class Truth(object):
+    ''' Defines true dephasing field and its properties. The dephasing field is
+        used to generate simulated experimental datasets. Learning algorithms
+        are blind to the the properties of the dephasing field.
 
-    
+    Attributes:
+    ----------
+        true_noise_params (`float64`) : Parametes to initiate Truth class in order:
+            apriori_f_mean (`float64`) : Dephasing noise mean.
+            pdf_type (`str`) : 'Uniform' or 'Normal' - specifies the distribution from
+                which random phases are drawn.
+            alpha  (`float64`) : True noise global noise scale factor.
+            f0 (`float64`) : True noise frequency spacing between adajcent components.
+            p (`int`) :  True noise built-in choice of PSD for random phase noise field.
+                            p = -2 <=> 1/f^2 dephasing noise field
+                            p = -1 <=> 1/f dephasing noise field
+                            p = 0 <=> 'white/flat' dephasing noise field
+                            p = 1 <=> ohmic dephasing noise field
+            J (`int`) :  True noise parameter for setting the number of spectral components.
+            jstart (`int`) : True noise parameter for setting the number of spectral components.
+        num | number_of_points (`int`) :  Experimentally controlled total number
+            of points.
+        DeltaT | Delta_T_Sampling (`float`): Experimentally controlled sampling time.
+        ensemble_size (`int`) : Number of runs used for a PSD reconstruction.
+        num_w_axis (`float64`) : Frequency axis (radians) for numerical reconstruction
+            of true noise PSD. Calculated by Truth.average_PSD().
+        num_S_estimate (`float64`) : Numerical two sided power spectral density.
+            Calculated by Truth.average_PSD().
+        num_S_norm (`float64`) : Numerical total energy (norm) for two sided, bandlimited PSD.
+            Calculated by Truth.average_PSD().
+        true_w_axis (`float64`) : Frequency axis (radians) for theoretical true noise PSD.
+            Calculated by Truth.beta_z_truePSD().
+        true_S_twosided (`float64`) : Theoretical two sided power spectral density.
+            Calculated by Truth.beta_z_truePSD().
+        true_S_norm (`float64`) : theoretical total energy (norm) for two sided, bandlimited PSD.
+            Calculated by Truth.beta_z_truePSD().
+
+    Methods:
+    -------
+        beta_z : Return true stochastic state in discrete time, namely f(n).
+        beta_z_truePSD : Calculate theoretical PSD for beta_z
+        average_PSD : Calculate numerical PSD estimate using beta_z() realisations.
+        norm_squared : Return magnitude squared of a vector
+    '''
+
     def __init__(self, true_noise_params, num=None, DeltaT=None, ensemble_size=50):
 
         #Optional args
@@ -61,7 +94,7 @@ class Truth(object):
             self.number_of_points = num
         if DeltaT != None:
             self.Delta_T_Sampling = DeltaT
-        
+
         # Truth params
         self.true_noise_params = true_noise_params
         self.apriori_f_mean = float(true_noise_params[0])
@@ -77,7 +110,7 @@ class Truth(object):
         self.num_S_estimate = None
         self.num_norms = None
         self.num_S_norm = None
-        
+
         self.true_w_axis = None
         self.true_S_twosided = None
         self.true_S_norm = None
@@ -85,27 +118,11 @@ class Truth(object):
         self.true_signal_params = [self.pdf_type, self.number_of_points, self.Delta_T_Sampling, self.alpha, self.f0, self.p, self.J, self.jstart]
         #self.true_signal_params = [0.0, self.number_of_points, self.Delta_T_Sampling, self.alpha, self.f0, self.p, self.J, self.jstart]
 
-        pass
-
-
     def beta_z(self):
-        
-        '''Returns the sum of cosines with random phases, with input parameters:
-        
-        pdf_type = example_params[0] -- Distribution from which random phases are drawn. Can be 'Uniform' or 'Normal'. [dtype = string]
-        N = example_params[1] -- Experimentally controlled parameter - total number of points, N (number_of_points). [dtype = int]
-        delT= example_params[2] -- Experimentally controlled parameter - sampling time, Delta_T_Sampling. [dtype = float64]
-        alpha= example_params[3]-- True noise parameter - alpha - global noise scale factor. [dtype = float64]
-        f0 = example_params[4]-- True noise parameter - f0 - frequency spacing between adajcent components in noise. [dtype = float64]
-        p= example_params[5]-- True noise parameter - p - sets choice of PSD for random phase noise field (see [2]):
-            p = -2 <=> 1/f^2 dephasing noise field
-            p = -1 <=> 1/f dephasing noise field
-            p = 0 <=> 'white/flat' dephasing noise field
-            p = 1 <=> ohmic dephasing noise field
-        J= example_params[6]-- True noise parameter - J - number of spectral components in true noise - jstart [dtype = int]
-       
-        '''
-        
+
+        '''Return true stochastic state in discrete time, namely f(n), as a periodic
+        noise signal with random phase information.'''
+
         twopi = 2.0*np.pi
         list_of_t = np.linspace(0, self.number_of_points-1, self.number_of_points)
         list_of_j = np.arange(self.jstart, self.J, 1) # Define with J, j_start = 1
@@ -119,7 +136,7 @@ class Truth(object):
 
 
     def beta_z_truePSD(self):
-        '''Returns theoretical PSD for beta_z'''
+        '''Returns theoretical PSD for dephasing field.'''
 
         self.true_w_axis = 2.0*np.pi*self.f0*np.linspace(-self.J+1, self.J-1, 2*self.J-1)
 
@@ -134,12 +151,13 @@ class Truth(object):
 
         self.true_S_norm = np.sum(self.true_S_twosided)
 
-        pass #self.true_w_axis, self.true_S_twosided, self.true_S_norm
+        pass # self.true_w_axis, self.true_S_twosided, self.true_S_norm
 
 
     def average_PSD(self):
-        '''Returns PSD estimate for an ensemble of time domain beta_z signals 
-        by performing both ensemble and time averaging'''
+        '''Returns PSD estimate for an ensemble of time domain realisations of
+        dephasing field by performing both ensemble and time averaging.
+        '''
 
         self.num_norms = np.zeros([self.ensemble_size,2])
 
@@ -151,31 +169,18 @@ class Truth(object):
             self.num_norms[ensemble,1] = np.sum(PSDnoise_realisation) # Energy of the signal in the Fourier domain. These norms are equal
             PSD_ensemble += PSDnoise_realisation
 
-        
         avg_PSD = (1.0/self.ensemble_size)*PSD_ensemble # Ensemble averaging
-        self.num_S_estimate = FUDGE_2*(1.0/self.number_of_points)*(avg_PSD) #Taking the limit with respect to time.
+        self.num_S_estimate = NUM_SCALE*(1.0/self.number_of_points)*(avg_PSD) # Taking the limit with respect to time.
 
         #Total Power
         self.num_S_norm = np.sum(self.num_S_estimate) 
         # Difference in num_S_norm and one member of norms[:,1] arises from taking the limit over time. 
         # Difference in height of num_S_norm and true_S_norm at primary signal frequency is because small, non zero energy exists at other frequencies 
-        
         self.num_w_axis = 2.0*np.pi*np.fft.fftfreq(self.number_of_points,d=self.Delta_T_Sampling)
-        
+
         pass  #self.num_w_axis, self.num_S_estimate, self.num_norms, self.num_S_norm
 
 
     def norm_squared(self, signal):
-        '''Returns the magnitude squared of a vector'''
+        '''Returns the magnitude squared of a vector.'''
         return np.sum(np.abs(signal)**2)
-
-
-
-#    def sum_noise(self):
-#        '''
-#        Returns unravelled random variables generated from beta_z for PSD analysis
-#        '''
-#        data = np.zeros([self.ensemble_size, self.true_signal_params[1]])
-##        for en in xrange(self.ensemble_size):
- #           data[en,:] = self.beta_z(self.true_signal_params)[0]
- #       return np.ravel(data)
