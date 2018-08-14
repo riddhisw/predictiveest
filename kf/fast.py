@@ -1,3 +1,19 @@
+'''
+.. module:: kf.fast
+
+    :synopsis: LKFFB implementation with memoryless Kalman filtering. Facilitates exploration of different
+        Prediction methods ('ZeroGain' or 'PropForward') and maximallly generic choices
+        of apriori basis for LKFFB (Basis 'A', 'B', or 'C').
+
+    Module Level Functions:
+    ----------------------
+        makePropForward : Return learned parameters from
+            msmt_record via LKFFB and make predictions for timesteps > n_train.
+        detailed_kf : Return LKFFB predictions.
+
+.. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
+
+'''
 import numpy as np
 #import numba as nb
 import numpy.linalg as la
@@ -9,27 +25,30 @@ from kf.common import (
 
 #@nb.jit(nopython=True) 
 def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_noisetraces, num, n_train, numf):
-    ''' Extracts learned parameters from Kalman Filtering msmt_record and makes predictions for timesteps > n_train
-    
-    Keyword Arguments:
-    ------------------
-    freq_basis_array -- Array containing basis frequencies. [Len: numf. dtype = float64]
-    x_hat -- Aposteriori KF estimates based on msmt_record (real and estimated imaginary components of the state for each basis frequency) [Len: twonumf. dtype = float64]
-    Delta_T_Sampling -- Time interval between measurements. [Scalar int]
-    phase_correction_noisetraces -- Applies depending on choice of basis [Scalar float64]
-    num -- Number of points in msmt_record. [Scalar int]
-    n_train -- Predicted timestep at which algorithm is expected to finish learning [Scalar int]
-    numf -- Number of points (spectral basis frequencies) in freq_basis_array. [Scalar int]
-    
-    Returns: 
-    --------
-    Propagate_Foward -- Output predictions. Non-zero only for n_train < timestep < num. [Len: num. dtype = float64] 
-    instantA -- Instantaneous amplitude calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
-    instantP -- Instantaneous phase calculated based on estimated state x_hat at n_train [Len: numf. dtype = float64] 
-       
+    ''' Extracts learned parameters from Kalman Filtering msmt_record and makes
+        predictions for timesteps > n_train.
+
+    Parameters:
+    ----------
+        freq_basis_array (`float64`): Array containing `numf` number of basis frequencies.
+        x_hat (`float64`): Aposteriori KF estimates based on msmt_record.
+        Delta_T_Sampling (`float64`): Time interval between measurements.
+        phase_correction_noisetraces (`float64`): Applies depending on choice of basis
+        num (`int`): Number of points in msmt_record.
+        n_train (`int`): Predicted timestep at which algorithm is expected to finish learning.
+        numf (`int`): Number of points (spectral basis frequencies) in freq_basis_array.
+
+    Returns:
+    -------
+        Propagate_Foward (`float64`): Output predictions. Non-zero only
+            for n_train < timestep < num.
+        instantA (`float64`): Instantaneous amplitude calculated based on
+            estimated state x_hat [Dim: numf x num]
+        instantP (`float64`): Instantaneous phase calculated based on estimated
+            state x_hat [Dim: numf x num]
     '''
     instantA, instantP = calc_inst_params(x_hat)
-    
+
     ## PROPAGATE FORWARD USING HARMONIC SUMS
     Propagate_Foward = np.zeros((num))
 
@@ -43,74 +62,82 @@ def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_
 
 ZERO_GAIN, PROP_FORWARD = range(2)
 PredictionMethod = {
-    "ZeroGain": ZERO_GAIN, 
+    "ZeroGain": ZERO_GAIN,
     "PropForward": PROP_FORWARD
 }
 
 def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, 
             rk, freq_basis_array, phase_correction=0 ,prediction_method="ZeroGain", 
             skip_msmts=1, descriptor='Fast_KF_Results'):
-    '''    
-    Keyword Arguments:
-    ------------------
-    
-    y_signal -- Array containing measurements for Kalman Filtering. [Dim: 1 x num. dtype = float64]
-    n_train -- Timestep at which algorithm is expected to finish learning [Scalar int]
-    n_testbefore --  Predictions in  zone of msmt data [Scalar int]
-    n_predict -- Predictions outside of msmt data [Scalar int]
-    Delta_T_Sampling -- Time interval between measurements. [Scalar int]
-    x0 -- x_hat_initial -- Initial condition for state estimate, x(0), for all basis frequencies. [Scalar int]
-    p0 -- P_hat_initial -- Initial condition for state covariance estimate, P(0), for all basis frequencies. [Scalar int]
-    oe -- oekalman -- Process noise covariance strength. [Scalar int] 
-    rk -- rkalman -- Measurement noise covariance strength. [Scalar int]
-    freq_basis_array -- Array containing basis frequencies. [Len: numf. dtype = float64]
-    phase_correction -- Basis dependent + prediction method dependent. [Scalar float64]
-    prediction_method -- Basis dependent.  Use Use W=0 OR PropagateForward with Phase Correction.
-    
-    skip_msmts -- Allow a non zero Kalman gain for every n-th msmt, where skip_msmts == n
-    
-    Returns: 
-    --------
-    predictions -- Output predictions. [Len: n_testbefore + n_predict. dtype = float64]
-    InstantA -- Instantaneous amplitudes at n_train use for generating predictions using Prop Forward [len: numf. dtype = float64]
+    ''' Return LKFFB predictions and save LKFFB analysis as .npz file.
 
-    Dimensions:
-    -----------
-    num -- Number of points in msmt_record. [Scalar int]
-    numf -- Number of points (spectral basis frequencies) in freq_basis_array. [Scalar int]
-    twonumf -- 2*numf. (NB: For each basis freq in freq_basis_array, estimators have a real and imaginary parts). [Scalar int]
-    
+    Parameters:
+    ----------
+    y_signal (`float64`): Array containing measurements for Kalman Filtering [Dim: 1 x num].
+    n_train (`int`): Timestep at which algorithm is expected to finish learning.
+    n_testbefore (`int`):  Number of on step ahead predictions prior to n_train
+        which user requires to be returned as output.
+    n_predict (`int`): Predictions outside of msmt data.
+    Delta_T_Sampling (`float64`): Time interval between measurements.
+    x0 (`float64`): x_hat_initial : Initial condition for state estimate, x(0), for all basis
+        frequencies.
+    p0 (`float64`): P_hat_initial : Initial condition for state covariance estimate, P(0),
+        for all basis frequencies.
+    oe (`float64`): oekalman : Process noise covariance strength.
+    rk (`float64`): rkalman : Measurement noise covariance strength.
+    freq_basis_array (`float64`): Array containing basis frequencies.
+    phase_correction (`float64`): Basis dependent + prediction method dependent.
+    prediction_method : Use ZeroGain OR PropagateForward with Phase Correction.
+    skip_msmts : Allow a non zero Kalman gain for every n-th msmt,
+            where skip_msmts == n and skip_msmts=1 implies all measurements
+            can have a non-zero gain.
+
     Known Information for Filter Design:
     -------------------------------------------------------
-    
     a -- Linearised dynamic model - time invariant [Dim: twonumf x twonumf. dtype = float64]
     h -- Linear measurement action - time invariant [Dim: 1 x twonumf. dtype = float64]
     Gamma2, Gamma -- Process noise features [Dim: twonumf x 1. dtype = float64]
     Q -- Process noise covariance.[Dim: twonumf x twonumf. dtype = float64]
-    R -- Measurement noise covariance; equivalent to rkalman for scalar measurement noise. [Scalar float64]
-    
-    
+    R -- Measurement noise covariance; equivalent to rkalman for scalar measurement
+        noise. [Scalar float64]
+
     Variables for State Estimation and State Covariance Estimation:
     ---------------------------------------------------------------
-    x_hat -- Aposteriori estimates (real and estimated imaginary components of the state for each basis frequency)  [Len: twonumf. dtype = float64]
-    x_hat_apriori -- Apriori estimates (real and estimated imaginary components of the state for each basis frequency) [Len: twonumf. dtype = float64]
+    x_hat -- Aposteriori estimates (real and estimated imaginary components
+        of the state for each basis frequency)  [Len: twonumf. dtype = float64].
+    x_hat_apriori -- Apriori estimates (real and estimated imaginary components
+        of the state for each basis frequency) [Len: twonumf. dtype = float64].
     z_proj -- Apriori predicted measurement [Scalar float64]
     e_z -- Residuals, i.e. z - z_proj [Len: num float64]
-    
-    S --  Predicted output covariance estimate (i.e. uncertainty in  z_proj) [Scalar float64] 
-    S_inv -- Inverse of S (NB: R must be a positive definite if S is not Scalar) [Scalar float64]
+    S --  Predicted output covariance estimate (i.e. uncertainty in  z_proj)
+        [Scalar float64].
+    S_inv -- Inverse of S (NB: R must be a positive definite if S is not Scalar)
+        [Scalar float64].
     W -- Kalman gain [Dim: twonumf x 1. dtype = float64]
-    P_hat -- Aposteriori state covariance estimate (i.e. aposteriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
-    P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
-    
-    '''    
+    P_hat -- Aposteriori state covariance estimate (i.e. aposteriori uncertainty
+        in estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
+    P_hat_apriori -- Apriori state covariance estimate (i.e. apriori uncertainty in
+        estimated x_hat) [Dim: twonumf x twonumf. dtype = float64]
+
+    Returns:
+    --------
+    predictions (`float64`): Output predictions [Len: n_testbefore + n_predict].
+    InstantA (`float64`): Instantaneous amplitudes at n_train use for generating predictions
+        using Prop Forward [len: numf].
+
+    Dimensions:
+    -----------
+    num (`int`): Number of points in msmt_record.
+    numf (`int`): Number of points (spectral basis frequencies) in freq_basis_array.
+    twonumf (`int`): 2*numf. (NB: For each basis freq in freq_basis_array, estimators
+        have a real and imaginary parts).
+
+    '''
     return _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, PredictionMethod[prediction_method], skip_msmts, descriptor)
 
 
 def _kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0, oe, rk, freq_basis_array, phase_correction, prediction_method_, skip_msmts, descriptor):
-
-    #print(descriptor)
-    #print(prediction_method_)
+    ''' [Wrapper Function] See kf_2017 docstring for detailed definitions. '''
 
     num = n_train + n_predict
     numf = len(freq_basis_array)
