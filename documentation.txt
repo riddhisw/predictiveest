@@ -1,21 +1,29 @@
 List of documentation to be updated for public publishing
 
-[ ] - MODULE 
+[ ] - PACKAGE 
+    [ ] - MODULES
 
-[ ] - akf
 
-    [ ] - akf_risk_analysis
-    [ ] - armakf
-    [ ] - common
+[DONE] - akf
 
-[ ] - analysis_tools 
+    [DONE] - akf_risk_analysis
+    [DONE] - armakf
+    [DONE] - common
 
-    [ ] - common
-    [ ] - experiment
-    [ ] - kalman
-    [ ] - noisydata
-    [ ] - riskanalysis
-    [ ] - truth
+[DONE] - analysis_tools 
+
+    [DONE] - common
+    [DONE] - experiment
+    [DONE] - kalman
+           
+           FUGDE INSTANCES for runk_KF only [DEPRECIATED]
+           
+    [DONE] - noisydata
+    [DONE] - riskanalysis
+    [DONE] - truth
+    
+           USE OF DEPHASING VS. PHASE NOISE IN ALL DOCS. pick latter.
+           USE OF CLASS.METHOD() OR METHOD() IN ALL DOCS. pick former
 
 [ ] - crlb_paper_v0 
 
@@ -26,12 +34,12 @@ List of documentation to be updated for public publishing
     [ ] - crlb_1.pbs
     [ ] - /archiv
 
-[ ] - data_tools
+[DONE] - data_tools
 
-    [ ] - common
-    [ ] - data_risk_analysis
-    [ ] - data_tuned_run_analysis
-    [ ] - load_raw_cluster_data
+    [DONE] - common
+    [DONE] - data_risk_analysis
+    [DONE] - data_tuned_run_analysis
+    [DONE] - load_raw_cluster_data
     
 [ ] - env
 
@@ -41,21 +49,21 @@ List of documentation to be updated for public publishing
     [ ] - numba_failed_to_build_on_cluster
     [ ] - pip-selfcheck
     
-[ ] - gpr
+[DONE] - gpr
 
-    [ ] - common
-    [ ] - GPRP_risk_analysis
+    [DONE] - common
+    [DONE] - GPRP_risk_analysis
     
-[ ] - kf
+[DONE] - kf
 
-    [ ] - common
-    [ ] - detailed
-    [ ] - fast
-    [ ] - fast_2
+    [DONE] - common
+    [DONE] - detailed
+    [DONE] - fast
+    [DONE] - fast_2
     
 [ ] - ls
 
-    [ ] - common
+    [DONE] - common
     [ ] - statePredictions_2
     [ ] - LSF_risk_analysis
     [ ] - statePredictions
