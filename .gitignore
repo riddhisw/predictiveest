@@ -1,3 +1,10 @@
+# Non public repositories
+riccatti_solver/
+plot_tools/
+ml_paper_v0/
+env/
+crlb_paper_v0/
+
 # Exclude volitile data.
 *.npz
 *.svg
