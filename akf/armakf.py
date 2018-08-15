@@ -90,8 +90,8 @@ def autokf(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50,
         weights (`float64`) : Coefficients of an AR(q) process  [Dim: 1 x order].
         oe (`float64`) : Kalman process noise variance parameter [Dim: 1 x 1].
         rk (`float64`) : Kalman measurement noise variance parameter [Dim: 1 x 1].
-            Defaults to 1000.
         n_train (`int`, optional) : Number of measurements during state estimation [Dim: 1 x 1].
+            Defaults to 1000.
         n_testbefore (`int`, optional) : Number of time-steps before training ceases [Dim: 1 x 1].
             Defaults to 50.
         n_predict (`int`, optional) : Number of time-steps after training ceases [Dim: 1 x 1].

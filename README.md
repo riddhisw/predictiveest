@@ -33,4 +33,8 @@ At present, the kernel being testing is the Periodic Kernel.
 
 **ls** The purpose of ls package is to return LSF Predictions using a modified version of Virginia Frey and Sandeep Mavadia's LS Filter (statePredictions.py)
 
-**qif**: The purpose of kqf package is to implement Quantised Kalman Filtering (QKF) using AKF dynamics and single shot qubit outcomes [WIP]
+**qif**: The purpose of kqf package is to implement Quantised Kalman Filtering (QKF) using AKF dynamics and single shot qubit outcomes.
+
+#### REFERENCES: 
+
+Please see reference list in the publication above.

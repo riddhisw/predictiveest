@@ -1,3 +1,37 @@
+'''
+Created on Thu Apr 20 19:20:43 2017
+@author: riddhisw
+
+.. module:: qif.common
+
+    :synopsis: Lists functions required for the analysis and execution of a Quantised
+        Kalman Filter (QKF).
+
+    Module Level Functions:
+    ----------------------
+        noisy_z : Return noisy simulated measurment outcomes by making measurements
+            on evolution of an internal (hidden) state.
+        projected_msmt : Return a qubit measurement outcome based on an estimate
+            of relative stochastic qubit phase under dephasing.
+        one_shot_msmt : Return a single shot qubit measurement, with Born probaility
+            for measuring an up state specified as p.
+        generate_AR : Return a num-length autoregressive (AR) sequence of order q.
+        calc_h : Return Kalman state-dependent measurement model h(x).
+        calc_H : Return Jacobian matrix d/dx h(x) where h(x) is a non linear measurement
+            model and order refers to AR(order) process.
+        propagate_x : Return x_hat_apriori i.e. state propagation without a Kalman update.
+        propagate_p : Return P_hat_apriori i.e. state covariance propagation
+            without a Kalman update.
+        calc_gain : Return the Kalman gain and scalar S for performing state updates,
+            with linearised, state-dependent h(x) as measurement model.
+        saturate : Saturates p between [-threshold, threshold] for a one bit
+            quantiser [Helper function].
+        qkf_state_err :  Return state estimates from QKF output [Helper function].
+        normalise : Return normalised input state vector. [Helper function].
+
+.. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
+'''
+
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
@@ -9,7 +43,7 @@ from scipy.special import erf as erf_func
 ############################################### QIF Bayes Risk Helper Funcs ####
 
 def qkf_state_err(x_states, truths):
-    '''Return state estimates from QKF output [Helper function]'''
+    '''Return state estimates from QKF output [Helper function].'''
 
     errs = (x_states - truths)**2
     avg_err_sqr = np.mean(errs, axis=0)
@@ -17,7 +51,7 @@ def qkf_state_err(x_states, truths):
     return avg_err_sqr
 
 def normalise(x):
-    '''Helper function for Bayes Risk calculation'''
+    '''Return normalised input state vector. [Helper function].'''
     norm = np.linalg.norm(x)
     if norm != 0.:
         return x / norm
@@ -135,9 +169,9 @@ def projected_msmt(z_proj):
 
 def noisy_z(x, rk, saturate_='Yes'):
 
-    ''' Return noisy z  (simulated measurment outcomes) by measuring a sequence of true,
-    unobservable state, x, via a (non-linear) measurement model and subject
-    to measurement noise.
+    ''' Return noisy simulated measurment outcomes by making measurements
+        on evolution of an internal (hidden) state, x, via a (non-linear)
+        measurement model and subject to Gaussian white measurement noise.
 
     Parameters:
     ----------
@@ -149,8 +183,8 @@ def noisy_z(x, rk, saturate_='Yes'):
 
     Returns:
     -------
-        z (`float64`):  Output random process obtained by measuring 
-            x according to a known measurement model, and further 
+        z (`float64`):  Output random process obtained by measuring
+            x according to a known measurement model, and further
             corrupted by measurement noise.
     '''
     z = np.zeros(x.shape[0])
@@ -179,7 +213,7 @@ def noisy_z(x, rk, saturate_='Yes'):
     return saturated_z
 
 def calc_h(x_hat_apriori):
-    ''' Returns h(x)'''
+    ''' Return Kalman state-dependent measurement model h(x)'''
 
     # # Linear Msmt Model
     # h = x_hat_apriori[0]
@@ -189,7 +223,7 @@ def calc_h(x_hat_apriori):
     return h
 
 def calc_H(x_hat_apriori_):
-    ''' Returns Jacobian matrix d/dx h(x) where h(x) is a non linear measurement model and order
+    ''' Return Jacobian matrix d/dx h(x) where h(x) is a non linear measurement model and order
     refers to AR(order) process.
 
     h(x[0]) = 0.5 + 0.5 * cos(x[0]) and 0 elsewhere x[1:]
@@ -225,7 +259,7 @@ def propagate_x(a, x_hat):
     return np.dot(a, x_hat)
 
 def propagate_p(a, P_hat, Q):
-    '''Returns P_hat_apriori i.e. state covariance propagation without a Kalman update.
+    '''Return P_hat_apriori i.e. state covariance propagation without a Kalman update.
 
     Parameters:
     ----------
@@ -241,7 +275,22 @@ def propagate_p(a, P_hat, Q):
     return np.dot(np.dot(a, P_hat),a.T) + Q
 
 def calc_gain(x_hat_apriori, P_hat_apriori, rk):
-    '''Returns the kalman gain with linearised h(x) as msmt model
+    ''' Return the Kalman gain and scalar S for performing state updates,
+        with linearised, state-dependent h(x) as measurement model.
+
+    Parameters:
+    ----------
+        P_hat_apriori (`float64`) : Kalman state variance matrix.
+        rk (`float64`) : Kalman measurement noise variance scale.
+        x_hat_apriori (`float64`) : Kalman state vector required for
+            defining a state-dependent measurement model.
+
+    Returns:
+    -------
+        W : Kalman gain / Bayesian update for Kalman state estimates.
+        S : Intermediary covariance matrix for calculating Kalman gain.
+            NB: S can be a matrix iff rk is a matrix, and S_inv = np.linalg.inverse(S)
+            instead of 1.0/S.
     '''
 
     # Jacobian of msmt model
