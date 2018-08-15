@@ -33,7 +33,8 @@ def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_
         freq_basis_array (`float64`): Array containing `numf` number of basis frequencies.
         x_hat (`float64`): Aposteriori KF estimates based on msmt_record.
         Delta_T_Sampling (`float64`): Time interval between measurements.
-        phase_correction_noisetraces (`float64`): Applies depending on choice of basis
+        phase_correction_noisetraces (`float64`): Applies depending on choice of
+            basis and prediction method.
         num (`int`): Number of points in msmt_record.
         n_train (`int`): Predicted timestep at which algorithm is expected to finish learning.
         numf (`int`): Number of points (spectral basis frequencies) in freq_basis_array.

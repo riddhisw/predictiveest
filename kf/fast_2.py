@@ -38,7 +38,7 @@ def makePropForward(freq_basis_array, x_hat, Delta_T_Sampling, phase_correction_
         phase_correction_noisetraces (`float64`): Applies depending on choice of basis
         num (`int`): Number of points in msmt_record.
         n_train (`int`): Predicted timestep at which algorithm is expected to finish learning.
-        numf (`int`): Number of points (spectral basis frequencies) in freq_basis_array.
+        numf (`int`): Number of spectral basis frequencies in freq_basis_array.
 
     Returns:
     -------
@@ -89,7 +89,8 @@ def kf_2017(y_signal, n_train, n_testbefore, n_predict, Delta_T_Sampling, x0, p0
     oe (`float64`): oekalman : Process noise covariance strength.
     rk (`float64`): rkalman : Measurement noise covariance strength.
     freq_basis_array (`float64`): Array containing basis frequencies.
-    phase_correction (`float64`): Basis dependent + prediction method dependent.
+    phase_correction (`float64`): Phase correction term as dependent on choice 
+        of built-in Basis and Prediction Method.
     prediction_method : Use ZeroGain OR PropagateForward with Phase Correction.
     skip_msmts : Allow a non zero Kalman gain for every n-th msmt,
             where skip_msmts == n and skip_msmts=1 implies all measurements
