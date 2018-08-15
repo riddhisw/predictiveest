@@ -1,20 +1,49 @@
+#########################################################################
+#########         Optimal prediction code written by            #########
+#########        Virginia Frey and Sandeep Mavadia 2016         #########
+#########################################################################
+# 
+#########################################################################
+#########           Modified by Riddhi Gupta (2017)           ###########
+#########################################################################
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import time
 from matplotlib.colors import LogNorm
 from matplotlib import ticker
 
-''' State prediction for FS experiments with various parameters '''
+''' State prediction for FS experiments with various parameters.
 
+Version: 0  Module: `statePredictions`
+            Authors: Virginia Frey and Sandeep Mavadia
+            Year: 2016
 
-
-    
+Version: 1  Module: `statePredictions_2`
+            Modifed by: Riddhi Gupta
+            Year: 2017
+            Details: Modified function calls to access alpha-learnng hyperparameter
+                     in gradient descent as an additional parameter for tuning
+                     in LSF.
+'''
 
 def build_training_dataset(measured, engineered=np.array([]),
                            past_msmts=3, steps_forward=1, steps_between_msmts=1,include_offset=True):
     ''' Creates a matrix based on measured data that can then be used for linear regression via gradient
         descent.
+        Input:
+            measured                1D data set
+            engineered              (optional) 1D dataset if we want to predict using features of a second dataset
+                                    (for experimental purposes, not actually in use)
+            past_msmts              The number of labels (past measurements) to be included in the calculation
+            steps_forward           (optional) discrete steps forward in the data set
+            steps_between_msmts     (optional) discrete steps between points in the data set
+            include_offset          (optional) includes a DC offset for which a coefficient will be calculated
 
+        Returns:
+            new_dataset             A matrix whose first column contains all the labels we want to predict and
+                                    the other columns contain the corresponding features
         '''
 
     if engineered.size != 0:
@@ -81,6 +110,10 @@ def gradient_summand(weights,actual_values,past_measurements):
 def get_predictions(weights,past_measurements):
     '''  Calculates the prediction for each point in actual_values by multiplying the weights
          and the past measurements.
+
+         Dimensions:
+            weights (dx1)
+            past_measurements (nxd)
 
          predictions is a (nx1) column vector
              ''' 
