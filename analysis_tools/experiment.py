@@ -6,7 +6,8 @@
 
     Module Level Classes:
     ----------------------
-        Experiment : Maintain experimentally controlled parameters and derived quantities.
+        Experiment : Maintain experimentally controlled parameter regimes and 
+            derived quantities.
 
 .. moduleauthor:: Riddhi Gupta <riddhi.sw@gmail.com>
 

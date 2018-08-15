@@ -2,10 +2,10 @@
 Created on Thu Apr 20 19:20:43 2017
 @author: riddhisw
 
-.. module:: gpr.GPRP_tuned_runs
+.. module:: gpr.GPRP_risk_analysis
 
-    :synopsis: Return GPR predictions via GPy (Periodic Kernel);
-        with L-BFGS-B optimmisation.
+    :synopsis: Calculates GPy predictions and tunes algorithms
+         according to lowest Bayes Risk.
 
     Module Level Classes:
     --------------------

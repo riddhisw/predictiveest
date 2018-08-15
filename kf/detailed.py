@@ -1,5 +1,5 @@
 '''
-.. module:: kf.common
+.. module:: kf.detailed
 
     :synopsis: LKFFB implementation with detailed data retention of key Kalman
         state variables and derived quantities. Facilitates exploration of different

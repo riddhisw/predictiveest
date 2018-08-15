@@ -9,13 +9,13 @@ It is possible to code all algorithms based on the research publication alone, a
 
 In addition to the publication above, we publish Python packages associated with the paper. Each Python package was designed to support evolving research needs, and hence, software not been designed with the objective to efficiently deploy core algorithms by non-authors (third parties.) Many Python objects were developed to support data generation, data management, specific research questions, and error handling. 
 
-For ease of reference, the following modules directly link to algorithms reported in the paper:
+For ease of reference, the following Python modules directly link to algorithms reported in the paper:
 
     LSF : ls.LSF_risk_analysis
     LKFFB : kf.fast_2 (light LKFFB), kf.detailed (full LKFFB)
     AKF : akf.armakf
     QKF : qif.qif
-
+    GPR : Implemented via GPy. See also: gpr.GPRP_risk_analysis.
 For questions regarding the publication and supporting code, please contact me at riddhi.sw@gmail.com.
 
 #### SELECTED PYTHON PACKAGES
@@ -33,8 +33,8 @@ At present, the kernel being testing is the Periodic Kernel.
 
 **ls** The purpose of ls package is to return LSF Predictions using a modified version of Virginia Frey and Sandeep Mavadia's LS Filter (statePredictions.py)
 
-**qif**: The purpose of kqf package is to implement Quantised Kalman Filtering (QKF) using AKF dynamics and single shot qubit outcomes.
+**qif**: The purpose of qif package is to implement Quantised Kalman Filtering (QKF) using AKF dynamics and single shot qubit outcomes.
 
 #### REFERENCES: 
 
-Please see reference list in the publication above.
+Please see full reference list in the publication above.
