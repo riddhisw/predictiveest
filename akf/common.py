@@ -32,7 +32,7 @@ def fetch_weights(dataobject, choose_stp_fwds=1):
         chosen_weights (`float64`):  AR(q) coefficient estimates based on LSF output [Dim: 1 x q].
     '''
 
-    LSF_mean_weights = np.mean(dataobject.LSF_macro_weights[:,:,:,0],  axis=0)
+    LSF_mean_weights = np.mean(dataobject.LSF_macro_weights[:, :, :, 0], axis=0)
 
     # choose_stp_fwds = 1 implies we choose the best model,
     # i.e. the one step ahead weights in AR(q) LSF

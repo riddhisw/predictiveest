@@ -22,7 +22,7 @@ import sys
 sys.path.append('../')
 
 from akf.armakf import get_autoreg_model
-from qif.common import calc_residuals, calc_gain, projected_msmt, propagate_x, propagate_p, update_p, calc_z_proj, projected_msmt
+from qif.common import calc_residuals, calc_gain, projected_msmt, propagate_x, propagate_p, update_p, calc_z_proj
 
 
 def qif(descriptor, y_signal, weights, oe, rk, n_train=1000, n_testbefore=50, 
