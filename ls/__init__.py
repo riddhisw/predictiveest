@@ -8,7 +8,6 @@
                  (statePredictions.py)
         LSF_risk_analysis :  Tunes LSF to appropriate alpha_0 value for LSF algorithm;
             generates predictions.
-        statePredictions_2 : Modified version of `statePredictions` module.
         statePredictions : Least Squares Filter as developed by Virginia Frey and
             Sandeep Mavadia (2016).
 
