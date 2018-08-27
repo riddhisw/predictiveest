@@ -1,12 +1,11 @@
-#########################################################################
-#########         Optimal prediction code written by            #########
-#########        Virginia Frey and Sandeep Mavadia 2016         #########
-#########################################################################
-# 
-#########################################################################
-#########           Modified by Riddhi Gupta (2017)           ###########
-#########################################################################
+'''
+This module contains functions written for the predictive state estimation work published in
 
+S. Mavadia et al., "Prediction and real-time compensation of qubit decoherence via machine learning",
+Nature Communications 8, 14106 (2017)
+
+The gradient descent functions have been adapted from the edX course "".
+'''
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,22 +13,8 @@ import time
 from matplotlib.colors import LogNorm
 from matplotlib import ticker
 
-''' State prediction for FS experiments with various parameters.
-
-Version: 0  Module: `statePredictions`
-            Authors: Virginia Frey and Sandeep Mavadia
-            Year: 2016
-
-Version: 1  Module: `statePredictions_2`
-            Modifed by: Riddhi Gupta
-            Year: 2017
-            Details: Modified function calls to access alpha-learnng hyperparameter
-                     in gradient descent as an additional parameter for tuning
-                     in LSF.
-'''
-
 def build_training_dataset(measured, engineered=np.array([]),
-                           past_msmts=3, steps_forward=1, steps_between_msmts=1,include_offset=True):
+                           past_msmts=3, steps_forward=1, steps_between_msmts=1, include_offset=True):
     ''' Creates a matrix based on measured data that can then be used for linear regression via gradient
         descent.
         Input:
