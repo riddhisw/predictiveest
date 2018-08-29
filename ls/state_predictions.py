@@ -4,7 +4,7 @@ This module contains functions written for the predictive state estimation work 
 S. Mavadia et al., "Prediction and real-time compensation of qubit decoherence via machine learning",
 Nature Communications 8, 14106 (2017)
 
-The gradient descent functions have been adapted from the edX course "".
+The gradient descent functions have been adapted from the edX course "Scalable Machine Learning BerkeleyX - CS190.1x".
 '''
 
 import matplotlib.pyplot as plt
