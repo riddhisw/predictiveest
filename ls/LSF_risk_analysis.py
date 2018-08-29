@@ -20,7 +20,7 @@ import sys
 import numpy as np
 sys.path.append('../')
 
-from ls import statePredictions as sp
+from ls import state_predictions as sp
 
 from data_tools.load_raw_cluster_data import LoadExperiment as le
 from data_tools.data_risk_analysis import sort_my_vals
