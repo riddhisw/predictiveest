@@ -1,8 +1,11 @@
-#########################################################################
-#########         Optimal prediction code written by            #########
-#########        Virginia Frey and Sandeep Mavadia 2016         #########
-#########################################################################
+'''
+This module contains functions written for the predictive state estimation work published in
 
+S. Mavadia et al., "Prediction and real-time compensation of qubit decoherence via machine learning",
+Nature Communications 8, 14106 (2017)
+
+The gradient descent functions have been adapted from the edX course "Scalable Machine Learning BerkeleyX - CS190.1x".
+'''
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,12 +13,8 @@ import time
 from matplotlib.colors import LogNorm
 from matplotlib import ticker
 
-''' State prediction for FS experiments with various parameters '''
-
-    
-
 def build_training_dataset(measured, engineered=np.array([]),
-                           past_msmts=3, steps_forward=1, steps_between_msmts=1,include_offset=False):
+                           past_msmts=3, steps_forward=1, steps_between_msmts=1, include_offset=True):
     ''' Creates a matrix based on measured data that can then be used for linear regression via gradient
         descent.
         Input:
@@ -44,9 +43,9 @@ def build_training_dataset(measured, engineered=np.array([]),
                                    
     m = measured.shape[0]               # Total number of data points
 
-    n = past_msmts                                  # number of past measurements to be used for prediction
-    k = steps_forward   + steps_between_msmts -1    # steps forward
-    s = steps_between_msmts                         # steps between measurements
+    n = past_msmts                      # number of past measurements to be used for prediction
+    k = steps_forward   + steps_between_msmts -1                # steps forward
+    s = steps_between_msmts             # steps between measurements
 
 
     if include_offset == False:
@@ -88,7 +87,7 @@ def gradient_summand(weights,actual_values,past_measurements):
         gSummands is a (nxd) matrix where each row corresponds to the gradient summand
         for one particular prediction.
             '''
-    gSummands = (np.dot(past_measurements,weights) - actual_values) * past_measurements
+    gSummands = (np.dot(past_measurements,weights)- actual_values) * past_measurements
     return gSummands
     
     
@@ -107,7 +106,7 @@ def get_predictions(weights,past_measurements):
     return predictions
 
 
-def gradient_descent(training_data,numIters,alpha_coeff=0.5):
+def gradient_descent(training_data,numIters,initial_weights=0,alpha_coeff=0.05):
     ''' Linear regression via gradient descent.
 
         training_data: (nxd) matrix containing where each row contains the msmt value that is
@@ -136,30 +135,66 @@ def gradient_descent(training_data,numIters,alpha_coeff=0.5):
     past_measurements = training_data[:,1:d]                # extract past msmts used for prediction
                                                             # and save in a nx(d-1) array
 
-    weights = np.zeros((d-1,1))                             # initial values for the weights and gradient                                                     
+    weights = np.zeros((d-1,1))                             # initial values for the weights and gradient
+    #weights = np.ones((d-1,1))                                                        
     gradient = np.zeros((d-1,1))                            # weights, gradient are column vectors
     alpha = alpha_coeff                                     # gain factor
 
-    weights[0,0] = 1                                       # same situation as in traditional feedback
+    weights[0,0] += 1                                       # same situation as in traditional feedback
+    #weights *= initial_weights
 
+    #print 'In gradient_descent:',training_data[0,:]
     errorTrain = np.zeros(numIters)
-        
-    for i in range(numIters):
-        predicted_values = get_predictions(weights,past_measurements)   # calculate predictions with current weights
-        errorTrain[i] = rms_error(actual_values,predicted_values)       # and the RMS error
+    
+    no_of_repetitions = 0
+    while True:
 
-        gradient[:,0] = np.sum(gradient_summand(weights,actual_values,  
-                                            past_measurements),axis=0) # Sum up all the rows in gradient_summand
-                                                
-        alpha_i = alpha / (n * np.sqrt(i+1))
-        weights = weights - alpha_i * gradient              # update the weights
-         
+        if no_of_repetitions > 10:
+            print 'WARNING: \t In gradient_descent: no convergence after 25 repetitions.'
+            print 'last error_difference: '+str(error_difference)
+            break
+        
+        for i in range(numIters):
+            predicted_values = get_predictions(weights,past_measurements)   # calculate predictions with current weights
+            errorTrain[i] = rms_error(actual_values,predicted_values)       # and the RMS error 
+
+
+            gradient[:,0] = np.sum(gradient_summand(weights,actual_values,  
+                                                past_measurements),axis=0) # Sum up all the rows in gradient_summand
+                                                    
+            alpha_i = alpha / (n * np.sqrt(i+1))
+            weights = weights - alpha_i * gradient              # update the weights
+
+        error_difference = abs(errorTrain[-1]-errorTrain[-2])
+        if  error_difference < 0.005:
+            #print 'last error_difference:',error_difference
+            break
+        
+        if no_of_repetitions == 0:
+            previous_error_difference = error_difference
+            alpha *= 1.03 # increase alpha
+            no_of_repetitions += 1
+            print 'Gradient descent: first error_difference='+str(error_difference)
+            continue
+        if no_of_repetitions == 1:
+            if error_difference < previous_error_difference:
+                increase_alpha = True
+                #print 'increase: second error_difference='+str(error_difference)
+            else:
+                increase_alpha = False  # we have to decrease alpha instead
+                #print 'decrease: second error_difference='+str(error_difference)
+
+        alpha = alpha*2 if increase_alpha == True else  alpha/2
+            
+        no_of_repetitions += 1
+   
+            
     return weights , errorTrain
         
 
 
     
-def calculate_range_of_predictions(measured, engineered=np.array([]), alpha_=0.5,
+def calculate_range_of_predictions(measured, engineered=np.array([]),
                            max_past_msmts=3, max_steps_forward=1, steps_between_msmts=1,pct=-1, validation_dataset = np.array([])):
     '''
         Creates a dataset with variable numbers of past measurements used for predictions and steps forward based
@@ -211,15 +246,21 @@ def calculate_range_of_predictions(measured, engineered=np.array([]), alpha_=0.5
             train_data = build_training_dataset(measured[0:n],              # build datasets for gradient_descent
                                                 engineered[0:n],i+1,j+1,sbm)
 
-            weights[i,j], errorTrain[i,j] = gradient_descent(train_data, numIters, alpha_coeff=alpha_) # perform regression
+            weights[i,j], errorTrain[i,j] = gradient_descent(train_data,numIters) # perform regression
 
             rms_training_data[i,j] = errorTrain[i,j][-1]            # the RMS of the training dataset is just the
                                                                     # last value in 'errorTrain'
 
             if abs(errorTrain[i,j][-2] - errorTrain[i,j][-1]) > 0.01:
-                pass#print 'WARNING: slow convergence for '+str(i+1)+' past msmts and '+str(j+1)+' steps forward.'
+                print 'WARNING: slow convergence for '+str(i+1)+' past msmts and '+str(j+1)+' steps forward.'
 
-                                                                  
+            #s = train_data.shape; d=s[1]; r=s[0]                    # number of columns and rows
+            #actual_values = np.zeros((r,1))
+            #actual_values[:,0] = train_data[:,0]
+            #predictions = get_predictions(weights[i,j],train_data[:,1:d])         # calculate predictions and RMS
+            #rms_training_data[i,j] = rms_error(actual_values,predictions)         # errors for the validation data
+            
+                                                                    
             if use_validation_data == True or use_ext_validation_data == True:      # Use validation data, either internal or external
                 if use_validation_data == True:
                     validation_data = build_training_dataset(measured[n:m],         # Use a certain percentage of the given dataset for validation
@@ -269,6 +310,9 @@ def traditional_feedback(measured, engineered=np.array([]),
         for j in range(0,no_of_points):
             actual_values[j] = engineered[j+steps_forward+sbm-1]
             predicted_values[j] = measured[j]
+            
+        #print actual_values
+        #print predicted_values
         TFB_rms_errors[steps_forward-1] = rms_error(actual_values,predicted_values)
 
     return TFB_rms_errors
@@ -360,10 +404,33 @@ def prepare_plot(data, TFB_data=np.array([]), ColourBarMin=0,ColourBarMax=0,LogS
 
     return fig,ax
 
+    
+   
+def main():
+    
+    # junk dataset to see it's working
+    measured = np.zeros(11)
+    engineered = np.zeros(11)
+
+    for i in range(0,11):
+        measured[i] = i
+        engineered[i] = 50 + i
+
+    data = build_training_dataset(measured,engineered,3,1,3)
+    print data
+
+    print traditional_feedback(measured,engineered,1,3)
+    
+
+    # real dataset
+
+    #engineered = np.loadtxt("Sep30_4_appliednoise.txt",skiprows=2)
+    #measured = np.loadtxt("Sep30_4_qubit.txt",usecols=(1,))
+    return
+
 
 if __name__ == '__main__':
-    
-    pass
+    main()
 
 
 
